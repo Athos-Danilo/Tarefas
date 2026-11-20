@@ -1,6 +1,6 @@
-# Planejamento técnico — Horizonte Vivo (nome provisório)
+# Planejamento técnico — Lume
 
-Este documento consolida a arquitetura, a stack tecnológica, a divisão poliglota de dados, a estratégia de renderização 3D híbrida, a segurança e a infraestrutura de execução local e publicação gratuita do projeto. Todas as implementações seguem as regras de [Regras.md](../Agents/Regras.md) e os requisitos de [Detalhes.md](Detalhes.md).
+Este documento consolida a arquitetura, a stack tecnológica, a divisão poliglota de dados, a estratégia de renderização 3D híbrida, a segurança e a infraestrutura de execução local e publicação gratuita do projeto **Lume**. Todas as implementações seguem as regras de [Regras.md](../Agents/Regras.md), o sistema visual de [Guia-visual.md](Guia-visual.md) e os requisitos de [Detalhes.md](Detalhes.md).
 
 ## 1. Ambiente local verificado (20/11/2026)
 
@@ -27,7 +27,7 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 
 ### 2.2 Frontend & Ecossistema de Design (React + TypeScript + Vite)
 - **Núcleo:** `React`, `TypeScript` (`strict: true`), `Vite`.
-- **Estilização e Design System:** `Tailwind CSS v4` alimentado por variáveis CSS semânticas dinâmicas que respondem em tempo real aos 4 momentos do dia (`manha`, `tarde`, `crepusculo`, `noite`).
+- **Estilização e Design System:** `Tailwind CSS v4` alimentado por variáveis CSS semânticas dinâmicas com **interpolação cromática contínua ao longo das 24 horas** (sobre os keyframes da direção *Alvorada Poética* nos 4 momentos — `manha`, `tarde`, `crepusculo`, `noite`), utilizando faixas de polaridade luminosa e noturna para preservar contraste WCAG AA (`>= 4.5:1`) em todos os 1.440 minutos do dia.
 - **Primitivos acessíveis:** `Radix UI` (diálogos, menus, popovers, seletores e tooltips com foco e teclado acessíveis).
 - **Animações de interface:** `motion` (Framer Motion) para transições fluidas, microinterações e layouts animados (respeitando `prefers-reduced-motion`).
 - **Arrastar e soltar acessível:** `@dnd-kit` para reordenação manual e movimentação de tarefas na Jornada do Dia com suporte a ponteiro e teclado.
@@ -36,7 +36,8 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 - **Mapa Visual de Constelação / Ramos:** `@xyflow/react` ou motor SVG/Canvas 2D customizado — escolha técnica e visual a ser fechada na decisão `D11` (Fase 04/05).
 - **Dados, formulários e estado:** `@tanstack/react-query` (cache e sincronização com a API), `react-hook-form` + `zod` (validação tipada de formulários), `zustand` (estado efêmero de UI, Modo Simulador do Arco do Dia e controlador de foco/áudio).
 - **Iconografia e ilustrações:** `Lucide React` combinado com SVGs autorais para ícones botânicos, fases lunares e constelações.
-- **Tipografia:** trio tipográfico (**Display poética + Sans limpa + Mono tabular para horários/timers**), com fontes hospedadas localmente no frontend após aprovação em `D03`.
+- **Tipografia:** trio tipográfico aprovado em `D03` (**`Fraunces`** Display + **`Plus Jakarta Sans`** Sans UI + **`JetBrains Mono`** Mono tabular para horários/timers), com uso expressivo de **bold** e **itálico** em títulos, saudações, Modo Foco e notas ricas (`ID-17`), hospedando localmente todas as variantes (incluindo itálicos) sob licença `SIL OFL 1.1`.
+- **Responsividade:** arquitetura **desktop-first** (base principal para computador) com layout fluido e componentes adaptados para total usabilidade em **tablets e celulares** (`ID-18`).
 - **Qualidade e TDD:** `Vitest`, `@testing-library/react`, `@testing-library/user-event`, `Playwright` (testes E2E e inspeção visual), `ESLint` e `Prettier`.
 
 ## 3. Estratégia de renderização 3D híbrida e desempenho
@@ -44,12 +45,12 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 Para entregar um visual cinematográfico sem comprometer legibilidade, acessibilidade nem dispositivos simples:
 
 1. **Cenário 3D vivo ao fundo (`CenarioDoHorizonte`):**
-   - Céu procedural / shader suave variando por hora e momento do dia (`manha`, `tarde`, `crepusculo`, `noite`), arco orbital real do Sol e da Lua (com fase lunar), campo de estrelas e constelações panorâmicas 3D que se iluminam conforme as tarefas compostas avançam, além de jardim estilizado low-poly/instanciado em camadas.
+   - Céu procedural / shader com **transição cromática contínua ao longo das 24 horas** (sobre os keyframes de *Alvorada Poética* atravessando `manha`, `tarde`, `crepusculo` e `noite`), arco orbital real do Sol e da Lua (com fase lunar), campo de estrelas, vagalumes e constelações panorâmicas 3D que se iluminam conforme as tarefas compostas avançam, além de jardim estilizado low-poly/instanciado em camadas.
    - Uso de `InstancedMesh`, controle de `dpr` (`devicePixelRatio`), pausa automática em aba inativa e descarte explícito de recursos WebGL ao desmontar.
 2. **Camada 2D de alta nitidez por cima:**
-   - Todos os textos, listas hierárquicas, formulários, notas ricas, Calendário Mensal, Modo Foco e o editor interativo do Mapa Constelação/Ramos são renderizados em DOM/SVG nítido com superfícies translúcidas de alto contraste adaptadas a cada momento do dia.
+   - Todos os textos, listas hierárquicas, formulários, notas ricas, Calendário Mensal, Modo Foco e o editor interativo do Mapa Constelação/Ramos são renderizados em DOM/SVG nítido com superfícies translúcidas que acompanham a progressão horária sem cruzar a faixa de baixo contraste.
 3. **Modo Desempenho / Fallback 2D obrigatório:**
-   - Substitui a cena WebGL por uma paisagem equivalente em camadas SVG/CSS suaves com as mesmas 4 atmosferas, garantindo funcionamento integral quando:
+   - Substitui a cena WebGL por uma paisagem equivalente em camadas SVG/CSS suaves com a mesma interpolação contínua de 24h, garantindo funcionamento integral quando:
      - O usuário ativa o **Modo Desempenho** nas preferências;
      - O navegador ou ambiente de CI não suporta contexto WebGL;
      - O sistema operacional sinaliza `prefers-reduced-motion: reduce`.
@@ -64,8 +65,11 @@ Tarefas/
 │   └── Regras.md
 ├── Doc/
 │   ├── Detalhes.md
+│   ├── Guia-visual.md
+│   ├── Identidade-visual/
 │   ├── Planejamento-tecnico.md
 │   ├── Processo-de-desenvolvimento-com-IA.md
+│   ├── Registro-de-ideias-e-decisoes.md
 │   └── Roteiro-primeira-entrega.md
 ├── Backend/
 │   ├── pyproject.toml

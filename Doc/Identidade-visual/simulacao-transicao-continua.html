@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lume — Simulação de Transição Cromática Contínua 24h (Alvorada Poética)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --fonte-display: 'Fraunces', Georgia, serif;
+      --fonte-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --fonte-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --ceu-topo: #B5DFF8;
+      --ceu-meio: #E2F2F8;
+      --ceu-base: #F7F1E1;
+      --superficie: rgba(255, 253, 248, 0.92);
+      --superficie-solida: #FFFDF8;
+      --superficie-alt: #F1EDE0;
+      --borda: rgba(23, 36, 48, 0.16);
+      --texto: #172430;
+      --texto-sec: #4A5D6E;
+      --primaria: #256B4E;
+      --primaria-texto: #FFFFFF;
+      --secundaria: #B55E0B;
+      --sucesso: #256B4E;
+      --erro: #B8293D;
+      --prio-baixa: #2F6F4E;
+      --prio-media: #1D5C87;
+      --prio-alta: #A6540A;
+      --prio-urgente: #B8293D;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--fonte-sans);
+      color: var(--texto);
+      background: linear-gradient(180deg, var(--ceu-topo) 0%, var(--ceu-meio) 54%, var(--ceu-base) 100%);
+      padding: 22px 16px 44px;
+      transition: color 340ms ease;
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--primaria);
+      outline-offset: 2px;
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .painel {
+      background: var(--superficie);
+      border: 1px solid var(--borda);
+      border-radius: 22px;
+      padding: 20px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 40px rgba(8, 12, 24, 0.14);
+      transition: background-color 420ms ease, color 320ms ease, border-color 320ms ease;
+    }
+
+    .titulo-display {
+      font-family: var(--fonte-display);
+      letter-spacing: -0.02em;
+      line-height: 1.12;
+      margin: 0;
+    }
+
+    .mono {
+      font-family: var(--fonte-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .barra-topo {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .controles-linha {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn {
+      border: 1px solid var(--borda);
+      background: var(--superficie-alt);
+      color: var(--texto);
+      font-family: var(--fonte-sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 13px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background-color 280ms ease, color 280ms ease, transform 120ms ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.ativo {
+      background: var(--primaria);
+      color: var(--primaria-texto);
+      border-color: transparent;
+    }
+
+    .trilho-espectro {
+      display: grid;
+      gap: 6px;
+    }
+
+    .espectro-24h {
+      height: 14px;
+      border-radius: 999px;
+      border: 1px solid var(--borda);
+      background: linear-gradient(90deg,
+        #070C1A 0%,
+        #0C1229 20%,
+        #E79B9B 24%,
+        #B5DFF8 31%,
+        #87C8F2 44%,
+        #5EB3E6 56%,
+        #F8D19A 68%,
+        #B55A74 73%,
+        #643563 78%,
+        #070C1A 85%,
+        #070C1A 100%);
+    }
+
+    .escala-horas {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--fonte-mono);
+      font-size: 12px;
+      color: var(--texto-sec);
+    }
+
+    .grade {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+    }
+    @media (max-width: 920px) {
+      .grade { grid-template-columns: 1fr; }
+    }
+
+    .palco-svg {
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--borda);
+      margin-bottom: 16px;
+    }
+    .palco-svg svg {
+      display: block;
+      width: 100%;
+      height: 220px;
+    }
+
+    .cartao-interno {
+      background: var(--superficie-solida);
+      border: 1px solid var(--borda);
+      border-radius: 16px;
+      padding: 16px;
+      transition: background-color 420ms ease, color 320ms ease, border-color 320ms ease;
+    }
+
+    .progresso-trilho {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--superficie-alt);
+      border: 1px solid var(--borda);
+      overflow: hidden;
+      margin: 10px 0 12px;
+    }
+
+    .progresso-barra {
+      height: 100%;
+      background: var(--primaria);
+      transition: width 300ms ease, background-color 320ms ease;
+    }
+
+    .subtarefas {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0;
+    }
+
+    .sub-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 12px;
+      background: var(--superficie-alt);
+      border: 1px solid var(--borda);
+      transition: background-color 420ms ease, color 320ms ease;
+    }
+    .sub-item.n2 { margin-left: 18px; }
+    .sub-item.n3 { margin-left: 36px; }
+    .sub-item label {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .sub-item input[type="checkbox"] {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--primaria);
+    }
+    .riscada { text-decoration: line-through; color: var(--texto-sec); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1.5px solid currentColor;
+      background: var(--superficie-solida);
+      transition: background-color 420ms ease, color 320ms ease;
+    }
+
+    .telemetria-grade {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: var(--superficie-alt);
+      border: 1px solid var(--borda);
+      transition: background-color 420ms ease;
+    }
+    .swatch-cor {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      border: 1px solid var(--borda);
+      flex-shrink: 0;
+    }
+
+    .tabela-wcag {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+    .tabela-wcag th, .tabela-wcag td {
+      text-align: left;
+      padding: 7px 6px;
+      border-bottom: 1px solid var(--borda);
+    }
+
+    .btn-primario {
+      background: var(--primaria);
+      color: var(--primaria-texto);
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-family: var(--fonte-sans);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 320ms ease, color 320ms ease;
+    }
+
+    .btn-secundario {
+      background: transparent;
+      color: var(--texto);
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-family: var(--fonte-sans);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="painel" aria-label="Controle da transição cromática contínua 24h">
+      <div class="barra-topo">
+        <div>
+          <span class="mono" style="font-size:12px;color:var(--texto-sec);">LUME · ALVORADA POÉTICA · TRANSIÇÃO CONTÍNUA MINUTO A MINUTO</span>
+          <h1 class="titulo-display" style="font-size:clamp(24px,3.6vw,34px);margin-top:4px;">Ciclo Solar &amp; Cromático 24h</h1>
+        </div>
+        <div class="mono" id="pill-status" style="padding:8px 14px;border-radius:12px;background:var(--superficie-alt);border:1px solid var(--borda);font-size:14px;font-weight:600;">
+          07:30 · Manhã Orvalhada · Polaridade Clara
+        </div>
+      </div>
+
+      <div class="controles-linha">
+        <button class="btn ativo" id="btn-timelapse" type="button">▶ Simular 24h (Timelapse)</button>
+        <button class="btn" data-vel="1" type="button">1x</button>
+        <button class="btn ativo" data-vel="2" type="button">2x</button>
+        <button class="btn" data-vel="4" type="button">4x</button>
+        <button class="btn" id="btn-agora" type="button">🕒 Hora real do navegador</button>
+      </div>
+
+      <div class="controles-linha" aria-label="Atalhos de horário">
+        <button class="btn" data-min="30" type="button">00:30 Meia-noite</button>
+        <button class="btn" data-min="350" type="button">05:50 Aurora</button>
+        <button class="btn" data-min="570" type="button">09:30 Manhã</button>
+        <button class="btn" data-min="810" type="button">13:30 Zênite</button>
+        <button class="btn" data-min="975" type="button">16:15 Tarde Dourada</button>
+        <button class="btn" data-min="1080" type="button">18:00 Crepúsculo</button>
+        <button class="btn" data-min="1290" type="button">21:30 Noite</button>
+      </div>
+
+      <div class="trilho-espectro">
+        <input id="slider-minuto" type="range" min="0" max="1439" step="1" value="450" aria-label="Selecionar minuto do dia" style="width:100%;accent-color:var(--primaria);" />
+        <div class="espectro-24h" aria-hidden="true"></div>
+        <div class="escala-horas">
+          <span>00:00</span><span>05:45 Aurora</span><span>12:00</span><span>17:30 Crepúsculo</span><span>23:59</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="grade">
+      <section class="painel" aria-label="Palco vivo e tarefas do Lume">
+        <div class="palco-svg">
+          <svg viewBox="0 0 680 220" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="g-ceu" x1="0" y1="0" x2="0" y2="1">
+                <stop id="s1" offset="0%" stop-color="#B5DFF8" />
+                <stop id="s2" offset="56%" stop-color="#E2F2F8" />
+                <stop id="s3" offset="100%" stop-color="#F7F1E1" />
+              </linearGradient>
+              <radialGradient id="g-halo" cx="50%" cy="50%" r="50%">
+                <stop id="h1" offset="0%" stop-color="#FFD166" stop-opacity="0.7" />
+                <stop offset="100%" stop-color="#FFD166" stop-opacity="0" />
+              </radialGradient>
+            </defs>
+            <rect width="680" height="220" fill="url(#g-ceu)" />
+
+            <g id="grupo-estrelas" opacity="0">
+              <circle cx="72" cy="40" r="1.8" fill="#FFF7D6" />
+              <circle cx="132" cy="64" r="2.5" fill="#FFF7D6" />
+              <circle cx="195" cy="34" r="2.2" fill="#FFF7D6" />
+              <circle cx="268" cy="58" r="2.4" fill="#FFF7D6" />
+              <circle cx="342" cy="28" r="1.9" fill="#FFF7D6" />
+              <circle cx="430" cy="44" r="2.5" fill="#FFF7D6" />
+              <circle cx="515" cy="62" r="2.2" fill="#FFF7D6" />
+              <circle cx="595" cy="36" r="2.4" fill="#FFF7D6" />
+              <polyline id="constelacao-1" points="132,64 195,34 268,58" fill="none" stroke="#F5D076" stroke-width="1.4" opacity="0.85" />
+              <polyline id="constelacao-2" points="430,44 515,62 595,36" fill="none" stroke="#6EE7D8" stroke-width="1.4" opacity="0.85" />
+            </g>
+
+            <path d="M 50 175 Q 340 10 630 175" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="1.2" stroke-dasharray="4 4" />
+            <circle id="astro-halo" cx="190" cy="80" r="52" fill="url(#g-halo)" />
+            <circle id="astro-sol" cx="190" cy="80" r="19" fill="#F9B84A" />
+            <g id="astro-lua" opacity="0">
+              <circle cx="490" cy="70" r="16" fill="#F7E8B5" />
+              <circle cx="497" cy="65" r="13" fill="#0D1730" id="lua-sombra" />
+            </g>
+
+            <path id="colina-3" d="M0,162 Q150,126 320,158 T680,145 L680,220 L0,220 Z" fill="#6DA488" />
+            <path id="colina-2" d="M0,174 Q220,148 440,172 T680,162 L680,220 L0,220 Z" fill="#467C62" />
+            <path id="colina-1" d="M0,188 Q260,168 500,186 T680,178 L680,220 L0,220 Z" fill="#256B4E" />
+
+            <g id="flores-jardim">
+              <circle cx="95" cy="182" r="4.5" fill="#F9B84A" />
+              <circle cx="172" cy="176" r="4" fill="#F4A261" />
+              <circle cx="315" cy="180" r="4.5" fill="#F5D076" />
+              <circle cx="468" cy="178" r="4" fill="#6EE7D8" />
+              <circle cx="585" cy="175" r="4.5" fill="#FFD166" />
+            </g>
+          </svg>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:14px;">
+          <div>
+            <h2 class="titulo-display" id="titulo-momento" style="font-size:26px;">Manhã Orvalhada no Lume</h2>
+            <p style="margin:4px 0 0;font-size:14px;color:var(--texto-sec);">As cores fluem com o sol e a polaridade muda suavemente sem perder contraste.</p>
+          </div>
+          <div class="mono" style="font-size:13px;font-weight:600;padding:7px 12px;border-radius:10px;background:var(--superficie-alt);border:1px solid var(--borda);">
+            Foco · 24:59
+          </div>
+        </div>
+
+        <div class="cartao-interno">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;">
+            <div>
+              <strong style="font-size:16px;">Orquestrar entrega do Lume (Web II)</strong>
+              <div style="font-size:13px;color:var(--texto-sec);">Progresso automático: <span id="prog-txt" class="mono">50% (2/4)</span> · Concluir ilumina o jardim e constelações</div>
+            </div>
+            <span class="badge" style="color:var(--prio-urgente);">★ Filha urgente em aberto</span>
+          </div>
+
+          <div class="progresso-trilho"><div class="progresso-barra" id="prog-barra" style="width:50%;"></div></div>
+
+          <div class="subtarefas" id="lista-sub">
+            <div class="sub-item n2">
+              <label><input type="checkbox" checked /> Aprovar interpolação contínua 24h</label>
+              <span class="badge" style="color:var(--prio-alta);">Alta</span>
+            </div>
+            <div class="sub-item n2">
+              <label><input type="checkbox" /> Construir cenário 3D híbrido no R3F</label>
+              <span class="badge" style="color:var(--prio-media);">Média</span>
+            </div>
+            <div class="sub-item n3">
+              <label><input type="checkbox" /> Blindar bloqueio de ciclos em TDD</label>
+              <span class="badge" style="color:var(--prio-urgente);">Urgente</span>
+            </div>
+            <div class="sub-item n3">
+              <label><input type="checkbox" checked /> Registrar ideias e decisões em Doc/</label>
+              <span class="badge" style="color:var(--prio-baixa);">Baixa</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;">
+            <button class="btn-primario" id="btn-concluir-tudo" type="button">Acender constelação</button>
+            <button class="btn-secundario" type="button">Abrir no Mapa</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="painel" aria-label="Telemetria cromática ao vivo">
+        <h2 class="titulo-display" style="font-size:22px;">Telemetria Cromática 24h</h2>
+        <p style="margin:4px 0 0;font-size:13px;color:var(--texto-sec);">
+          Valores interpolados em tempo real para o minuto selecionado. A troca de polaridade em <strong>05:45</strong> e <strong>17:30</strong> evita a zona cinza e mantém WCAG AA em todos os 1.440 minutos.
+        </p>
+
+        <div class="telemetria-grade" id="swatches"></div>
+
+        <table class="tabela-wcag" aria-label="Auditoria WCAG ao vivo">
+          <thead>
+            <tr><th>Par verificado</th><th>Contraste</th><th>Status</th></tr>
+          </thead>
+          <tbody id="wcag-corpo"></tbody>
+        </table>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    const CEU_KEYS = [
+      { min: 0,    c1: '#070C1A', c2: '#0D1730', c3: '#132040', col1: '#091124', col2: '#101D38', col3: '#1A2C4D', est: 1.0, astro: '#F7E8B5', nome: 'Meia-noite Estelar' },
+      { min: 285,  c1: '#0C1229', c2: '#182144', c3: '#262D52', col1: '#0D152E', col2: '#172245', col3: '#253159', est: 0.95, astro: '#F7E8B5', nome: 'Madrugada Profunda' },
+      { min: 345,  c1: '#5C5E96', c2: '#E79B9B', c3: '#FCE2C4', col1: '#354949', col2: '#55736A', col3: '#7FA18C', est: 0.30, astro: '#FFAE63', nome: 'Aurora Rosada' },
+      { min: 450,  c1: '#B5DFF8', c2: '#E2F2F8', c3: '#F7F1E1', col1: '#256B4E', col2: '#467C62', col3: '#6DA488', est: 0.0, astro: '#F9B84A', nome: 'Manhã Orvalhada' },
+      { min: 630,  c1: '#87C8F2', c2: '#CDEAFB', c3: '#F3F4EA', col1: '#23664C', col2: '#457D63', col3: '#6BA68A', est: 0.0, astro: '#FFD166', nome: 'Manhã Plena' },
+      { min: 810,  c1: '#5EB3E6', c2: '#B4DFF4', c3: '#F7E8C8', col1: '#2B6148', col2: '#4D7D63', col3: '#74A386', est: 0.0, astro: '#FFB703', nome: 'Zênite Luminoso' },
+      { min: 975,  c1: '#6CAEDB', c2: '#E6CFAF', c3: '#F8D19A', col1: '#2F5541', col2: '#53725B', col3: '#7D957B', est: 0.0, astro: '#F97316', nome: 'Tarde Dourada' },
+      { min: 1050, c1: '#47366E', c2: '#B55A74', c3: '#F3A172', col1: '#1E1433', col2: '#3B234D', col3: '#5C3763', est: 0.45, astro: '#FF8E61', nome: 'Crepúsculo Coral-Ametista' },
+      { min: 1125, c1: '#1E183E', c2: '#643563', c3: '#C8736A', col1: '#131029', col2: '#271D45', col3: '#3E2B5C', est: 0.85, astro: '#F7BD72', nome: 'Crepúsculo Profundo' },
+      { min: 1215, c1: '#070C1A', c2: '#0D1730', c3: '#132040', col1: '#0B1429', col2: '#152545', col3: '#21355C', est: 1.0, astro: '#F7E8B5', nome: 'Noite Estelar' },
+      { min: 1440, c1: '#070C1A', c2: '#0D1730', c3: '#132040', col1: '#091124', col2: '#101D38', col3: '#1A2C4D', est: 1.0, astro: '#F7E8B5', nome: 'Meia-noite Estelar' }
+    ];
+
+    const UI_LUMINOSA = [
+      { min: 345,  sup: 'rgba(255,248,241,0.92)', solida: '#FFF8F1', alt: '#F5E7DA', borda: 'rgba(43,24,34,0.16)', txt: '#2B1822', sec: '#5E3D4B', pri: '#8A3E52', priTxt: '#FFFFFF', secCor: '#9B4D18', b: '#2B694D', m: '#1D5A85', al: '#9C4B0C', u: '#AD223A' },
+      { min: 450,  sup: 'rgba(255,253,248,0.93)', solida: '#FFFDF8', alt: '#F1EDE0', borda: 'rgba(23,36,48,0.16)', txt: '#172430', sec: '#4A5D6E', pri: '#256B4E', priTxt: '#FFFFFF', secCor: '#B55E0B', b: '#2F6F4E', m: '#1D5C87', al: '#A6540A', u: '#B8293D' },
+      { min: 630,  sup: 'rgba(253,254,255,0.93)', solida: '#FDFEFF', alt: '#EBF2F7', borda: 'rgba(19,34,48,0.15)', txt: '#132230', sec: '#43586B', pri: '#1E6663', priTxt: '#FFFFFF', secCor: '#B05A12', b: '#2A6B4D', m: '#1B5A87', al: '#A6540A', u: '#B8293D' },
+      { min: 810,  sup: 'rgba(255,253,247,0.93)', solida: '#FFFDF7', alt: '#F2EFE3', borda: 'rgba(26,32,41,0.16)', txt: '#1A2029', sec: '#4C5361', pri: '#1F6A73', priTxt: '#FFFFFF', secCor: '#AE550B', b: '#2D6D4E', m: '#1D5C87', al: '#A6540A', u: '#B8293D' },
+      { min: 975,  sup: 'rgba(255,249,238,0.93)', solida: '#FFF9EE', alt: '#F4E8D4', borda: 'rgba(34,30,26,0.16)', txt: '#221E1A', sec: '#594E43', pri: '#A94F0D', priTxt: '#FFFFFF', secCor: '#1F6E8C', b: '#2F6F4E', m: '#1D5C87', al: '#A6540A', u: '#B8293D' },
+      { min: 1049, sup: 'rgba(255,243,232,0.93)', solida: '#FFF3E8', alt: '#F3DFCE', borda: 'rgba(40,28,34,0.17)', txt: '#281C22', sec: '#61424E', pri: '#9C3E32', priTxt: '#FFFFFF', secCor: '#1E627D', b: '#2B6A4D', m: '#1D5882', al: '#9C4B0C', u: '#AD223A' }
+    ];
+
+    const UI_NOTURNA = [
+      { min: 1050, sup: 'rgba(30,21,51,0.89)', solida: '#1E1533', alt: '#2B1F47', borda: 'rgba(253,245,236,0.18)', txt: '#FDF5EC', sec: '#DFC7D9', pri: '#FFA26B', priTxt: '#1E1533', secCor: '#F5CF76', b: '#7CE0B0', m: '#89CCFF', al: '#FFC069', u: '#FF8A9B' },
+      { min: 1125, sup: 'rgba(22,21,51,0.90)', solida: '#161533', alt: '#211F47', borda: 'rgba(247,243,253,0.17)', txt: '#F7F3FD', sec: '#C5BDDC', pri: '#F7BD72', priTxt: '#161533', secCor: '#7BE3D0', b: '#7CE0B0', m: '#89CCFF', al: '#FFC069', u: '#FF8A9B' },
+      { min: 1215, sup: 'rgba(14,23,46,0.90)', solida: '#0E172E', alt: '#162242', borda: 'rgba(241,245,255,0.16)', txt: '#F1F5FF', sec: '#A5B4D4', pri: '#F5D076', priTxt: '#0E172E', secCor: '#6EE7D8', b: '#7CE0B0', m: '#89CCFF', al: '#FFC069', u: '#FF8A9B' },
+      { min: 1440, sup: 'rgba(11,18,38,0.91)', solida: '#0B1226', alt: '#121C38', borda: 'rgba(238,243,255,0.16)', txt: '#EEF3FF', sec: '#A2B2D4', pri: '#F5D076', priTxt: '#0B1226', secCor: '#6EE7D8', b: '#7CE0B0', m: '#89CCFF', al: '#FFC069', u: '#FF8A9B' },
+      { min: 1725, sup: 'rgba(19,24,54,0.90)', solida: '#131836', alt: '#1D244A', borda: 'rgba(243,242,255,0.17)', txt: '#F3F2FF', sec: '#B5BADB', pri: '#F5C478', priTxt: '#131836', secCor: '#7BE3D0', b: '#7CE0B0', m: '#89CCFF', al: '#FFC069', u: '#FF8A9B' },
+      { min: 1784, sup: 'rgba(31,27,61,0.90)', solida: '#1F1B3D', alt: '#2B2552', borda: 'rgba(251,242,246,0.18)', txt: '#FBF2F6', sec: '#D4BFD6', pri: '#FFA678', priTxt: '#1F1B3D', secCor: '#F5CF76', b: '#7CE0B0', m: '#89CCFF', al: '#FFC069', u: '#FF8A9B' }
+    ];
+
+    function hexToRgb(h) {
+      const n = parseInt(h.slice(1), 16);
+      return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+    }
+    function rgbToHex(r, g, b) {
+      return '#' + [r, g, b].map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+    function lerpHex(a, b, t) {
+      const [r1, g1, b1] = hexToRgb(a), [r2, g2, b2] = hexToRgb(b);
+      return rgbToHex(r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t);
+    }
+    function lum(hex) {
+      const c = hexToRgb(hex).map(v => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    }
+    function contraste(a, b) {
+      const l1 = lum(a), l2 = lum(b);
+      return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    }
+
+    function interpolarLista(lista, m, camposHex, camposNum) {
+      const clamp = Math.max(lista[0].min, Math.min(lista[lista.length - 1].min, m));
+      for (let i = 0; i < lista.length - 1; i++) {
+        const a = lista[i], b = lista[i + 1];
+        if (clamp >= a.min && clamp <= b.min) {
+          const t = b.min === a.min ? 0 : (clamp - a.min) / (b.min - a.min);
+          const out = { nome: t < 0.5 ? a.nome : b.nome };
+          camposHex.forEach(c => { out[c] = lerpHex(a[c], b[c], t); });
+          if (camposNum) camposNum.forEach(c => { out[c] = a[c] + (b[c] - a[c]) * t; });
+          return out;
+        }
+      }
+      return lista[0];
+    }
+
+    function estadoParaMinuto(min) {
+      const ceu = interpolarLista(CEU_KEYS, min, ['c1', 'c2', 'c3', 'col1', 'col2', 'col3', 'astro'], ['est']);
+      const luminosa = min >= 345 && min <= 1049;
+      const listaUi = luminosa ? UI_LUMINOSA : UI_NOTURNA;
+      const mNorm = (!luminosa && min < 345) ? min + 1440 : min;
+      const ui = interpolarLista(listaUi, mNorm, ['solida', 'alt', 'txt', 'sec', 'pri', 'priTxt', 'secCor', 'b', 'm', 'al', 'u']);
+      const [sr, sg, sb] = hexToRgb(ui.solida);
+      ui.sup = `rgba(${sr},${sg},${sb},${luminosa ? 0.92 : 0.90})`;
+      const [tr, tg, tb] = hexToRgb(ui.txt);
+      ui.borda = `rgba(${tr},${tg},${tb},${luminosa ? 0.16 : 0.18})`;
+      return { ceu, ui, luminosa };
+    }
+
+    function formatarMinuto(m) {
+      const hh = Math.floor(m / 60).toString().padStart(2, '0');
+      const mm = (m % 60).toString().padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
+    let minutoAtual = 450;
+    let rodando = false;
+    let velocidade = 2;
+    let ultimoFrame = 0;
+
+    function renderizar(min) {
+      const { ceu, ui, luminosa } = estadoParaMinuto(min);
+      const r = document.documentElement;
+      r.style.setProperty('--ceu-topo', ceu.c1);
+      r.style.setProperty('--ceu-meio', ceu.c2);
+      r.style.setProperty('--ceu-base', ceu.c3);
+      r.style.setProperty('--superficie', ui.sup);
+      r.style.setProperty('--superficie-solida', ui.solida);
+      r.style.setProperty('--superficie-alt', ui.alt);
+      r.style.setProperty('--borda', ui.borda);
+      r.style.setProperty('--texto', ui.txt);
+      r.style.setProperty('--texto-sec', ui.sec);
+      r.style.setProperty('--primaria', ui.pri);
+      r.style.setProperty('--primaria-texto', ui.priTxt);
+      r.style.setProperty('--secundaria', ui.secCor);
+      r.style.setProperty('--sucesso', ui.b);
+      r.style.setProperty('--erro', ui.u);
+      r.style.setProperty('--prio-baixa', ui.b);
+      r.style.setProperty('--prio-media', ui.m);
+      r.style.setProperty('--prio-alta', ui.al);
+      r.style.setProperty('--prio-urgente', ui.u);
+
+      document.getElementById('s1').setAttribute('stop-color', ceu.c1);
+      document.getElementById('s2').setAttribute('stop-color', ceu.c2);
+      document.getElementById('s3').setAttribute('stop-color', ceu.c3);
+      document.getElementById('colina-1').setAttribute('fill', ceu.col1);
+      document.getElementById('colina-2').setAttribute('fill', ceu.col2);
+      document.getElementById('colina-3').setAttribute('fill', ceu.col3);
+      document.getElementById('grupo-estrelas').setAttribute('opacity', ceu.est.toFixed(2));
+
+      const ehDia = min >= 330 && min <= 1095;
+      const sol = document.getElementById('astro-sol');
+      const halo = document.getElementById('astro-halo');
+      const lua = document.getElementById('astro-lua');
+      if (ehDia) {
+        const t = (min - 330) / (1095 - 330);
+        const x = 60 + t * 560;
+        const y = 172 - Math.sin(t * Math.PI) * 135;
+        sol.setAttribute('cx', x.toFixed(1));
+        sol.setAttribute('cy', y.toFixed(1));
+        sol.setAttribute('fill', ceu.astro);
+        sol.setAttribute('opacity', '1');
+        halo.setAttribute('cx', x.toFixed(1));
+        halo.setAttribute('cy', y.toFixed(1));
+        document.getElementById('h1').setAttribute('stop-color', ceu.astro);
+        halo.setAttribute('opacity', '1');
+        lua.setAttribute('opacity', '0');
+      } else {
+        const mN = min > 1095 ? min - 1095 : min + (1440 - 1095);
+        const t = Math.min(1, Math.max(0, mN / 675));
+        const x = 70 + t * 540;
+        const y = 165 - Math.sin(t * Math.PI) * 126;
+        lua.setAttribute('opacity', '1');
+        lua.children[0].setAttribute('cx', x.toFixed(1));
+        lua.children[0].setAttribute('cy', y.toFixed(1));
+        lua.children[1].setAttribute('cx', (x + 7).toFixed(1));
+        lua.children[1].setAttribute('cy', (y - 5).toFixed(1));
+        lua.children[1].setAttribute('fill', ceu.c2);
+        halo.setAttribute('cx', x.toFixed(1));
+        halo.setAttribute('cy', y.toFixed(1));
+        document.getElementById('h1').setAttribute('stop-color', '#F7E8B5');
+        halo.setAttribute('opacity', '0.45');
+        sol.setAttribute('opacity', '0');
+      }
+
+      const horaFmt = formatarMinuto(min);
+      const polTxt = luminosa ? 'Polaridade Clara' : 'Polaridade Noturna';
+      document.getElementById('pill-status').textContent = `${horaFmt} · ${ceu.nome} · ${polTxt}`;
+      document.getElementById('titulo-momento').textContent = `${ceu.nome} no Lume`;
+
+      const swatches = [
+        ['Céu topo', ceu.c1], ['Céu horizonte', ceu.c3],
+        ['Superfície', ui.solida], ['Texto', ui.txt],
+        ['Primária', ui.pri], ['Secundário', ui.secCor]
+      ];
+      document.getElementById('swatches').innerHTML = swatches.map(([n, hex]) => `
+        <div class="swatch">
+          <span class="swatch-cor" style="background:${hex}"></span>
+          <div><div style="font-size:12px;font-weight:700;">${n}</div><div class="mono" style="font-size:12px;color:var(--texto-sec);">${hex}</div></div>
+        </div>
+      `).join('');
+
+      const pares = [
+        ['Texto / Superfície', ui.txt, ui.solida],
+        ['Secundário / Superfície', ui.sec, ui.solida],
+        ['Botão primário', ui.priTxt, ui.pri],
+        ['Urgente / Superfície', ui.u, ui.solida],
+        ['Baixa / Superfície', ui.b, ui.solida]
+      ];
+      document.getElementById('wcag-corpo').innerHTML = pares.map(([rot, a, b]) => {
+        const val = contraste(a, b);
+        const selo = val >= 7 ? 'AAA' : val >= 4.5 ? 'AA' : 'Abaixo';
+        return `<tr><td>${rot}</td><td class="mono">${val.toFixed(2)}:1</td><td class="mono">${selo}</td></tr>`;
+      }).join('');
+    }
+
+    function atualizarProgresso() {
+      const checks = Array.from(document.querySelectorAll('#lista-sub input[type="checkbox"]'));
+      let ok = 0;
+      checks.forEach(c => {
+        c.parentElement.classList.toggle('riscada', c.checked);
+        if (c.checked) ok++;
+      });
+      const pct = Math.round((ok / checks.length) * 100);
+      document.getElementById('prog-barra').style.width = `${pct}%`;
+      document.getElementById('prog-txt').textContent = `${pct}% (${ok}/${checks.length})`;
+      document.getElementById('flores-jardim').setAttribute('opacity', (0.35 + (ok / checks.length) * 0.65).toFixed(2));
+    }
+
+    function loop(ts) {
+      if (!rodando) return;
+      if (!ultimoFrame) ultimoFrame = ts;
+      const dt = ts - ultimoFrame;
+      if (dt >= 32) {
+        minutoAtual = (minutoAtual + velocidade) % 1440;
+        document.getElementById('slider-minuto').value = minutoAtual;
+        renderizar(minutoAtual);
+        ultimoFrame = ts;
+      }
+      requestAnimationFrame(loop);
+    }
+
+    document.getElementById('slider-minuto').addEventListener('input', (e) => {
+      rodando = false;
+      document.getElementById('btn-timelapse').textContent = '▶ Simular 24h (Timelapse)';
+      minutoAtual = parseInt(e.target.value, 10);
+      renderizar(minutoAtual);
+    });
+
+    document.getElementById('btn-timelapse').addEventListener('click', (e) => {
+      rodando = !rodando;
+      e.target.textContent = rodando ? '⏸ Pausar simulação' : '▶ Simular 24h (Timelapse)';
+      ultimoFrame = 0;
+      if (rodando) requestAnimationFrame(loop);
+    });
+
+    document.querySelectorAll('[data-vel]').forEach(b => {
+      b.addEventListener('click', () => {
+        velocidade = parseInt(b.dataset.vel, 10);
+        document.querySelectorAll('[data-vel]').forEach(x => x.classList.toggle('ativo', x === b));
+      });
+    });
+
+    document.querySelectorAll('[data-min]').forEach(b => {
+      b.addEventListener('click', () => {
+        rodando = false;
+        document.getElementById('btn-timelapse').textContent = '▶ Simular 24h (Timelapse)';
+        minutoAtual = parseInt(b.dataset.min, 10);
+        document.getElementById('slider-minuto').value = minutoAtual;
+        renderizar(minutoAtual);
+      });
+    });
+
+    document.getElementById('btn-agora').addEventListener('click', () => {
+      rodando = false;
+      document.getElementById('btn-timelapse').textContent = '▶ Simular 24h (Timelapse)';
+      const agora = new Date();
+      minutoAtual = agora.getHours() * 60 + agora.getMinutes();
+      document.getElementById('slider-minuto').value = minutoAtual;
+      renderizar(minutoAtual);
+    });
+
+    document.querySelectorAll('#lista-sub input[type="checkbox"]').forEach(c => c.addEventListener('change', atualizarProgresso));
+    document.getElementById('btn-concluir-tudo').addEventListener('click', () => {
+      document.querySelectorAll('#lista-sub input[type="checkbox"]').forEach(c => { c.checked = true; });
+      atualizarProgresso();
+    });
+
+    atualizarProgresso();
+    renderizar(minutoAtual);
+  </script>
+</body>
+</html>

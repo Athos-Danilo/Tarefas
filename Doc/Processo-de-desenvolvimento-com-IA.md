@@ -1,4 +1,4 @@
-# Processo de desenvolvimento assistido por IA — Horizonte Vivo (nome provisório)
+# Processo de desenvolvimento assistido por IA — Lume
 
 Este documento registra a metodologia de engenharia de software adotada na construção do projeto para a disciplina **Web II**. Ele detalha como o protagonismo humano se combina com a orquestração multimodelo no **Google Antigravity** — utilizando o modo **Orchestrator** com **Gemini 4 Neon** e **Gemini 4 Hydrogen** — sobre uma base disciplinada de **Spec-Driven Development (SDD)**, **SOLID** e **TDD**.
 

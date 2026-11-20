@@ -1,6 +1,6 @@
-# Roteiro de desenvolvimento — primeira entrega (Horizonte Vivo — nome provisório)
+# Roteiro de desenvolvimento — primeira entrega (Lume)
 
-**Registro de situação em 20/11/2026:** **Fase 01 concluída** (escopo consolidado após entrevista `/grill-me`, regras em [Regras.md](../Agents/Regras.md), especificação em [Detalhes.md](Detalhes.md), planejamento técnico em [Planejamento-tecnico.md](Planejamento-tecnico.md), processo com agentes de IA em [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e ambiente local verificado). Próxima etapa: **Fase 02 — decidir nome definitivo (`D01`), paletas dos 4 momentos do dia (`D02`) e trio tipográfico (`D03`)**.
+**Registro de situação em 20/11/2026:** **Fases 01 e 02 concluídas** (`D01 = Lume`, `D02 = Alvorada Poética com transição cromática contínua 24h` e `D03 = Fraunces + Plus Jakarta Sans + JetBrains Mono` com uso expressivo de **bold/itálico** e responsividade **desktop-first** consolidados em [Guia-visual.md](Guia-visual.md)). Próxima etapa: **Fase 03 — definir marca/logotipo do `Lume`, direção do jardim/constelações e coleção inicial de avatares (`D04`)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
 
 **Escopo da primeira entrega:** aplicação web de gerenciamento de tarefas pessoais para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas locais, Jornada do Dia, Mapa Visual Constelação/Ramos, Modo Foco Imersivo, Calendário Mensal dos Prazos, Estatísticas/Diário do Ciclo, experiência sonora opt-in e publicação gratuita na web.
 
@@ -24,7 +24,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 ### Controle geral de conclusão das fases
 
 - [x] Fase 01 — consolidar escopo, SDD inicial e verificar ambiente local
-- [ ] Fase 02 — escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
+- [x] Fase 02 — escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
 - [ ] Fase 03 — definir marca, elementos do jardim, constelações e coleção de avatares
 - [ ] Fase 04 — fechar contratos de API, regras finas da árvore (`D08`–`D11`) e exclusão de conta (`D06`)
 - [ ] Fase 05 — prototipar navegação, atmosferas e telas principais
@@ -68,9 +68,9 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 | ID | Decisão | Preparação esperada da IA | Responsável | Fase limite | Situação |
 | --- | --- | --- | --- | --- | --- |
-| D01 | Nome definitivo da aplicação | Apresentar 4–5 opções refinadas (ex.: Solstício, Horizonte Vivo, Zênite, Alvorada) com racional de marca | IA propõe; Athos escolhe | Fase 02 | Em aberto |
-| D02 | Paletas dos 4 momentos do dia (Manhã, Tarde, Crepúsculo, Noite) + contraste | Preparar 2–3 direções cromáticas completas aplicadas a amostras reais com checagem WCAG | IA propõe; Athos escolhe | Fase 02 | Em aberto |
-| D03 | Trio tipográfico (Display + Sans + Mono) e licenças locais | Comparar combinações legíveis em títulos, listas densas, acentos pt-BR e timers | IA propõe; Athos escolhe | Fase 02 | Em aberto |
+| D01 | Nome definitivo da aplicação | Apresentar opções refinadas com racional de marca | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Lume** |
+| D02 | Paletas dos 4 momentos do dia + transição cromática contínua 24h | Preparar direções cromáticas e validar transição contínua minuto a minuto com checagem WCAG | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Alvorada Poética com transição contínua 24h** |
+| D03 | Trio tipográfico (Display + Sans + Mono) e licenças locais | Comparar combinações legíveis em títulos, listas densas, acentos pt-BR e timers | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Fraunces + Plus Jakarta Sans + JetBrains Mono** (`SIL OFL 1.1`) |
 | D04 | Marca, logotipo, ícones do jardim/constelações e coleção inicial de avatares | Apresentar conceitos vetoriais reutilizáveis e catálogo inicial de avatares | IA propõe; Athos aprova | Fase 03 | Em aberto |
 | D05 | Primeiro acesso: formato de nome de usuário, avatar e tarefas-guia iniciais | Definir regras de nome de exibição e se usuário novo pode importar exemplos editáveis | IA propõe; Athos decide | Fase 04 | Em aberto |
 | D06 | Exclusão de conta: fluxo de confirmação e remoção definitiva em ambos os bancos | Detalhar aviso, palavra/ação de confirmação e remoção completa de dados pessoais | IA propõe; Athos aprova | Fase 04 | Em aberto |
@@ -136,6 +136,22 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 **Entrega:** `D01`, `D02` e `D03` aprovadas e registradas em `Doc/Guia-visual.md`.
 
 **Concluída quando:** há nome oficial, paleta completa para os 4 períodos e fontes definidas prontas para virar tokens CSS.
+
+#### Registro de execução da fase 02
+
+**Estado:** concluída em 20/11/2026.
+
+- **Decisões aprovadas por Athos:**
+  - `D01`: **`Lume`**.
+  - `D02`: **Alvorada Poética** com evolução autoral (`ID-15`) para **transição cromática contínua minuto a minuto (24h)** e proteção de polaridade luminosa/noturna.
+  - `D03`: **`Fraunces` (Display) + `Plus Jakarta Sans` (Sans UI) + `JetBrains Mono` (Mono tabular)**, licença `SIL OFL 1.1`, com uso expressivo de **bold** e **itálico** em momentos oportunos (`ID-17`) e estratégia responsiva **desktop-first funcional em tablets e celulares** (`ID-18`).
+- **Verificação automatizada WCAG (1.440 minutos do dia):** script Node validou `0` falhas abaixo de `4.5:1` diretamente sobre a função de interpolação em [simulacao-transicao-continua.html](Identidade-visual/simulacao-transicao-continua.html) (menor contraste observado: `14.92:1` texto principal, `6.70:1` secundário, `5.51:1` botão primário, `>= 5.15:1` nas 4 prioridades).
+- **Checklist interno da fase 02:**
+  - [x] Propor opções de nome e registrar escolha oficial (`Lume`).
+  - [x] Construir estúdio comparativo com 3 direções cromáticas e 3 trios tipográficos ([previa-fase-02.html](Identidade-visual/previa-fase-02.html)).
+  - [x] Construir e validar simulação de transição contínua 24h ([simulacao-transicao-continua.html](Identidade-visual/simulacao-transicao-continua.html)).
+  - [x] Consolidar sistema visual, uso de bold/itálico e responsividade em [Guia-visual.md](Guia-visual.md).
+  - [x] Atualizar [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md) e base SDD com o nome oficial `Lume`.
 
 ---
 
