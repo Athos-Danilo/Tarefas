@@ -145,7 +145,28 @@ Conforme definido pelo responsável (`ID-18`), **a base principal de criação d
 
 ---
 
-## 7. Referências visuais e protótipos desta fase
+## 7. Coreografia de movimento, animações de texto, hover e efeitos de escrita (`ID-19`)
+
+O movimento no **Lume** é pensado para dar vida poética e resposta tátil à interface sem jamais atrapalhar quem está gerenciando tarefas no dia a dia:
+
+### 7.1 Efeitos de escrita e revelação tipográfica
+- **Efeito de escrita e entrada escalonada (*stagger*):** frases de impacto na Landing cinematográfica e citações/mensagens do Modo Foco podem usar revelação progressiva caractere a caractere ou palavra a palavra combinada a `Fraunces` **bold** + ***italic***.
+- **Transição suave de saudações:** quando o horário muda de fase atmosférica, a saudação do cabeçalho desliza e desvanece suavemente sem saltar layout.
+- **Contadores e timers vivos:** o percentual da árvore composta, o relógio 24h e o temporizador do Modo Foco animam suas variações em `JetBrains Mono` (`tabular-nums`) para manter alinhamento firme sem trepidação.
+
+### 7.2 Microinterações de hover e feedback tátil
+- **Botões e pílulas:** elevação sutil (`-1px` a `-2px`), brilho/aura na cor primária do horário atual e transição suave de preenchimento.
+- **Cartões de tarefa e nós do mapa:** resposta imediata no hover com destaque progressivo de borda, micro-deslocamento de ícones (ex.: seta de expansão, símbolo de prioridade, estrela da constelação) e indicação clara de ações disponíveis sem esconder informações essenciais.
+- **Alternativa acessível:** qualquer conteúdo útil revelado em hover também deve ser acessível por foco de teclado (`:focus-visible`) e toque em dispositivos móveis.
+
+### 7.3 Efeitos de movimento, hierarquia e celebração
+- **Física de mola suave (`motion` / Framer Motion):** expansão e recolhimento dos 5 níveis da árvore de subtarefas com abertura fluida da subárvore, reordenação animada no drag-and-drop (`@dnd-kit` + layout transitions) e troca orgânica de telas/gavetas.
+- **Conclusão e celebração:** ao concluir uma subtarefa, o risco tipográfico desliza suavemente e a barra de progresso avança em mola; ao concluir uma constelação inteira, estrelas/flores correspondentes pulsam no cenário 3D/2D.
+- **Ritmo e acessibilidade:** interações frequentes (abrir tarefa, marcar checkbox, filtrar) permanecem rápidas (`150ms–300ms`) para não cansar o uso diário; animações de entrada e efeitos de escrita ficam concentrados na Landing, transições de turno e Modo Foco. Tudo respeita estritamente `prefers-reduced-motion: reduce` e o Modo Desempenho.
+
+---
+
+## 8. Referências visuais e protótipos desta fase
 
 - [simulacao-transicao-continua.html](Identidade-visual/simulacao-transicao-continua.html) — estúdio interativo aprovado da **Transição Cromática Contínua 24h** com timelapse, hora real e auditoria WCAG dos 1.440 minutos.
 - [previa-fase-02.html](Identidade-visual/previa-fase-02.html) — comparativo inicial das 3 direções cromáticas e 3 trios tipográficos avaliados na Fase 02.

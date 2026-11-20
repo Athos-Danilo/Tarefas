@@ -144,7 +144,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 - **Decisões aprovadas por Athos:**
   - `D01`: **`Lume`**.
   - `D02`: **Alvorada Poética** com evolução autoral (`ID-15`) para **transição cromática contínua minuto a minuto (24h)** e proteção de polaridade luminosa/noturna.
-  - `D03`: **`Fraunces` (Display) + `Plus Jakarta Sans` (Sans UI) + `JetBrains Mono` (Mono tabular)**, licença `SIL OFL 1.1`, com uso expressivo de **bold** e **itálico** em momentos oportunos (`ID-17`) e estratégia responsiva **desktop-first funcional em tablets e celulares** (`ID-18`).
+  - `D03`: **`Fraunces` (Display) + `Plus Jakarta Sans` (Sans UI) + `JetBrains Mono` (Mono tabular)**, licença `SIL OFL 1.1`, com uso expressivo de **bold** e **itálico** em momentos oportunos (`ID-17`), estratégia responsiva **desktop-first funcional em tablets e celulares** (`ID-18`) e diretrizes de **animações de texto, hover, movimento e efeitos de escrita** (`ID-19`).
 - **Verificação automatizada WCAG (1.440 minutos do dia):** script Node validou `0` falhas abaixo de `4.5:1` diretamente sobre a função de interpolação em [simulacao-transicao-continua.html](Identidade-visual/simulacao-transicao-continua.html) (menor contraste observado: `14.92:1` texto principal, `6.70:1` secundário, `5.51:1` botão primário, `>= 5.15:1` nas 4 prioridades).
 - **Checklist interno da fase 02:**
   - [x] Propor opções de nome e registrar escolha oficial (`Lume`).
@@ -281,7 +281,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 **Depende de:** Fases 02, 05 e 06.
 
-- Implementar tokens CSS no Tailwind v4 para **Manhã**, **Tarde**, **Crepúsculo** e **Noite**, fontes hospedadas localmente e componentes base acessíveis sobre Radix UI.
+- Implementar tokens CSS no Tailwind v4 para a transição contínua 24h sobre **Manhã**, **Tarde**, **Crepúsculo** e **Noite**, fontes hospedadas localmente (com **bold** e **itálico**, `ID-17`), componentes base acessíveis sobre Radix UI e primitivas de **animação de texto, efeitos de escrita, hover tátil e movimento** (`ID-19`, respeitando `prefers-reduced-motion`).
 - Construir motor reativo do **Ciclo do Dia** (Relógio Real vs Modo Simulador / Arco do Dia + cálculo de posição solar/lunar) com testes unitários TDD.
 - Construir o **Modo Desempenho / Fallback 2D** em SVG/CSS com detecção de suporte WebGL e `prefers-reduced-motion`.
 
@@ -309,7 +309,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 **Depende de:** Fases 05, 08 e 12.
 
-- Construir Landing com o cenário 3D/2D vivo, apresentação do conceito e pequenas **demonstrações interativas locais** (Arco do Dia interativo + mini tarefa composta reagindo na hora, sem gravar no servidor).
+- Construir Landing com o cenário 3D/2D vivo, apresentação do conceito com **efeitos de escrita tipográfica, bold/itálico expressivo e microinterações de hover/movimento** (`ID-17`, `ID-19`) e pequenas **demonstrações interativas locais** (Arco do Dia interativo + mini tarefa composta reagindo na hora, sem gravar no servidor).
 - Integrar botão de login Google, tela de Primeiro Acesso (`nome_exibicao`, avatar e opção de tarefas-guia), Perfil e fluxo seguro de Exclusão de Conta.
 - Testar interações, acessibilidade por teclado e proteção contra acesso sem autenticação via TDD/Playwright.
 

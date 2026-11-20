@@ -29,7 +29,7 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 - **Núcleo:** `React`, `TypeScript` (`strict: true`), `Vite`.
 - **Estilização e Design System:** `Tailwind CSS v4` alimentado por variáveis CSS semânticas dinâmicas com **interpolação cromática contínua ao longo das 24 horas** (sobre os keyframes da direção *Alvorada Poética* nos 4 momentos — `manha`, `tarde`, `crepusculo`, `noite`), utilizando faixas de polaridade luminosa e noturna para preservar contraste WCAG AA (`>= 4.5:1`) em todos os 1.440 minutos do dia.
 - **Primitivos acessíveis:** `Radix UI` (diálogos, menus, popovers, seletores e tooltips com foco e teclado acessíveis).
-- **Animações de interface:** `motion` (Framer Motion) para transições fluidas, microinterações e layouts animados (respeitando `prefers-reduced-motion`).
+- **Animações de interface:** `motion` (Framer Motion) para transições fluidas, **animações tipográficas e efeitos de escrita/revelação**, **microinterações táteis de hover** e coreografia de movimento em árvore e cartões conforme [Guia-visual.md](Guia-visual.md) (`ID-19`), sempre respeitando `prefers-reduced-motion`.
 - **Arrastar e soltar acessível:** `@dnd-kit` para reordenação manual e movimentação de tarefas na Jornada do Dia com suporte a ponteiro e teclado.
 - **Mundo 3D (WebGL):** `three`, `@react-three/fiber` e `@react-three/drei`.
   - **Atenção obrigatória antes da Fase 06:** verificar na documentação oficial a matriz de compatibilidade exata entre a versão instalada do `React` (`18` vs `19`) e a versão correspondente do `@react-three/fiber` / `@react-three/drei` antes de fixar o `package.json`.
