@@ -1,6 +1,6 @@
-# Roteiro de desenvolvimento — primeira entrega (Lume)
+# Roteiro de desenvolvimento - primeira entrega (Lume)
 
-**Registro de situação em 20/11/2026:** **Fases 01 e 02 concluídas** (`D01 = Lume`, `D02 = Alvorada Poética com transição cromática contínua 24h` e `D03 = Fraunces + Plus Jakarta Sans + JetBrains Mono` com uso expressivo de **bold/itálico** e responsividade **desktop-first** consolidados em [Guia-visual.md](Guia-visual.md)). Próxima etapa: **Fase 03 — definir marca/logotipo do `Lume`, direção do jardim/constelações e coleção inicial de avatares (`D04`)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
+**Registro de situação em 20/11/2026:** **Fases 01 e 02 concluídas** (`D01 = Lume`, `D02 = Alvorada Poética com transição cromática contínua 24h` e `D03 = Fraunces + Plus Jakarta Sans + JetBrains Mono` com uso expressivo de **bold/itálico** e responsividade **desktop-first** consolidados em [Guia-visual.md](Guia-visual.md)). Próxima etapa: **Fase 03: definir marca/logotipo do `Lume`, direção do jardim/constelações e coleção inicial de avatares (`D04`)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
 
 **Escopo da primeira entrega:** aplicação web de gerenciamento de tarefas pessoais para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas locais, Jornada do Dia, Mapa Visual Constelação/Ramos, Modo Foco Imersivo, Calendário Mensal dos Prazos, Estatísticas/Diário do Ciclo, experiência sonora opt-in e publicação gratuita na web.
 
@@ -12,7 +12,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 
 ### Responsabilidades
 - **IA de desenvolvimento:** elaborar especificações, alternativas concretas para decisões abertas, implementar seguindo `pt-BR`, **SOLID** e **TDD**, executar verificações reais, registrar limitações e atualizar este roteiro.
-- **Responsável pelo projeto (Athos):** escolher direção visual, nome definitivo, paletas, tipografia, responder às decisões `D01`–`D16`, revisar protótipos/entregas e configurar acessos pessoais em contas externas (Google Cloud, Vercel, Render, Neon, MongoDB Atlas, GitHub).
+- **Responsável pelo projeto (Athos):** escolher direção visual, nome definitivo, paletas, tipografia, responder às decisões `D01`-`D16`, revisar protótipos/entregas e configurar acessos pessoais em contas externas (Google Cloud, Vercel, Render, Neon, MongoDB Atlas, GitHub).
 - **Decisão conjunta:** ajustes de escopo, tratamento de casos de borda, substituição de bibliotecas incompatíveis e aceitação final da entrega.
 
 ### Regra para concluir uma fase
@@ -23,28 +23,28 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 
 ### Controle geral de conclusão das fases
 
-- [x] Fase 01 — consolidar escopo, SDD inicial e verificar ambiente local
-- [x] Fase 02 — escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
-- [ ] Fase 03 — definir marca, elementos do jardim, constelações e coleção de avatares
-- [ ] Fase 04 — fechar contratos de API, regras finas da árvore (`D08`–`D11`) e exclusão de conta (`D06`)
-- [ ] Fase 05 — prototipar navegação, atmosferas e telas principais
-- [ ] Fase 06 — preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
-- [ ] Fase 07 — migrações PostgreSQL, conexão MongoDB e adaptadores base (TDD)
-- [ ] Fase 08 — autenticação Google OAuth 2.0, sessão segura, primeiro acesso e exclusão de conta (TDD)
-- [ ] Fase 09 — motor de domínio da árvore de tarefas compostas (profundidade 5, ciclos, cascata, alerta urgente) (TDD)
-- [ ] Fase 10 — API poliglota completa de tarefas, etiquetas, notas ricas e consistência PostgreSQL/MongoDB (TDD)
-- [ ] Fase 11 — sistema visual adaptativo (4 momentos), tokens, tipografia e Modo Desempenho / Fallback 2D (TDD)
-- [ ] Fase 12 — cenário 3D vivo em Three.js/R3F (céu, sol, lua, constelações 3D, jardim reativo e arco do dia) (TDD)
-- [ ] Fase 13 — landing cinematográfica com demonstrações interativas locais e fluxo completo de entrada
-- [ ] Fase 14 — Jornada do Dia: lista hierárquica por turnos, drag-and-drop acessível, filtros e editor de notas ricas (TDD)
-- [ ] Fase 15 — Mapa Visual de Constelação/Ramos (editor 2D/SVG sobre o 3D + persistência de layout no MongoDB) (TDD)
-- [ ] Fase 16 — Modo Foco Imersivo com temporizador solar/lunar e registro de sessões (TDD)
-- [ ] Fase 17 — Calendário Mensal dos Prazos com prioridades e fases lunares (TDD)
-- [ ] Fase 18 — Estatísticas do ciclo, Diário/Histórico (`eventos_ciclo`) e preferências persistidas (TDD)
-- [ ] Fase 19 — experiência sonora opt-in (micro-efeitos e paisagens por momento do dia) (TDD)
-- [ ] Fase 20 — revisão de integridade, segurança, acessibilidade, responsividade e desempenho 3D/2D
-- [ ] Fase 21 — provisionar bancos gratuitos na nuvem e publicar ambiente na web
-- [ ] Fase 22 — aceitação final, documentação para Web II e roteiro de apresentação
+- [x] Fase 01 - consolidar escopo, SDD inicial e verificar ambiente local
+- [x] Fase 02 - escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
+- [ ] Fase 03 - definir marca, elementos do jardim, constelações e coleção de avatares
+- [ ] Fase 04 - fechar contratos de API, regras finas da árvore (`D08`-`D11`) e exclusão de conta (`D06`)
+- [ ] Fase 05 - prototipar navegação, atmosferas e telas principais
+- [ ] Fase 06 - preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
+- [ ] Fase 07 - migrações PostgreSQL, conexão MongoDB e adaptadores base (TDD)
+- [ ] Fase 08 - autenticação Google OAuth 2.0, sessão segura, primeiro acesso e exclusão de conta (TDD)
+- [ ] Fase 09 - motor de domínio da árvore de tarefas compostas (profundidade 5, ciclos, cascata, alerta urgente) (TDD)
+- [ ] Fase 10 - API poliglota completa de tarefas, etiquetas, notas ricas e consistência PostgreSQL/MongoDB (TDD)
+- [ ] Fase 11 - sistema visual adaptativo (4 momentos), tokens, tipografia e Modo Desempenho / Fallback 2D (TDD)
+- [ ] Fase 12 - cenário 3D vivo em Three.js/R3F (céu, sol, lua, constelações 3D, jardim reativo e arco do dia) (TDD)
+- [ ] Fase 13 - landing cinematográfica com demonstrações interativas locais e fluxo completo de entrada
+- [ ] Fase 14 - Jornada do Dia: lista hierárquica por turnos, drag-and-drop acessível, filtros e editor de notas ricas (TDD)
+- [ ] Fase 15 - Mapa Visual de Constelação/Ramos (editor 2D/SVG sobre o 3D + persistência de layout no MongoDB) (TDD)
+- [ ] Fase 16 - Modo Foco Imersivo com temporizador solar/lunar e registro de sessões (TDD)
+- [ ] Fase 17 - Calendário Mensal dos Prazos com prioridades e fases lunares (TDD)
+- [ ] Fase 18 - Estatísticas do ciclo, Diário/Histórico (`eventos_ciclo`) e preferências persistidas (TDD)
+- [ ] Fase 19 - experiência sonora opt-in (micro-efeitos e paisagens por momento do dia) (TDD)
+- [ ] Fase 20 - revisão de integridade, segurança, acessibilidade, responsividade e desempenho 3D/2D
+- [ ] Fase 21 - provisionar bancos gratuitos na nuvem e publicar ambiente na web
+- [ ] Fase 22 - aceitação final, documentação para Web II e roteiro de apresentação
 
 ---
 
@@ -52,15 +52,15 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 
 | Ciclo | Fases | Objetivo principal | Foco metodológico |
 | --- | --- | --- | --- |
-| Ciclo 1 | 01–05 | Especificação SDD, nome/identidade visual, contratos e protótipos navegáveis | Descoberta guiada e decisões `D01`–`D16` |
-| Ciclo 2 | 06–10 | Fundação técnica, Git/CI, bancos poliglotas, Google OAuth e motor de tarefas compostas | TDD rigoroso de backend, SOLID e ACID |
-| Ciclo 3 | 11–15 | Design System dos 4 momentos, cena 3D híbrida + fallback 2D, Landing, Jornada e Mapa Constelação | TDD frontend, WebGL leve e acessibilidade |
-| Ciclo 4 | 16–19 | Modo Foco Imersivo, Calendário Mensal, Estatísticas/Diário e Experiência Sonora opt-in | Integração poliglota completa e acabamento interativo |
-| Ciclo 5 | 20–22 | Auditoria de segurança/acessibilidade/desempenho, deploy gratuito na web e apresentação Web II | Verificação real em produção e documentação final |
+| Ciclo 1 | 01-05 | Especificação SDD, nome/identidade visual, contratos e protótipos navegáveis | Descoberta guiada e decisões `D01`-`D16` |
+| Ciclo 2 | 06-10 | Fundação técnica, Git/CI, bancos poliglotas, Google OAuth e motor de tarefas compostas | TDD rigoroso de backend, SOLID e ACID |
+| Ciclo 3 | 11-15 | Design System dos 4 momentos, cena 3D híbrida + fallback 2D, Landing, Jornada e Mapa Constelação | TDD frontend, WebGL leve e acessibilidade |
+| Ciclo 4 | 16-19 | Modo Foco Imersivo, Calendário Mensal, Estatísticas/Diário e Experiência Sonora opt-in | Integração poliglota completa e acabamento interativo |
+| Ciclo 5 | 20-22 | Auditoria de segurança/acessibilidade/desempenho, deploy gratuito na web e apresentação Web II | Verificação real em produção e documentação final |
 
 ---
 
-## 3. Matriz de decisões (`D01`–`D16`)
+## 3. Matriz de decisões (`D01`-`D16`)
 
 Decisões arquiteturais centrais já fechadas na Fase 01: conceito **Horizonte Vivo** (simulação do dia + jardim + sol/lua/constelações), composição multinível até **5 níveis** com bloqueio de ciclos e cascata inteligente, modelo equilibrado de tarefa com **4 prioridades independentes + alerta de filha urgente**, **Landing com demos interativas locais**, **apenas Google OAuth**, divisão poliglota **PostgreSQL (estrutural) + MongoDB (notas ricas, layouts, eventos, preferências)**, **3D híbrido inteligente em Three.js/R3F + editor 2D/SVG**, **áudio opt-in** e **execução local + publicação gratuita na web**.
 
@@ -87,9 +87,9 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-## 4. Ciclo 1 — Especificação, identidade visual e protótipos (Fases 01–05)
+## 4. Ciclo 1 - Especificação, identidade visual e protótipos (Fases 01-05)
 
-### Fase 01 — consolidar escopo, SDD inicial e verificar ambiente local
+### Fase 01 - consolidar escopo, SDD inicial e verificar ambiente local
 
 **Depende de:** entrevista `/grill-me` com o responsável; não depende de código.
 
@@ -97,7 +97,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 - Definir arquitetura, divisão poliglota PostgreSQL/MongoDB, estratégia 3D híbrida + fallback 2D e stack de design/backend em [Planejamento-tecnico.md](Planejamento-tecnico.md).
 - Formalizar regras de `pt-BR`, SOLID, TDD obrigatório e segurança em [Regras.md](../Agents/Regras.md).
 - Verificar versões e status real de Git, Python, Node/npm, PostgreSQL e MongoDB na máquina local.
-- Catalogar decisões abertas `D01`–`D16` sem presumir respostas.
+- Catalogar decisões abertas `D01`-`D16` sem presumir respostas.
 
 **Entrega:** base documental SDD completa (`Agents/Regras.md`, `Doc/Detalhes.md`, `Doc/Planejamento-tecnico.md`, `Doc/Roteiro-primeira-entrega.md`).
 
@@ -107,7 +107,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 **Estado:** concluída em 20/11/2026.
 
-- **Escopo consolidado:** todas as decisões da entrevista `/grill-me` foram consolidadas em `Agents/Regras.md` e `Doc/*.md`, deixando `D01`–`D16` explicitamente abertas para as fases correspondentes.
+- **Escopo consolidado:** todas as decisões da entrevista `/grill-me` foram consolidadas em `Agents/Regras.md` e `Doc/*.md`, deixando `D01`-`D16` explicitamente abertas para as fases correspondentes.
 - **Ambiente local verificado em 20/11/2026:**
   - Git `2.47.1.windows.1` instalado; repositório local inicializado em `main`, com `.gitignore` criado e conectado ao remoto `origin` (`https://github.com/Athos-Danilo/Tarefas.git`).
   - Python `3.13.0` ativo.
@@ -118,13 +118,13 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
   - [x] Criar `Agents/Regras.md` adaptado ao projeto (`pt-BR`, SOLID, TDD desde o primeiro código).
   - [x] Criar `Doc/Detalhes.md` com especificação completa de domínio e fluxos.
   - [x] Criar `Doc/Planejamento-tecnico.md` com arquitetura poliglota, stack 3D/design e ambiente local real.
-  - [x] Criar `Doc/Roteiro-primeira-entrega.md` com 22 fases, 5 ciclos e decisões `D01`–`D16`.
+  - [x] Criar `Doc/Roteiro-primeira-entrega.md` com 22 fases, 5 ciclos e decisões `D01`-`D16`.
   - [x] Criar `Doc/Processo-de-desenvolvimento-com-IA.md` detalhando o fluxo Google Antigravity (`Orchestrator` com `Gemini 4 Neon` e `Gemini 4 Hydrogen`) e os pilares SDD/SOLID/TDD para apresentação em Web II, além de registrar a autorização recorrente de commit e push por fase.
   - [x] Verificar consistência cruzada entre os documentos SDD.
 
 ---
 
-### Fase 02 — escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
+### Fase 02 - escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
 
 **Depende de:** Fase 01; decisões `D01`, `D02` e `D03`.
 
@@ -155,7 +155,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 03 — definir marca, elementos do jardim, constelações e coleção de avatares
+### Fase 03 - definir marca, elementos do jardim, constelações e coleção de avatares
 
 **Depende de:** Fase 02; decisão `D04`.
 
@@ -169,7 +169,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 04 — fechar contratos de API, regras finas da árvore (`D08`–`D10`) e exclusão de conta (`D06`)
+### Fase 04 - fechar contratos de API, regras finas da árvore (`D08`-`D10`) e exclusão de conta (`D06`)
 
 **Depende de:** Fase 01; decisões `D05`, `D06`, `D07`, `D08`, `D09` e `D10`.
 
@@ -177,13 +177,13 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 - Consolidar todos os contratos HTTP/JSON, envelopes de erro e códigos estáveis em português em `Doc/Contratos-api.md`.
 - Atualizar `Doc/Detalhes.md` com as decisões resolvidas.
 
-**Entrega:** `Doc/Contratos-api.md` completo e `D05`–`D10` fechadas.
+**Entrega:** `Doc/Contratos-api.md` completo e `D05`-`D10` fechadas.
 
 **Concluída quando:** backend e frontend possuem contratos inequívocos de entrada, saída e erro para iniciar modelagem e código.
 
 ---
 
-### Fase 05 — prototipar navegação, atmosferas e telas principais
+### Fase 05 - prototipar navegação, atmosferas e telas principais
 
 **Depende de:** Fases 02, 03 e 04; decisões `D11` e `D12`.
 
@@ -191,15 +191,15 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 - Construir protótipo navegável estático em `Doc/Prototipos/` cobrindo Landing com demos, Primeiro Acesso, Jornada do Dia, Mapa Constelação/Ramos, Modo Foco, Calendário Mensal, Estatísticas/Diário, Perfil e estados de vazio/erro/carregamento.
 - Validar fluxo e adaptação visual em desktop, tablet e celular (`D12`) nos 4 momentos do dia.
 
-**Entrega:** `Doc/Prototipos/` aprovado e decisões `D11`–`D12` fechadas.
+**Entrega:** `Doc/Prototipos/` aprovado e decisões `D11`-`D12` fechadas.
 
 **Concluída quando:** o responsável percorre e aprova toda a navegação e organização visual das telas antes da implementação.
 
 ---
 
-## 5. Ciclo 2 — Fundação técnica, autenticação e núcleo poliglota (Fases 06–10)
+## 5. Ciclo 2 - Fundação técnica, autenticação e núcleo poliglota (Fases 06-10)
 
-### Fase 06 — preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
+### Fase 06 - preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
 
 **Depende de:** Fase 01; verificação de compatibilidade React vs `@react-three/fiber`.
 
@@ -214,7 +214,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 07 — migrações PostgreSQL, conexão MongoDB e adaptadores base (TDD)
+### Fase 07 - migrações PostgreSQL, conexão MongoDB e adaptadores base (TDD)
 
 **Depende de:** Fases 04 e 06.
 
@@ -229,7 +229,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 08 — autenticação Google OAuth 2.0, sessão segura, primeiro acesso e exclusão de conta (TDD)
+### Fase 08 - autenticação Google OAuth 2.0, sessão segura, primeiro acesso e exclusão de conta (TDD)
 
 **Depende de:** Fases 04 (`D05`, `D06`, `D07`) e 07.
 
@@ -243,7 +243,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 09 — motor de domínio da árvore de tarefas compostas (TDD)
+### Fase 09 - motor de domínio da árvore de tarefas compostas (TDD)
 
 **Depende de:** Fase 04 (`D08`, `D09`) e Fase 06.
 
@@ -261,7 +261,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 10 — API poliglota completa de tarefas, etiquetas, notas ricas e consistência (TDD)
+### Fase 10 - API poliglota completa de tarefas, etiquetas, notas ricas e consistência (TDD)
 
 **Depende de:** Fases 07, 08 e 09.
 
@@ -275,9 +275,9 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-## 6. Ciclo 3 — Design System, mundo 3D híbrido, Landing, Jornada e Mapa (Fases 11–15)
+## 6. Ciclo 3 - Design System, mundo 3D híbrido, Landing, Jornada e Mapa (Fases 11-15)
 
-### Fase 11 — sistema visual adaptativo (4 momentos), tokens, tipografia e Fallback 2D (TDD)
+### Fase 11 - sistema visual adaptativo (4 momentos), tokens, tipografia e Fallback 2D (TDD)
 
 **Depende de:** Fases 02, 05 e 06.
 
@@ -291,7 +291,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 12 — cenário 3D vivo em Three.js/R3F (TDD)
+### Fase 12 - cenário 3D vivo em Three.js/R3F (TDD)
 
 **Depende de:** Fases 03, 11; decisão `D13`.
 
@@ -305,7 +305,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 13 — landing cinematográfica com demos locais e fluxo completo de entrada (TDD)
+### Fase 13 - landing cinematográfica com demos locais e fluxo completo de entrada (TDD)
 
 **Depende de:** Fases 05, 08 e 12.
 
@@ -319,7 +319,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 14 — Jornada do Dia: lista hierárquica, drag-and-drop, filtros e notas ricas (TDD)
+### Fase 14 - Jornada do Dia: lista hierárquica, drag-and-drop, filtros e notas ricas (TDD)
 
 **Depende de:** Fases 10, 11 e 13.
 
@@ -333,7 +333,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 15 — Mapa Visual de Constelação/Ramos (TDD)
+### Fase 15 - Mapa Visual de Constelação/Ramos (TDD)
 
 **Depende de:** Fases 05 (`D11`), 10 e 14.
 
@@ -347,9 +347,9 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-## 7. Ciclo 4 — Foco, Calendário, Estatísticas e Áudio (Fases 16–19)
+## 7. Ciclo 4 - Foco, Calendário, Estatísticas e Áudio (Fases 16-19)
 
-### Fase 16 — Modo Foco Imersivo com temporizador solar/lunar (TDD)
+### Fase 16 - Modo Foco Imersivo com temporizador solar/lunar (TDD)
 
 **Depende de:** Fases 10, 12 e 14.
 
@@ -363,7 +363,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 17 — Calendário Mensal dos Prazos com prioridades e fases lunares (TDD)
+### Fase 17 - Calendário Mensal dos Prazos com prioridades e fases lunares (TDD)
 
 **Depende de:** Fases 10, 11 e 14.
 
@@ -377,7 +377,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 18 — Estatísticas, Diário do Ciclo e preferências persistidas (TDD)
+### Fase 18 - Estatísticas, Diário do Ciclo e preferências persistidas (TDD)
 
 **Depende de:** Fases 10, 16 e 17; decisão `D14`.
 
@@ -391,7 +391,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 19 — experiência sonora opt-in (TDD)
+### Fase 19 - experiência sonora opt-in (TDD)
 
 **Depende de:** Fases 11, 16 e 18; decisão `D15`.
 
@@ -405,9 +405,9 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-## 8. Ciclo 5 — Acabamento, publicação e entrega acadêmica (Fases 20–22)
+## 8. Ciclo 5 - Acabamento, publicação e entrega acadêmica (Fases 20-22)
 
-### Fase 20 — revisão de integridade, segurança, acessibilidade, responsividade e desempenho
+### Fase 20 - revisão de integridade, segurança, acessibilidade, responsividade e desempenho
 
 **Depende de:** Fases 13 a 19.
 
@@ -422,7 +422,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 21 — provisionar bancos gratuitos na nuvem e publicar ambiente na web
+### Fase 21 - provisionar bancos gratuitos na nuvem e publicar ambiente na web
 
 **Depende de:** Fase 20; decisão `D16`.
 
@@ -436,7 +436,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 ---
 
-### Fase 22 — aceitação final, documentação para Web II e roteiro de apresentação
+### Fase 22 - aceitação final, documentação para Web II e roteiro de apresentação
 
 **Depende de:** Fase 21.
 

@@ -1,4 +1,4 @@
-# Especificação de produto e regras de domínio — Lume
+# Especificação de produto e regras de domínio - Lume
 
 > **Identidade oficial (`D01`):** **`Lume`** é o nome definitivo aprovado em `20/11/2026` (substituindo o provisório *Horizonte Vivo*, termo preservado para o conceito visual do cenário). As definições visuais de transição contínua 24h, tipografia e responsividade estão consolidadas em [Guia-visual.md](Guia-visual.md).
 
@@ -48,7 +48,7 @@ A aplicação transforma o planejamento diário em uma paisagem viva que acompan
 - **Modo Relógio Real (padrão):** calcula o momento do dia e a posição do sol/lua a partir do horário local do usuário, com transição contínua entre os 4 períodos.
 - **Modo Simulador / Arco do Dia:** controle interativo visível que permite arrastar o sol/lua ao longo das 24 horas (ou selecionar diretamente Manhã/Tarde/Crepúsculo/Noite) para inspecionar tarefas por turno, testar a estética ou apresentar o projeto ao vivo sem alterar o relógio real do sistema.
 - A reatividade do jardim e do céu traduz o avanço real das tarefas do dia: concluir tarefas e subtarefas acende pontos estelares e faz elementos do jardim florescerem sem interferir na clareza da lista.
-- **Experiência responsiva desktop-first:** concebida com base em computador para aproveitar palco 3D e painéis lado a lado, mantendo operação completa em tablets (`768px–1023px`) e celulares (`320px–767px`), inclusive por toque e Modo Desempenho / Fallback 2D.
+- **Experiência responsiva desktop-first:** concebida com base em computador para aproveitar palco 3D e painéis lado a lado, mantendo operação completa em tablets (`768px-1023px`) e celulares (`320px-767px`), inclusive por toque e Modo Desempenho / Fallback 2D.
 
 ## 4. Regras de domínio da árvore de tarefas compostas
 

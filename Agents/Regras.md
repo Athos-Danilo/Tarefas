@@ -1,4 +1,4 @@
-# Regras de desenvolvimento para IAs — Lume
+# Regras de desenvolvimento para IAs - Lume
 
 ## 1. Leitura e fonte das decisões
 
@@ -20,6 +20,8 @@ Todo o código de autoria do projeto deve ser escrito em **português do Brasil*
 - Testes automatizados, comentários, docstrings, documentação e mensagens de commit.
 
 Use identificadores sem acentos, cedilhas ou espaços (ex.: `prioridade`, `tarefa_pai_id`, `sessao_de_foco`, `configuracoes_cenario`). Textos visíveis na interface, comentários, docstrings e documentação devem preservar a ortografia e a acentuação corretas do português do Brasil.
+
+- **Proibição de travessão:** nunca utilize travessão (`U+2014`) nem meia-risca (`U+2013`) em documentação, código, comentários, textos da interface, mensagens de commit ou respostas. Sempre que precisar separar títulos, intervalos ou explicações, utilize hífen simples (`-`), vírgula, dois-pontos ou parênteses.
 
 ### Convenções de nomes
 
@@ -50,11 +52,11 @@ Mapeie explicitamente campos `snake_case` da API para tipos internos `camelCase`
 A aplicação dos cinco princípios **SOLID** é **obrigatória desde a primeira fase de código executável**, tanto no backend quanto no frontend:
 
 - **Estrutura em camadas claras:** separe explicitamente apresentação/rotas, serviços de domínio/regras de negócio, contratos/portas e adaptadores de infraestrutura (PostgreSQL, MongoDB, Google OAuth, WebGL, Web Audio API). Rotas FastAPI apenas validam entrada, autenticam a sessão, delegam ao serviço e serializam a resposta; componentes React focam em apresentação e interação.
-- **S — Responsabilidade Única (SRP):** cada módulo, classe, serviço ou componente deve ter um único motivo de mudança. Não misture validação de hierarquia de tarefas, persistência SQL, escrita no MongoDB e orquestração HTTP no mesmo arquivo; no frontend, separe estado do ciclo do dia, renderização 3D, editor 2D do mapa e painéis da jornada.
-- **O — Aberto para Extensão, Fechado para Modificação (OCP):** modele pontos de extensão reais — como os 4 momentos do dia (`manha`, `tarde`, `crepusculo`, `noite`), temas visuais, blocos de notas ricas, tipos de eventos do ciclo e provedores/estratégias de cálculo — por meio de tabelas de configuração, composição ou protocolos, sem espalhar cadeias gigantes de `if/elif` por vários módulos.
-- **L — Substituição de Liskov (LSP):** implementações reais e substitutos usados em testes para um mesmo contrato (repositórios, provedor OAuth, adaptador de áudio) devem honrar as mesmas pré-condições, pós-condições, garantias de ordenação e exceções de domínio. Dublês de teste não podem mascarar restrições reais do banco ou da regra de negócio.
-- **I — Segregação de Interfaces (ISP):** prefina contratos/protocolos pequenos e coesos orientados às necessidades de cada caso de uso (por exemplo, separar repositório estrutural de tarefas, repositório de detalhes ricos/layout e registrador de eventos do ciclo), sem obrigar consumidores a depender de métodos que não utilizam.
-- **D — Inversão de Dependência (DIP):** serviços de domínio e casos de uso dependem de abstrações (`Protocol`/interfaces) definidas por suas necessidades, recebendo dependências por injeção explícita (`Depends` ou composição). Detalhes de SQLAlchemy, PyMongo, Google OAuth, Three.js e Web Audio ficam isolados nos adaptadores.
+- **S - Responsabilidade Única (SRP):** cada módulo, classe, serviço ou componente deve ter um único motivo de mudança. Não misture validação de hierarquia de tarefas, persistência SQL, escrita no MongoDB e orquestração HTTP no mesmo arquivo; no frontend, separe estado do ciclo do dia, renderização 3D, editor 2D do mapa e painéis da jornada.
+- **O - Aberto para Extensão, Fechado para Modificação (OCP):** modele pontos de extensão reais (como os 4 momentos do dia: `manha`, `tarde`, `crepusculo`, `noite`; temas visuais; blocos de notas ricas; tipos de eventos do ciclo; e provedores/estratégias de cálculo) por meio de tabelas de configuração, composição ou protocolos, sem espalhar cadeias gigantes de `if/elif` por vários módulos.
+- **L - Substituição de Liskov (LSP):** implementações reais e substitutos usados em testes para um mesmo contrato (repositórios, provedor OAuth, adaptador de áudio) devem honrar as mesmas pré-condições, pós-condições, garantias de ordenação e exceções de domínio. Dublês de teste não podem mascarar restrições reais do banco ou da regra de negócio.
+- **I - Segregação de Interfaces (ISP):** prefina contratos/protocolos pequenos e coesos orientados às necessidades de cada caso de uso (por exemplo, separar repositório estrutural de tarefas, repositório de detalhes ricos/layout e registrador de eventos do ciclo), sem obrigar consumidores a depender de métodos que não utilizam.
+- **D - Inversão de Dependência (DIP):** serviços de domínio e casos de uso dependem de abstrações (`Protocol`/interfaces) definidas por suas necessidades, recebendo dependências por injeção explícita (`Depends` ou composição). Detalhes de SQLAlchemy, PyMongo, Google OAuth, Three.js e Web Audio ficam isolados nos adaptadores.
 - Use composição e funções/protocolos objetivos; não crie fábricas, heranças ou camadas vazias apenas para simular complexidade. Evite duplicar lógica e só extraia abstrações compartilhadas quando houver equivalência real de regra.
 
 ## 4. Contratos, tipos e validação
@@ -112,7 +114,7 @@ A aplicação dos cinco princípios **SOLID** é **obrigatória desde a primeira
 
 ## 9. Testes e verificação (TDD obrigatório)
 
-Todo desenvolvimento de comportamento executável — no backend e no frontend, incluindo regras de domínio, rotas, persistência, hooks, componentes interativos e utilitários — **deve seguir TDD desde a primeira fase de código executável**.
+Todo desenvolvimento de comportamento executável (no backend e no frontend, incluindo regras de domínio, rotas, persistência, hooks, componentes interativos e utilitários) **deve seguir TDD desde a primeira fase de código executável**.
 
 ### Ciclo obrigatório em incrementos pequenos
 

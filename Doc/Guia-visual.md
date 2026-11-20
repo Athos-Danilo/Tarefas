@@ -1,4 +1,4 @@
-# Guia visual e sistema de design — Lume
+# Guia visual e sistema de design - Lume
 
 Este documento consolida as decisões **`D01`**, **`D02`** e **`D03`** aprovadas na Fase 02 em [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), além das diretrizes visuais registradas em [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md) (`ID-13` a `ID-18`). Ele serve como fonte única para tokens CSS, shaders/iluminação 3D, tipografia e adaptação responsiva do projeto.
 
@@ -7,12 +7,12 @@ Este documento consolida as decisões **`D01`**, **`D02`** e **`D03`** aprovadas
 ## 1. Identidade e conceito aprovado (`D01`)
 
 - **Nome oficial:** **`Lume`**
-- **Conceito atmosférico:** *Horizonte Vivo — Alvorada Poética*
+- **Conceito atmosférico:** *Horizonte Vivo - Alvorada Poética*
 - **Significado visual:** união da luz solar ao longo do dia, florescimento do jardim e vagalumes/constelações à noite reagindo ao progresso das tarefas compostas.
 
 ---
 
-## 2. Sistema cromático contínuo 24h (`D02` — *Alvorada Poética*)
+## 2. Sistema cromático contínuo 24h (`D02` - *Alvorada Poética*)
 
 Por ideia do responsável (`ID-15`), o **Lume** adota **transição cromática gradual e contínua minuto a minuto ao longo das 24 horas**, em vez de paletas estáticas isoladas por turno.
 
@@ -20,8 +20,8 @@ Por ideia do responsável (`ID-15`), o **Lume** adota **transição cromática g
 
 1. **Camada atmosférica contínua (00:00 → 24:00):** o céu em 3 paradas de gradiente, as 3 camadas de colinas do jardim, o halo e a cor dos astros (Sol e Lua) e a opacidade das estrelas/constelações interpolam linearmente entre **10 keyframes solares** (0 a 1.440 minutos).
 2. **Camada de interface com polaridade protegida:** para evitar a "zona morta cinza" (perda de contraste ao cruzar de claro para escuro), a interface interpola suavemente dentro de **duas faixas protegidas** com transição CSS suave (`background-color 420ms ease, color 320ms ease`) nos dois pontos de virada (**05:45** na Aurora e **17:30** no Crepúsculo):
-   - **Faixa Luminosa (`05:45`–`17:29`, min `345`–`1049`):** superfícies claras translúcidas (`rgba(..., 0.92–0.93)`), texto escuro e acentos de alto contraste.
-   - **Faixa Noturna (`17:30`–`05:44`, min `1050`–`1439` e `0`–`344`):** superfícies escuras translúcidas (`rgba(..., 0.89–0.91)`), texto luminoso e acentos dourados/vagalume.
+   - **Faixa Luminosa (`05:45`-`17:29`, min `345`-`1049`):** superfícies claras translúcidas (`rgba(..., 0.92-0.93)`), texto escuro e acentos de alto contraste.
+   - **Faixa Noturna (`17:30`-`05:44`, min `1050`-`1439` e `0`-`344`):** superfícies escuras translúcidas (`rgba(..., 0.89-0.91)`), texto luminoso e acentos dourados/vagalume.
 
 ### 2.2 Keyframes atmosféricos contínuos (`CEU_KEYS`)
 
@@ -41,7 +41,7 @@ Por ideia do responsável (`ID-15`), o **Lume** adota **transição cromática g
 
 ### 2.3 Keyframes da interface (`UI_LUMINOSA` e `UI_NOTURNA`)
 
-#### Faixa Luminosa (`05:45`–`17:29`)
+#### Faixa Luminosa (`05:45`-`17:29`)
 
 | Minuto | Hora | Superfície sólida | Superfície alt | Texto principal | Texto secundário | Primária (botão) | Texto botão | Secundária |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -52,7 +52,7 @@ Por ideia do responsável (`ID-15`), o **Lume** adota **transição cromática g
 | `975` | `16:15` | `#FFF9EE` | `#F4E8D4` | `#221E1A` | `#594E43` | `#A94F0D` | `#FFFFFF` | `#1F6E8C` |
 | `1049` | `17:29` | `#FFF3E8` | `#F3DFCE` | `#281C22` | `#61424E` | `#9C3E32` | `#FFFFFF` | `#1E627D` |
 
-#### Faixa Noturna (`17:30`–`05:44`, normalizada após `1440` para cruzamento contínuo da meia-noite)
+#### Faixa Noturna (`17:30`-`05:44`, normalizada após `1440` para cruzamento contínuo da meia-noite)
 
 | Minuto (norm.) | Hora | Superfície sólida | Superfície alt | Texto principal | Texto secundário | Primária (botão) | Texto botão | Secundária |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -85,10 +85,10 @@ Nenhum indicador do **Lume** depende exclusivamente de cor. Cada prioridade comb
 
 | Prioridade | Símbolo + Rótulo | Tom na Faixa Luminosa | Tom na Faixa Noturna | Comportamento na hierarquia |
 | --- | --- | --- | --- | --- |
-| `baixa` | `● Baixa` | `#2A6B4D` – `#2F6F4E` | `#7CE0B0` | Borda fina discreta |
-| `media` | `▲ Média` | `#1B5A87` – `#1D5C87` | `#89CCFF` | Borda média |
-| `alta` | `◆ Alta` | `#9C4B0C` – `#A6540A` | `#FFC069` | Destaque moderado no cartão |
-| `urgente` | `★ Urgente` | `#AD223A` – `#B8293D` | `#FF8A9B` | Realce forte; se for subtarefa em aberto, exibe alerta `★ Filha urgente em aberto` na tarefa-mãe |
+| `baixa` | `● Baixa` | `#2A6B4D` - `#2F6F4E` | `#7CE0B0` | Borda fina discreta |
+| `media` | `▲ Média` | `#1B5A87` - `#1D5C87` | `#89CCFF` | Borda média |
+| `alta` | `◆ Alta` | `#9C4B0C` - `#A6540A` | `#FFC069` | Destaque moderado no cartão |
+| `urgente` | `★ Urgente` | `#AD223A` - `#B8293D` | `#FF8A9B` | Realce forte; se for subtarefa em aberto, exibe alerta `★ Filha urgente em aberto` na tarefa-mãe |
 
 ---
 
@@ -104,7 +104,7 @@ Todas as fontes aprovadas possuem licença livre **`SIL Open Font License 1.1` (
 
 ### 4.1 Diretriz expressiva de Bold e Itálico (`ID-17`)
 
-Seguindo a preferência do responsável por jogos tipográficos marcantes, os textos e títulos devem alternar peso e inclinação em momentos oportunos — nunca em excesso a ponto de prejudicar listas densas:
+Seguindo a preferência do responsável por jogos tipográficos marcantes, os textos e títulos devem alternar peso e inclinação em momentos oportunos, nunca em excesso a ponto de prejudicar listas densas:
 
 - **Títulos de impacto e saudações (Landing, Jornada, Modo Foco):** combinar **Bold** para a ação/substantivo principal com ***Fraunces Italic*** no termo poético ou na marca (exemplo: `Manhã de` **`criação`** `no` ***Lume***; `Suas` **`tarefas`** `iluminam o` ***horizonte***).
 - **Notas ricas e destaques editoriais:** disponibilizar formatação de **negrito**, ***itálico*** e combinações em blocos de citação e anotações com `Plus Jakarta Sans`.
@@ -115,11 +115,11 @@ Seguindo a preferência do responsável por jogos tipográficos marcantes, os te
 | Nível | Família | Tamanho (Desktop → Mobile) | Peso / Estilo |
 | --- | --- | --- | --- |
 | `display-hero` | `Fraunces` | `clamp(2.25rem, 4.5vw, 3.5rem)` | `700` + `Italic` pontual |
-| `titulo-secao` | `Fraunces` | `clamp(1.5rem, 2.6vw, 2.125rem)` | `600–700` + `Italic` pontual |
-| `subtitulo` | `Fraunces` / `Plus Jakarta Sans` | `1.125rem–1.25rem` (`18–20px`) | `600` |
-| `corpo-tarefa` | `Plus Jakarta Sans` | `0.9375rem–1rem` (`15–16px`) | `500–600` |
-| `corpo-apoio` | `Plus Jakarta Sans` | `0.875rem` (`14px`) | `400–500` / `Italic` em observações |
-| `etiqueta-micro` | `Plus Jakarta Sans` / `JetBrains Mono` | `0.75rem` (`12px` — piso mínimo) | `600–700` |
+| `titulo-secao` | `Fraunces` | `clamp(1.5rem, 2.6vw, 2.125rem)` | `600-700` + `Italic` pontual |
+| `subtitulo` | `Fraunces` / `Plus Jakarta Sans` | `1.125rem-1.25rem` (`18-20px`) | `600` |
+| `corpo-tarefa` | `Plus Jakarta Sans` | `0.9375rem-1rem` (`15-16px`) | `500-600` |
+| `corpo-apoio` | `Plus Jakarta Sans` | `0.875rem` (`14px`) | `400-500` / `Italic` em observações |
+| `etiqueta-micro` | `Plus Jakarta Sans` / `JetBrains Mono` | `0.75rem` (`12px` - piso mínimo) | `600-700` |
 
 ---
 
@@ -132,16 +132,16 @@ Seguindo a preferência do responsável por jogos tipográficos marcantes, os te
 
 ---
 
-## 6. Diretrizes de responsividade (`ID-18` — Base Desktop → Tablet → Celular)
+## 6. Diretrizes de responsividade (`ID-18` - Base Desktop → Tablet → Celular)
 
 Conforme definido pelo responsável (`ID-18`), **a base principal de criação da interface é para computador (desktop-first)**, aproveitando área útil para o cenário 3D, painéis simultâneos e o editor visual de constelações, **garantindo adaptação funcional completa em tablets e celulares**.
 
 | Faixa de tela | Largura | Adaptação estrutural esperada |
 | --- | --- | --- |
 | **Desktop amplo (Base principal)** | `>= 1280px` | Navegação lateral fixa/compacta, palco 3D panorâmico, Jornada do Dia com gaveta lateral de detalhes/notas ricas aberta lado a lado e editor amplo do Mapa Constelação/Ramos. |
-| **Laptop / Desktop compacto** | `1024px–1279px` | Mantém barra lateral e painel principal; gaveta de edição/notas alterna para painel deslizante sobreposto quando necessário. |
-| **Tablet** | `768px–1023px` | Menu lateral colapsável ou barra superior compacta; grade do Calendário Mensal e cartões ajustados para 2 colunas ou coluna única fluida; controles de zoom/pan no Mapa fáceis de tocar. |
-| **Celular** | `320px–767px` | Zero transbordamento horizontal a partir de `320px`; barra inferior ou menu gaveta acessível; controle do Arco do Dia compacto no topo; alvos de toque mínimos de `44×44 px`; recuo visual da árvore multinível limitado (`max-indent`) para preservar espaço de leitura; opção destacada de Modo Desempenho / Fallback 2D em aparelhos leves. |
+| **Laptop / Desktop compacto** | `1024px-1279px` | Mantém barra lateral e painel principal; gaveta de edição/notas alterna para painel deslizante sobreposto quando necessário. |
+| **Tablet** | `768px-1023px` | Menu lateral colapsável ou barra superior compacta; grade do Calendário Mensal e cartões ajustados para 2 colunas ou coluna única fluida; controles de zoom/pan no Mapa fáceis de tocar. |
+| **Celular** | `320px-767px` | Zero transbordamento horizontal a partir de `320px`; barra inferior ou menu gaveta acessível; controle do Arco do Dia compacto no topo; alvos de toque mínimos de `44×44 px`; recuo visual da árvore multinível limitado (`max-indent`) para preservar espaço de leitura; opção destacada de Modo Desempenho / Fallback 2D em aparelhos leves. |
 
 ---
 
@@ -162,11 +162,11 @@ O movimento no **Lume** é pensado para dar vida poética e resposta tátil à i
 ### 7.3 Efeitos de movimento, hierarquia e celebração
 - **Física de mola suave (`motion` / Framer Motion):** expansão e recolhimento dos 5 níveis da árvore de subtarefas com abertura fluida da subárvore, reordenação animada no drag-and-drop (`@dnd-kit` + layout transitions) e troca orgânica de telas/gavetas.
 - **Conclusão e celebração:** ao concluir uma subtarefa, o risco tipográfico desliza suavemente e a barra de progresso avança em mola; ao concluir uma constelação inteira, estrelas/flores correspondentes pulsam no cenário 3D/2D.
-- **Ritmo e acessibilidade:** interações frequentes (abrir tarefa, marcar checkbox, filtrar) permanecem rápidas (`150ms–300ms`) para não cansar o uso diário; animações de entrada e efeitos de escrita ficam concentrados na Landing, transições de turno e Modo Foco. Tudo respeita estritamente `prefers-reduced-motion: reduce` e o Modo Desempenho.
+- **Ritmo e acessibilidade:** interações frequentes (abrir tarefa, marcar checkbox, filtrar) permanecem rápidas (`150ms-300ms`) para não cansar o uso diário; animações de entrada e efeitos de escrita ficam concentrados na Landing, transições de turno e Modo Foco. Tudo respeita estritamente `prefers-reduced-motion: reduce` e o Modo Desempenho.
 
 ---
 
 ## 8. Referências visuais e protótipos desta fase
 
-- [simulacao-transicao-continua.html](Identidade-visual/simulacao-transicao-continua.html) — estúdio interativo aprovado da **Transição Cromática Contínua 24h** com timelapse, hora real e auditoria WCAG dos 1.440 minutos.
-- [previa-fase-02.html](Identidade-visual/previa-fase-02.html) — comparativo inicial das 3 direções cromáticas e 3 trios tipográficos avaliados na Fase 02.
+- [simulacao-transicao-continua.html](Identidade-visual/simulacao-transicao-continua.html): estúdio interativo aprovado da **Transição Cromática Contínua 24h** com timelapse, hora real e auditoria WCAG dos 1.440 minutos.
+- [previa-fase-02.html](Identidade-visual/previa-fase-02.html): comparativo inicial das 3 direções cromáticas e 3 trios tipográficos avaliados na Fase 02.

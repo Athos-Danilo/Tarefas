@@ -1,4 +1,4 @@
-# Planejamento técnico — Lume
+# Planejamento técnico - Lume
 
 Este documento consolida a arquitetura, a stack tecnológica, a divisão poliglota de dados, a estratégia de renderização 3D híbrida, a segurança e a infraestrutura de execução local e publicação gratuita do projeto **Lume**. Todas as implementações seguem as regras de [Regras.md](../Agents/Regras.md), o sistema visual de [Guia-visual.md](Guia-visual.md) e os requisitos de [Detalhes.md](Detalhes.md).
 
@@ -27,13 +27,13 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 
 ### 2.2 Frontend & Ecossistema de Design (React + TypeScript + Vite)
 - **Núcleo:** `React`, `TypeScript` (`strict: true`), `Vite`.
-- **Estilização e Design System:** `Tailwind CSS v4` alimentado por variáveis CSS semânticas dinâmicas com **interpolação cromática contínua ao longo das 24 horas** (sobre os keyframes da direção *Alvorada Poética* nos 4 momentos — `manha`, `tarde`, `crepusculo`, `noite`), utilizando faixas de polaridade luminosa e noturna para preservar contraste WCAG AA (`>= 4.5:1`) em todos os 1.440 minutos do dia.
+- **Estilização e Design System:** `Tailwind CSS v4` alimentado por variáveis CSS semânticas dinâmicas com **interpolação cromática contínua ao longo das 24 horas** (sobre os keyframes da direção *Alvorada Poética* nos 4 momentos: `manha`, `tarde`, `crepusculo` e `noite`), utilizando faixas de polaridade luminosa e noturna para preservar contraste WCAG AA (`>= 4.5:1`) em todos os 1.440 minutos do dia.
 - **Primitivos acessíveis:** `Radix UI` (diálogos, menus, popovers, seletores e tooltips com foco e teclado acessíveis).
 - **Animações de interface:** `motion` (Framer Motion) para transições fluidas, **animações tipográficas e efeitos de escrita/revelação**, **microinterações táteis de hover** e coreografia de movimento em árvore e cartões conforme [Guia-visual.md](Guia-visual.md) (`ID-19`), sempre respeitando `prefers-reduced-motion`.
 - **Arrastar e soltar acessível:** `@dnd-kit` para reordenação manual e movimentação de tarefas na Jornada do Dia com suporte a ponteiro e teclado.
 - **Mundo 3D (WebGL):** `three`, `@react-three/fiber` e `@react-three/drei`.
   - **Atenção obrigatória antes da Fase 06:** verificar na documentação oficial a matriz de compatibilidade exata entre a versão instalada do `React` (`18` vs `19`) e a versão correspondente do `@react-three/fiber` / `@react-three/drei` antes de fixar o `package.json`.
-- **Mapa Visual de Constelação / Ramos:** `@xyflow/react` ou motor SVG/Canvas 2D customizado — escolha técnica e visual a ser fechada na decisão `D11` (Fase 04/05).
+- **Mapa Visual de Constelação / Ramos:** `@xyflow/react` ou motor SVG/Canvas 2D customizado (escolha técnica e visual a ser fechada na decisão `D11`, na Fase 04/05).
 - **Dados, formulários e estado:** `@tanstack/react-query` (cache e sincronização com a API), `react-hook-form` + `zod` (validação tipada de formulários), `zustand` (estado efêmero de UI, Modo Simulador do Arco do Dia e controlador de foco/áudio).
 - **Iconografia e ilustrações:** `Lucide React` combinado com SVGs autorais para ícones botânicos, fases lunares e constelações.
 - **Tipografia:** trio tipográfico aprovado em `D03` (**`Fraunces`** Display + **`Plus Jakarta Sans`** Sans UI + **`JetBrains Mono`** Mono tabular para horários/timers), com uso expressivo de **bold** e **itálico** em títulos, saudações, Modo Foco e notas ricas (`ID-17`), hospedando localmente todas as variantes (incluindo itálicos) sob licença `SIL OFL 1.1`.
@@ -112,7 +112,7 @@ Tarefas/
 
 ## 5. Modelagem poliglota de dados (PostgreSQL + MongoDB)
 
-### 5.1 PostgreSQL — Fonte de verdade estrutural e transacional (ACID)
+### 5.1 PostgreSQL: Fonte de verdade estrutural e transacional (ACID)
 - **`usuarios`:** `id` (UUID), `google_sub` (único), `email`, `nome_exibicao`, `avatar_id`, `primeiro_acesso_concluido`, `criado_em`, `atualizado_em`.
 - **`sessoes`:** `id` (UUID), `usuario_id` (FK), `token_hash` (único), `csrf_token_hash`, `expira_em`, `criado_em`, `revogada_em`.
 - **`tarefas`:** `id` (UUID), `usuario_id` (FK), `tarefa_pai_id` (FK auto-referenciada anulável com índice), `titulo`, `prioridade` (`baixa` | `media` | `alta` | `urgente`), `status` (`pendente` | `em_andamento` | `concluida`), `turno` (`manha` | `tarde` | `noite` | `livre`), `prazo` (anulável, indexado por `(usuario_id, prazo)`), `profundidade` (`1` a `5`, com restrição `CHECK`), `ordem_manual`, `concluida_em`, `criado_em`, `atualizado_em`.
@@ -120,7 +120,7 @@ Tarefas/
 - **`etiquetas` e `tarefa_etiquetas`:** etiquetas nomeadas e coloridas por usuário (`UNIQUE (usuario_id, nome_normalizado)`) com tabela associativa `N:N`.
 - **`sessoes_foco`:** `id` (UUID), `usuario_id` (FK), `tarefa_id` (FK), `duracao_planejada_seg`, `duracao_real_seg`, `iniciada_em`, `encerrada_em`, `status` (`concluida` | `interrompida`).
 
-### 5.2 MongoDB — Documentos flexíveis, mapa visual, eventos e preferências
+### 5.2 MongoDB: Documentos flexíveis, mapa visual, eventos e preferências
 - **`detalhes_tarefas`:** `{ _id, tarefa_id (único), usuario_id, notas_em_blocos: [...], metadados_visuais: { forma_botanica, cor_estrela, icone }, atualizado_em }`.
 - **`layouts_constelacao`:** `{ _id, usuario_id, tarefa_raiz_id (único por usuário), nos: { [tarefa_id]: { x, y, fixado } }, viewport: { zoom, centro_x, centro_y }, atualizado_em }`.
 - **`eventos_ciclo`:** `{ _id, usuario_id, tipo_evento, tarefa_id, momento_do_dia, resumo, detalhes: {...}, criado_em }` (indexado por `(usuario_id, criado_em DESC)` para histórico e diário).
