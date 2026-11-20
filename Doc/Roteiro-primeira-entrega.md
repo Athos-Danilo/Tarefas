@@ -1,6 +1,6 @@
 # Roteiro de desenvolvimento — primeira entrega (Horizonte Vivo — nome provisório)
 
-**Registro de situação em 20/11/2026:** **Fase 01 concluída** (escopo consolidado após entrevista `/grill-me`, regras em [Regras.md](../Agents/Regras.md), especificação em [Detalhes.md](Detalhes.md), planejamento técnico em [Planejamento-tecnico.md](Planejamento-tecnico.md) e ambiente local verificado). Próxima etapa: **Fase 02 — decidir nome definitivo (`D01`), paletas dos 4 momentos do dia (`D02`) e trio tipográfico (`D03`)**.
+**Registro de situação em 20/11/2026:** **Fase 01 concluída** (escopo consolidado após entrevista `/grill-me`, regras em [Regras.md](../Agents/Regras.md), especificação em [Detalhes.md](Detalhes.md), planejamento técnico em [Planejamento-tecnico.md](Planejamento-tecnico.md), processo com agentes de IA em [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e ambiente local verificado). Próxima etapa: **Fase 02 — decidir nome definitivo (`D01`), paletas dos 4 momentos do dia (`D02`) e trio tipográfico (`D03`)**.
 
 **Escopo da primeira entrega:** aplicação web de gerenciamento de tarefas pessoais para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas locais, Jornada do Dia, Mapa Visual Constelação/Ramos, Modo Foco Imersivo, Calendário Mensal dos Prazos, Estatísticas/Diário do Ciclo, experiência sonora opt-in e publicação gratuita na web.
 
@@ -19,7 +19,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 - **TDD e SOLID desde a primeira fase de código executável:** toda criação ou alteração de comportamento executável (backend e frontend) exige ciclo completo **Vermelho → Verde → Refatoração** e revisão quanto aos cinco princípios **SOLID**, conforme [Regras.md](../Agents/Regras.md).
 - **Estados permitidos por fase:** `não iniciada`, `em andamento`, `aguardando decisão`, `em revisão` e `concluída`.
 - Uma fase só recebe `[x]` quando sua entrega foi produzida, seus critérios objetivos de conclusão foram verificados e eventuais limitações foram explicitadas.
-- **Git / commits:** repositório local conectado a `https://github.com/Athos-Danilo/Tarefas.git` na branch `main`; nos commits autorizados, seguir o padrão `Fase NN: objetivo da fase` com revisão prévia de segredos e diff.
+- **Git / commits:** repositório local conectado a `https://github.com/Athos-Danilo/Tarefas.git` na branch `main`. O responsável autorizou expressamente em `20/11/2026` realizar `git commit` e `git push` automaticamente ao concluir cada fase, no padrão `Fase NN: objetivo da fase`, sempre após revisar `git status`, `git diff` (garantindo ausência de segredos) e executar as verificações pertinentes.
 
 ### Controle geral de conclusão das fases
 
@@ -119,7 +119,8 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
   - [x] Criar `Doc/Detalhes.md` com especificação completa de domínio e fluxos.
   - [x] Criar `Doc/Planejamento-tecnico.md` com arquitetura poliglota, stack 3D/design e ambiente local real.
   - [x] Criar `Doc/Roteiro-primeira-entrega.md` com 22 fases, 5 ciclos e decisões `D01`–`D16`.
-  - [x] Verificar consistência cruzada entre os 4 arquivos.
+  - [x] Criar `Doc/Processo-de-desenvolvimento-com-IA.md` detalhando o fluxo Google Antigravity (`Orchestrator` com `Gemini 4 Neon` e `Gemini 4 Hydrogen`) e os pilares SDD/SOLID/TDD para apresentação em Web II, além de registrar a autorização recorrente de commit e push por fase.
+  - [x] Verificar consistência cruzada entre os documentos SDD.
 
 ---
 
@@ -425,7 +426,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 
 - Executar suíte completa final (`pytest`, `ruff`, `mypy`, `vitest`, `tsc`, `eslint`, build de produção e E2E Playwright) sem alterações pendentes.
 - Atualizar `README.md` na raiz, `Doc/Ambiente-local.md` e documentação acadêmica (diagrama ER + esquema MongoDB + diagrama de arquitetura poliglota + OpenAPI exportável).
-- Preparar roteiro demonstrativo para apresentação na disciplina **Web II** destacando a simulação do ciclo do dia, o 3D híbrido, as tarefas compostas multinível, a arquitetura poliglota e a engenharia SDD/SOLID/TDD.
+- Preparar roteiro demonstrativo para apresentação na disciplina **Web II**, apoiado em [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md), destacando a simulação do ciclo do dia, o 3D híbrido, as tarefas compostas multinível, a arquitetura poliglota, a orquestração multimodelo (`Orchestrator` com `Gemini 4 Neon` e `Gemini 4 Hydrogen`) e a engenharia SDD/SOLID/TDD.
 
 **Entrega:** primeira entrega encerrada, verificada e pronta para apresentação em Web II.
 

@@ -65,6 +65,7 @@ Tarefas/
 ├── Doc/
 │   ├── Detalhes.md
 │   ├── Planejamento-tecnico.md
+│   ├── Processo-de-desenvolvimento-com-IA.md
 │   └── Roteiro-primeira-entrega.md
 ├── Backend/
 │   ├── pyproject.toml
