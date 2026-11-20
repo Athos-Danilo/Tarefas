@@ -1,0 +1,41 @@
+# Segredos e variáveis de ambiente locais
+.env
+.env.*
+!.env.exemplo
+!.env.*.exemplo
+
+# Python (Backend)
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+
+# Node / Frontend (Vite + React + TypeScript)
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+playwright-report/
+test-results/
+blob-report/
+
+# Logs, temporários, sistema operacional e editores
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+Capturas-locais/

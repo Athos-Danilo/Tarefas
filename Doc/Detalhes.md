@@ -1,0 +1,154 @@
+# Especificação de produto e regras de domínio — Horizonte Vivo (nome provisório)
+
+> **Nota de nomenclatura (`D01`):** **Horizonte Vivo** é o nome provisório adotado nesta especificação. O nome definitivo da aplicação, o logotipo e a identidade visual final serão decididos pelo responsável na **Fase 02** em [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md).
+
+## 1. Visão geral e objetivo acadêmico
+
+O projeto é uma aplicação web pessoal de gerenciamento de tarefas desenvolvida para a disciplina **Web II**, unindo rigor arquitetural (backend em Python/FastAPI, frontend em React/TypeScript, persistência poliglota em PostgreSQL + MongoDB, SOLID e TDD) a uma experiência visual e interativa diferenciada no mercado.
+
+Os requisitos funcionais fundamentais da entrega incluem:
+
+1. **Autenticação de usuários** via Google OAuth 2.0, com primeiro acesso personalizado, gestão de perfil e exclusão da própria conta.
+2. **Cadastro e gestão completa de tarefas pessoais** com níveis de prioridade, turnos do dia, status, prazos, etiquetas, ordenação manual e notas ricas.
+3. **Composição hierárquica de tarefas:** uma tarefa pode ser composta por outras tarefas em árvore multinível (até 5 níveis), com progresso automático, cascata inteligente e visualização tanto hierárquica quanto em mapa visual interativo.
+4. **Simulação viva da passagem do dia:** a interface traduz a passagem do tempo ao longo de **Manhã**, **Tarde**, **Crepúsculo** e **Noite** por meio de um cenário 3D reativo (sol, lua, estrelas, constelações e jardim) combinado a painéis 2D de alta legibilidade.
+
+## 2. Glossário oficial do domínio (`pt-BR`)
+
+Para manter consistência absoluta entre especificações, banco de dados, API e interface, adotam-se os seguintes termos oficiais:
+
+| Termo oficial | Significado no domínio |
+| --- | --- |
+| `tarefa` | Unidade gerenciável de trabalho pertencente a um único usuário; pode ser raiz ou filha de outra tarefa. |
+| `tarefa_pai` | Tarefa imediatamente superior na hierarquia que agrega uma ou mais subtarefas diretas. |
+| `subtarefa` | Tarefa vinculada a uma `tarefa_pai`; também pode possuir suas próprias subtarefas até o limite de profundidade. |
+| `arvore_de_tarefas` | Estrutura hierárquica completa formada por uma tarefa raiz e todos os seus níveis descendentes. |
+| `prioridade` | Grau de importância/urgência da tarefa (`baixa`, `media`, `alta`, `urgente`). |
+| `status` | Estado atual da tarefa (`pendente`, `em_andamento`, `concluida`). |
+| `turno` | Faixa do ciclo do dia em que a tarefa está planejada (`manha`, `tarde`, `noite`, `livre`). |
+| `ciclo_do_dia` | Estado temporal e atmosférico exibido pelo sistema nos 4 momentos (`manha`, `tarde`, `crepusculo`, `noite`). |
+| `constelacao` | Representação visual de uma árvore de tarefas compostas no Mapa Visual (ramos/flores sob luz solar e constelação luminosa à noite). |
+| `sessao_de_foco` | Período cronometrado de concentração vinculado a uma tarefa no Modo Foco Imersivo. |
+| `etiqueta` | Marcador temático personalizado do usuário associado a uma ou mais tarefas. |
+| `evento_do_ciclo` | Registro rico no diário/histórico do usuário (conclusões, florescimentos, constelações acesas e sessões de foco). |
+| `preferencias_cenario` | Configurações visuais, de simulação temporal, acessibilidade/desempenho 3D e áudio do usuário. |
+
+## 3. Conceito central: o ciclo vivo do dia
+
+A aplicação transforma o planejamento diário em uma paisagem viva que acompanha o passar do tempo:
+
+### Os 4 momentos do ciclo
+1. **Manhã:** luz fresca e clara, sol nascente baixo no horizonte, jardim despertando com orvalho e tons suaves.
+2. **Tarde:** sol alto e energia dourada, vegetação vibrante, visibilidade nítida dos ramos e tarefas em curso.
+3. **Crepúsculo:** transição quente coral e violeta, sol poente cedendo espaço às primeiras estrelas, momento de fechamento e revisão do dia.
+4. **Noite:** céu índigo profundo, lua com fase lunar correspondente, estrelas e **constelações** formadas pelas tarefas compostas concluídas ou em progresso.
+
+### Modos de controle do tempo
+- **Modo Relógio Real (padrão):** calcula o momento do dia e a posição do sol/lua a partir do horário local do usuário, com transição contínua entre os 4 períodos.
+- **Modo Simulador / Arco do Dia:** controle interativo visível que permite arrastar o sol/lua ao longo das 24 horas (ou selecionar diretamente Manhã/Tarde/Crepúsculo/Noite) para inspecionar tarefas por turno, testar a estética ou apresentar o projeto ao vivo sem alterar o relógio real do sistema.
+- A reatividade do jardim e do céu traduz o avanço real das tarefas do dia: concluir tarefas e subtarefas acende pontos estelares e faz elementos do jardim florescerem sem interferir na clareza da lista.
+
+## 4. Regras de domínio da árvore de tarefas compostas
+
+### 4.1 Estrutura, profundidade e integridade
+- **Profundidade máxima de 5 níveis:** uma tarefa sem pai está no nível `1` (raiz); sua filha direta no nível `2`, e assim sucessivamente até o nível `5`.
+- É proibido criar uma subtarefa sob uma tarefa já no nível `5` ou mover uma subárvore cujo nó mais profundo ultrapassaria o nível `5` após o deslocamento.
+- **Bloqueio rígido contra ciclos:** nenhuma tarefa pode ter como `tarefa_pai_id` a si mesma ou qualquer um de seus próprios descendentes diretos ou indiretos.
+
+### 4.2 Progresso automático e cascata inteligente
+- **Cálculo automático de progresso (%):** toda tarefa que possui subtarefas exibe percentual de conclusão calculado automaticamente sobre sua subárvore; a fórmula exata de ponderação entre filhas diretas e folhas será fechada em `D08`. Tarefas sem subtarefas têm progresso `0%` quando não concluídas e `100%` quando concluídas.
+- **Conclusão automática de baixo para cima:** ao marcar como `concluida` a última subtarefa pendente/em andamento de uma `tarefa_pai`, a `tarefa_pai` é concluída automaticamente (propagando para ancestrais elegíveis acima dela).
+- **Conclusão em cascata de cima para baixo:** ao tentar marcar uma `tarefa_pai` com subtarefas em aberto como `concluida`, a aplicação oferece/aplica a conclusão em cascata de toda a subárvore descendente, acompanhada de feedback visual e ação imediata de **desfazer** caso o usuário tenha concluído por engano (detalhes de confirmação e comportamento de desfazer em `D08`).
+- **Reabertura inteligente:** ao reabrir (mover de `concluida` para `pendente` ou `em_andamento`) qualquer subtarefa filha de uma `tarefa_pai` concluída, a `tarefa_pai` e seus ancestrais concluídos passam automaticamente para `em_andamento`, recalculando o progresso.
+
+### 4.3 Operações de gestão da hierarquia
+O usuário pode, a qualquer momento:
+- Criar tarefa raiz ou criar subtarefa diretamente dentro de uma tarefa existente.
+- Editar qualquer atributo da tarefa mantendo a posição na árvore.
+- **Mover na hierarquia (`reparenting`):** anexar uma tarefa raiz ou subárvore existente como filha de outra tarefa, ou transferir entre pais diferentes, respeitando limite de 5 níveis e bloqueio de ciclos.
+- **Promover a raiz:** desvincular uma subtarefa de sua mãe para torná-la tarefa principal independente.
+- **Reordenar manualmente** tarefas entre irmãs do mesmo nível e turno (com suporte a arrastar/soltar e controles por teclado).
+- **Excluir tarefa:** o comportamento padrão ao excluir uma tarefa que possui subtarefas (exclusão em cascata vs promoção das filhas) será consolidado em `D08`.
+- **Buscar e filtrar:** busca textual e filtros por prioridade, status, turno, prazo e etiqueta preservando a visibilidade do contexto hierárquico.
+
+## 5. Modelo completo de atributos da tarefa
+
+| Atributo | Especificação | Observações e regras |
+| --- | --- | --- |
+| `titulo` | Texto curto obrigatório | Nome principal da tarefa ou subtarefa. |
+| `notas_em_blocos` | Documento rico estruturado (MongoDB) | Parágrafos, listas, destaques e anotações detalhadas da tarefa. |
+| `prioridade` | `baixa`, `media`, `alta`, `urgente` | **Independente por nó:** a prioridade da mãe não sobrescreve a da filha; porém, se existir qualquer subtarefa descendente `urgente` em aberto, a tarefa-mãe exibe um **alerta visual de urgência herdada/filha urgente**. |
+| `status` | `pendente`, `em_andamento`, `concluida` | Controlado por ações do usuário e pelas regras de cascata/reabertura. |
+| `turno` | `manha`, `tarde`, `noite`, `livre` | Organiza a Jornada do Dia; subtarefas podem seguir o turno da mãe ou ter turno próprio. |
+| `prazo` | Data/hora opcional | Alimenta o Calendário Mensal e indicadores de atraso/proximidade. |
+| `etiquetas` | Coleção de tags do usuário | Cada etiqueta possui nome único por usuário e cor compatível com o tema. |
+| `ordem_manual` | Inteiro sequencial por nível/contexto | Permite ordenação personalizada persistida no servidor. |
+| `metadados_visuais` | Documento leve no MongoDB | Tipo/estética de planta/estrela e cor de destaque no cenário/mapa. |
+
+## 6. Telas, fluxos e experiências da primeira entrega
+
+### 6.1 Landing cinematográfica com demonstrações interativas
+- Apresentação imersiva do mundo 3D logo na entrada, explicando o conceito do ciclo do dia, prioridades e tarefas compostas.
+- Inclui **pequenas demonstrações interativas locais** (ex.: deslizar o Arco do Dia entre Manhã/Tarde/Crepúsculo/Noite e marcar uma subtarefa de exemplo vendo a árvore/constelação reagir em tempo real), **sem persistência no servidor**.
+- Chamada principal clara para **Entrar com Google** (autenticação obrigatória para abrir o espaço real de gestão de tarefas).
+
+### 6.2 Autenticação Google, Primeiro Acesso, Perfil e Exclusão de Conta
+- **Acesso exclusivo via Google OAuth 2.0:** sem senha própria e sem criação manual de senha.
+- **Primeiro acesso:** após o primeiro login Google bem-sucedido, o usuário define seu **nome de exibição** e escolhe um **avatar** (podendo aproveitar nome inicial sugerido pelo Google e escolher se inicia com workspace limpo ou tarefas-guia de boas-vindas; detalhes em `D05`).
+- **Perfil:** visualização e edição do nome de exibição, avatar, e-mail Google vinculado (somente leitura) e acesso às preferências gerais.
+- **Exclusão de conta:** fluxo explícito de exclusão definitiva da própria conta e de todos os seus dados pessoais no PostgreSQL e MongoDB mediante confirmação explícita (definida em `D06`).
+
+### 6.3 Jornada do Dia (visão principal)
+- Cenário 3D vivo ocupando a atmosfera do ambiente com controle do Arco do Dia (Relógio Real vs Simulador) e indicador imediato de progresso diário.
+- Lista hierárquica interativa agrupada ou filtrável por turnos (`manha`, `tarde`, `noite`, `livre`) e prioridades, com expansão de subtarefas até 5 níveis, barras de progresso automático, alerta visual para filhas urgentes, arrastar-e-soltar (com alternativa por teclado), criação rápida, filtros, busca e gaveta/painel lateral de edição e notas ricas.
+
+### 6.4 Mapa Visual de Constelação / Ramos
+- Experiência **híbrida inteligente**: constelações panorâmicas brilham no céu 3D de fundo enquanto o usuário opera um **mapa/editor interativo 2D/SVG de altíssima nitidez** sobre o cenário.
+- Representa graficamente a tarefa-mãe e suas subtarefas conectadas por **ramos botânicos** nos momentos luminosos do dia (Manhã/Tarde) e **linhas de constelação estelar** no Crepúsculo/Noite.
+- Permite navegar pela árvore, expandir/recolher ramos, criar subtarefas, concluir nós e salvar posições personalizadas no MongoDB (`layouts_constelacao`), com botão de reorganização automática.
+
+### 6.5 Modo Foco Imersivo
+- Tela dedicada com o cenário 3D em modo contemplativo/foco, reduzindo distrações visuais.
+- **Temporizador solar/lunar** configurável ligado à tarefa selecionada e exibição direta de suas subtarefas imediatas para marcação sem sair do foco.
+- Ao concluir ou encerrar a etapa, registra a `sessao_de_foco` no PostgreSQL e um `evento_do_ciclo` correspondente no MongoDB.
+
+### 6.6 Calendário Mensal dos Prazos
+- Grade mensal clara exibindo tarefas com `prazo` definido, indicadores luminosos por `prioridade` (incluindo destaque para urgentes e atrasadas) e indicação da **fase lunar** de cada dia em harmonia com a temática celeste.
+- Permite navegar entre meses, filtrar por prioridade/turno e abrir/editar/concluir a tarefa diretamente a partir do dia selecionado.
+
+### 6.7 Estatísticas e Diário do Ciclo
+- Painel com indicadores de conclusão por período, distribuição por prioridade e turno, tempo acumulado em `sessoes_foco` e histórico/linha do tempo rica (`eventos_ciclo` do MongoDB) celebrando constelações concluídas e metas cumpridas.
+
+### 6.8 Experiência Sonora e Preferências do Cenário
+- **Áudio opt-in:** todo som inicia **silenciado/desativado** até ativação voluntária pelo usuário.
+- Micro-efeitos sutis ao concluir tarefa, acender nó da constelação ou finalizar timer + paisagens sonoras opcionais adequadas ao momento do dia e ao Modo Foco.
+- Volumes independentes (geral, efeitos, ambiente) + escolha de modo temporal (Relógio Real / Simulador), **Modo Desempenho / Fallback 2D** e preferência de movimento reduzido salvos em `preferencias_cenario`.
+
+## 7. Matriz inicial de cenários principais
+
+| Cenário | Comportamento esperado | Validação crítica |
+| --- | --- | --- |
+| Visitante na Landing | Vê o cenário 3D animado e testa demos locais (Arco do Dia + subtarefa exemplo) | Nenhuma escrita no servidor; acesso ao app real exige Google OAuth |
+| Primeiro login Google | OAuth válido → tela de primeiro acesso (nome/avatar) → entra no workspace | Conta criada no PostgreSQL; preferências padrão criadas com segurança |
+| Conta existente | Login Google → restaura tarefas, notas, layouts e preferências | Dados privados isolados estritamente pelo `usuario_id` |
+| Exclusão de conta | Confirmação explícita → remoção dos dados em PostgreSQL e MongoDB → logout | Nova entrada com o mesmo Google reinicia como primeiro acesso |
+| Criação e edição composta | Cria tarefa raiz e subtarefas até nível 5; edita prioridades e notas ricas | Nível 6 bloqueado no servidor (`PROFUNDIDADE_EXCEDIDA`) |
+| Reparenting com ciclo | Tenta mover mãe para dentro de sua própria neta ou exceder 5 níveis | Bloqueio atômico no backend (`CICLO_DETECTADO` / `PROFUNDIDADE_EXCEDIDA`) |
+| Cascata e reabertura | Conclui todas as filhas → mãe conclui; reabre uma filha → mãe vira `em_andamento` | Transação ACID no PostgreSQL; progresso (%) recalculado corretamente |
+| Alerta de urgência | Subtarefa nível 3 marcada como `urgente` enquanto mãe tem prioridade `media` | Mãe mantém prioridade `media` e exibe alerta visual de filha urgente |
+| Mapa Constelação/Ramos | Abre tarefa composta no mapa 2D/SVG, move nós, conclui nó e recarrega | Posições recuperadas de `layouts_constelacao`; status confirmado no PostgreSQL |
+| Modo Foco | Inicia sessão de foco na tarefa, conclui subtarefas e encerra ciclo | Sessão gravada no PostgreSQL e evento gravado no MongoDB |
+| Calendário Mensal | Abre mês com prazos variados e clica em tarefa urgente no dia | Datas respeitam fuso e filtros sem misturar dados de outros usuários |
+| Fallback 2D / Reduced Motion | Navegador sem WebGL ou usuário ativa Modo Desempenho / movimento reduzido | Cenário 2D/SVG assume suavemente sem quebrar nenhuma funcionalidade |
+
+## 8. O que não entra automaticamente na primeira entrega
+
+- Compartilhamento de tarefas entre usuários distintos, colaboração em tempo real ou workspaces de equipe.
+- Login por e-mail/senha própria ou múltiplos provedores de autenticação além do Google.
+- Upload livre de anexos binários pesados (PDFs, vídeos, imagens arbitrárias) nas tarefas.
+- Aplicativos nativos mobile/desktop (o projeto entrega aplicação web responsiva para desktop, tablet e celular).
+- Serviços de hospedagem, banco ou assets pagos.
+
+## 9. Decisões em aberto e evolução controlada
+
+As definições finas de identidade visual, fórmulas de cálculo, políticas de exclusão/cascata, limites operacionais e escolha de biblioteca do editor do mapa estão catalogadas como decisões **`D01` a `D16`** na Seção 3 de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), com seus respectivos responsáveis e fases-limite. Nenhuma implementação pode presumir respostas para decisões abertas sem registro formal neste documento.
