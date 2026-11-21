@@ -67,6 +67,7 @@ Tarefas/
 ├── Agents/
 │   └── Regras.md
 ├── Doc/
+│   ├── Contratos-api.md
 │   ├── Detalhes.md
 │   ├── Guia-visual.md
 │   ├── Identidade-visual/
@@ -145,14 +146,15 @@ Tarefas/
    - Leituras de `detalhes_tarefas`, `layouts_constelacao` e `preferencias_cenario` possuem **fallback seguro de criação/retorno padrão**, impedindo que uma falha em documento auxiliar bloqueie o acesso à tarefa estrutural.
    - Operações críticas de criação com notas ou exclusão de conta registram falha explícita e realizam compensação/retentativa idempotente conforme definido na Fase 10.
 
-## 6. Segurança, autenticação e API
+## 6. Segurança, autenticação e API (`D05`-`D10`, [Contratos-api.md](Contratos-api.md))
 
 - **Google OAuth 2.0 (Fluxo Authorization Code com `state` e PKCE no servidor):**
   - Usuário inicia login pelo frontend; o backend redireciona ao Google, valida retorno (`state`, `code`, `id_token` / assinatura e audiência) e cria sessão server-side no PostgreSQL.
-  - Sessão mantida via **cookie `HttpOnly`**, `SameSite=Lax` (ou configuração equivalente de mesma origem via proxy/rewrite `/api` em produção), sem expor tokens em `localStorage`.
-  - Rotas mutáveis (`POST`, `PUT`, `PATCH`, `DELETE`) protegidas contra CSRF.
+  - **Sessão deslizante e revogação (`D07`):** cookie **`lume_sessao`** (`HttpOnly`, `SameSite=Lax`, `Secure` em produção) em mesma origem (`/api` local e rewrite Vercel -> Render) com validade deslizante de **`7` dias** e teto absoluto de **`30` dias**, incluindo ação `POST /api/autenticacao/sair-todos` para encerrar todas as sessões ativas. Sem tokens em `localStorage`.
+  - **Proteção CSRF (`D07`):** cookie `lume_csrf` + cabeçalho obrigatório **`X-CSRF-Token`** nas rotas mutáveis (`POST`, `PUT`, `PATCH`, `DELETE`).
+- **Exclusão definitiva de conta (`D06`) e limites (`D09`-`D10`):** remoção exige confirmação textual exata `EXCLUIR` e limpa ambos os bancos + avatar enviado; camada Pydantic/domínio aplica limites equilibrados (`D09`), `token_desfazer` com TTL de `15s`, `estrategia=cascata|promover_filhas` (`D08`), validação estrita `http://`/`https://` nos `6` tipos de blocos ricos e exportação `.md`/`.json` (`D10`).
 - **OpenAPI / Swagger:** documentação interativa automática do FastAPI organizada em português para avaliação acadêmica de Web II, protegendo endpoints privados.
-- **Códigos de erro padronizados:** envelope consistente `{ "erro": { "codigo": "...", "mensagem": "...", "detalhes": ... } }`.
+- **Códigos de erro padronizados:** envelope consistente `{ "erro": { "codigo": "...", "mensagem": "...", "detalhes": ... } }`, especificado integralmente em [Contratos-api.md](Contratos-api.md).
 
 ## 7. Experiência sonora opt-in
 

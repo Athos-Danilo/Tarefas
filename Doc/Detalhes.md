@@ -62,20 +62,20 @@ A aplicação transforma o planejamento diário em uma paisagem viva que acompan
 - **Bloqueio rígido contra ciclos:** nenhuma tarefa pode ter como `tarefa_pai_id` a si mesma ou qualquer um de seus próprios descendentes diretos ou indiretos.
 
 ### 4.2 Progresso automático e cascata inteligente
-- **Cálculo automático de progresso (%):** toda tarefa que possui subtarefas exibe percentual de conclusão calculado automaticamente sobre sua subárvore; a fórmula exata de ponderação entre filhas diretas e folhas será fechada em `D08`. Tarefas sem subtarefas têm progresso `0%` quando não concluídas e `100%` quando concluídas.
+- **Cálculo automático de progresso (`%`) por tarefas-folha (`D08`):** toda tarefa composta exibe percentual calculado exclusivamente sobre suas **tarefas-folha** descendentes (`round((folhas_concluidas / total_folhas) * 100)`), refletindo com precisão quanto trabalho executável falta na subárvore. Tarefas sem subtarefas têm progresso `0%` quando abertas e `100%` quando concluídas.
 - **Conclusão automática de baixo para cima:** ao marcar como `concluida` a última subtarefa pendente/em andamento de uma `tarefa_pai`, a `tarefa_pai` é concluída automaticamente (propagando para ancestrais elegíveis acima dela).
-- **Conclusão em cascata de cima para baixo:** ao tentar marcar uma `tarefa_pai` com subtarefas em aberto como `concluida`, a aplicação oferece/aplica a conclusão em cascata de toda a subárvore descendente, acompanhada de feedback visual e ação imediata de **desfazer** caso o usuário tenha concluído por engano (detalhes de confirmação e comportamento de desfazer em `D08`).
+- **Conclusão em cascata de cima para baixo (`D08`):** ao tentar marcar uma `tarefa_pai` com subtarefas em aberto como `concluida`, a aplicação oferece/aplica a conclusão em cascata de toda a subárvore descendente, exibindo ação imediata de **desfazer por `10s`** (via `token_desfazer` com validade de `15s` no servidor) que restaura exatamente o estado anterior de todos os nós afetados.
 - **Reabertura inteligente:** ao reabrir (mover de `concluida` para `pendente` ou `em_andamento`) qualquer subtarefa filha de uma `tarefa_pai` concluída, a `tarefa_pai` e seus ancestrais concluídos passam automaticamente para `em_andamento`, recalculando o progresso.
 
-### 4.3 Operações de gestão da hierarquia
+### 4.3 Operações de gestão da hierarquia e limites (`D08`, `D09`, `D10`)
 O usuário pode, a qualquer momento:
-- Criar tarefa raiz ou criar subtarefa diretamente dentro de uma tarefa existente.
-- Editar qualquer atributo da tarefa mantendo a posição na árvore.
+- Criar tarefa raiz ou criar subtarefa diretamente dentro de uma tarefa existente (título `1-140` chars; máximo `50` filhas diretas por mãe, `500` tarefas ativas e `2.000` totais por conta).
+- Editar qualquer atributo da tarefa mantendo a posição na árvore, incluindo `notas_em_blocos` no MongoDB com **`6` tipos de bloco** (`parágrafo` com bold/itálico, `subtítulo`, `lista`, `checklist`, `citação` e `código/link` restrito a `http://` ou `https://`), limitados a `50` blocos e `15.000` caracteres por tarefa, além de **exportação em Markdown (`.md`) ou JSON (`.json`)**.
 - **Mover na hierarquia (`reparenting`):** anexar uma tarefa raiz ou subárvore existente como filha de outra tarefa, ou transferir entre pais diferentes, respeitando limite de 5 níveis e bloqueio de ciclos.
 - **Promover a raiz:** desvincular uma subtarefa de sua mãe para torná-la tarefa principal independente.
 - **Reordenar manualmente** tarefas entre irmãs do mesmo nível e turno (com suporte a arrastar/soltar e controles por teclado).
-- **Excluir tarefa:** o comportamento padrão ao excluir uma tarefa que possui subtarefas (exclusão em cascata vs promoção das filhas) será consolidado em `D08`.
-- **Buscar e filtrar:** busca textual e filtros por prioridade, status, turno, prazo e etiqueta preservando a visibilidade do contexto hierárquico.
+- **Excluir tarefa (`D08`):** se possuir subtarefas, exibe diálogo informando a contagem de descendentes com **2 opções explícitas** para escolha do usuário: **excluir tudo em cascata** ou **excluir apenas a tarefa-mãe e promover suas filhas diretas um nível acima**.
+- **Buscar e filtrar:** busca textual e filtros por prioridade, status, turno, prazo e etiqueta (máximo `30` por usuário e `8` por tarefa) preservando a visibilidade do contexto hierárquico.
 
 ## 5. Modelo completo de atributos da tarefa
 
@@ -99,10 +99,10 @@ O usuário pode, a qualquer momento:
 - Chamada principal clara para **Entrar com Google** (autenticação obrigatória para abrir o espaço real de gestão de tarefas).
 
 ### 6.2 Autenticação Google, Primeiro Acesso, Perfil e Exclusão de Conta
-- **Acesso exclusivo via Google OAuth 2.0:** sem senha própria e sem criação manual de senha.
-- **Primeiro acesso:** após o primeiro login Google bem-sucedido, o usuário define seu **nome de exibição** e escolhe um **avatar** (podendo aproveitar nome inicial sugerido pelo Google e escolher se inicia com workspace limpo ou tarefas-guia de boas-vindas; detalhes em `D05`).
+- **Acesso exclusivo via Google OAuth 2.0 (`D07`):** sem senha própria e sem criação manual de senha. Sessão mantida server-side no PostgreSQL com expiração deslizante de `7` dias (teto absoluto de `30` dias), cookie `lume_sessao` (`HttpOnly`, `SameSite=Lax`) em mesma origem, proteção CSRF por cabeçalho `X-CSRF-Token` e opção de **sair de todos os aparelhos**.
+- **Primeiro acesso (`D05`):** após o primeiro login Google bem-sucedido, o usuário edita o nome sugerido pelo Google (`2` a `60` chars), escolhe um avatar (`16` Soft-3D, foto Google ou upload até `2 MB` normalizado a `256x256`) e encontra marcada por padrão (podendo desmarcar) a criação de **`1` árvore-guia de boas-vindas editável**.
 - **Perfil:** visualização e edição do nome de exibição, avatar, e-mail Google vinculado (somente leitura) e acesso às preferências gerais.
-- **Exclusão de conta:** fluxo explícito de exclusão definitiva da própria conta e de todos os seus dados pessoais no PostgreSQL e MongoDB mediante confirmação explícita (definida em `D06`).
+- **Exclusão de conta (`D06`):** fluxo explícito mediante modal detalhando todos os dados afetados e digitação exata da palavra **`EXCLUIR`**, removendo em definitivo todos os registros no PostgreSQL (incluindo inscrições Web Push e lembretes) e no MongoDB (notas, layouts, eventos e preferências de clima), além de eventual avatar enviado.
 
 ### 6.3 Jornada do Dia (visão principal)
 - Cenário 3D vivo ocupando a atmosfera do ambiente com controle do Arco do Dia (Relógio Real vs Simulador + seletor climático), indicador imediato de progresso diário e **mini-card Bento compacto** com horário local e, quando autorizado pelo usuário (`ID-24`), **cidade atual, temperatura e ícone climático**.
@@ -164,6 +164,6 @@ O usuário pode, a qualquer momento:
 - Aplicativos nativos de loja mobile/desktop (o projeto entrega aplicação web responsiva e **PWA instalável com notificações Web Push** para desktop, tablet e celular).
 - Serviços de hospedagem, banco ou assets pagos.
 
-## 9. Decisões em aberto e evolução controlada
+## 9. Contratos de API, decisões em aberto e evolução controlada
 
-As definições finas de identidade visual, fórmulas de cálculo, políticas de exclusão/cascata, limites operacionais e escolha de biblioteca do editor do mapa estão catalogadas como decisões **`D01` a `D16`** na Seção 3 de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), com seus respectivos responsáveis e fases-limite. Nenhuma implementação pode presumir respostas para decisões abertas sem registro formal neste documento.
+Os contratos completos de requisição/resposta HTTP/JSON para as decisões fechadas (`D01`-`D10`, clima opt-in e lembretes/Web Push) residem em [Contratos-api.md](Contratos-api.md). As definições pendentes (escolha de biblioteca do editor do mapa, navegação prototipada, orçamento 3D, métricas, sons e contas de deploy) estão catalogadas como **`D11` a `D16`** na Seção 3 de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), com seus respectivos responsáveis e fases-limite. Nenhuma implementação pode presumir respostas para decisões abertas sem registro formal neste documento.

@@ -1,6 +1,6 @@
 # Roteiro de desenvolvimento - primeira entrega (Lume)
 
-**Registro de situação em 21/11/2026:** **Fases 01, 02 e 03 concluídas** (`D01 = Lume`, `D02 = Alvorada Poética com transição cromática contínua 24h`, `D03 = Fraunces + Plus Jakarta Sans + JetBrains Mono` e `D04 = Soft-3D Clay Matte + Bento UI, marca Sol de 4 Ls com 4 favicons adaptativos por horário, diorama/plantas/sol/lua 3D e 16 avatares` consolidados em [Guia-visual.md](Guia-visual.md)). Em `21/11/2026`, foram incorporadas as evoluções **`ID-24` a `ID-27`** (card opt-in Cidade + Horário + Temperatura via Open-Meteo, Lua 3D na fase lunar real do Hemisfério Sul, Sistema de Lembretes + PWA/Web Push `VAPID` e cenário climático reativo nos 5 estados WMO), expandindo o roteiro de `22` para **24 fases em 5 ciclos**. Próxima etapa: **Fase 04: fechar contratos de API (`Doc/Contratos-api.md`), regras finas da árvore (`D08`-`D10`), limites operacionais (`D09`), primeiro acesso (`D05`), sessão/CSRF (`D07`) e exclusão de conta (`D06`)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
+**Registro de situação em 21/11/2026:** **Fases 01, 02, 03 e 04 concluídas** (`D01`-`D10` fechadas e [Contratos-api.md](Contratos-api.md) consolidado, além das evoluções `ID-24` a `ID-27` incorporadas no roteiro de `24` fases). Próxima etapa: **Fase 05: escolher biblioteca do Mapa Constelação (`D11`), definir navegação responsiva das 5 visões (`D12`) e construir protótipos navegáveis estáticos em `Doc/Prototipos/`**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Contratos-api.md](Contratos-api.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
 
 **Escopo da primeira entrega:** aplicação web responsiva e PWA instalável de gerenciamento de tarefas pessoais para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) com **Lua 3D na fase lunar real (Hemisfério Sul)**, **clima local opt-in (Cidade + Horário + Temperatura)** e **cenário climático reativo (nuvens, chuva e tempestade suave)** em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas locais, Jornada do Dia, Mapa Visual Constelação/Ramos, Modo Foco Imersivo, Calendário Mensal dos Prazos, Estatísticas/Diário do Ciclo, experiência sonora opt-in, **Sistema de Lembretes + Web Push multi-dispositivo** e publicação gratuita na web.
 
@@ -26,7 +26,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 - [x] Fase 01 - consolidar escopo, SDD inicial e verificar ambiente local
 - [x] Fase 02 - escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
 - [x] Fase 03 - definir marca, elementos do jardim, constelações e coleção de avatares
-- [ ] Fase 04 - fechar contratos de API (incl. clima local e lembretes/push), regras finas da árvore (`D08`-`D10`) e exclusão de conta (`D06`)
+- [x] Fase 04 - fechar contratos de API (incl. clima local e lembretes/push), regras finas da árvore (`D08`-`D10`) e exclusão de conta (`D06`)
 - [ ] Fase 05 - prototipar navegação, atmosferas, mini-card de clima/seletor climático, lembretes/push e telas principais
 - [ ] Fase 06 - preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
 - [ ] Fase 07 - migrações PostgreSQL (incl. push e lembretes), conexão MongoDB e adaptadores base (TDD)
@@ -74,12 +74,12 @@ A tabela abaixo lista todas as decisões estruturantes (`D01`-`D16`) que governa
 | D02 | Paletas dos 4 momentos do dia + transição cromática contínua 24h | Preparar direções cromáticas e validar transição contínua minuto a minuto com checagem WCAG | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Alvorada Poética com transição contínua 24h** |
 | D03 | Trio tipográfico (Display + Sans + Mono) e licenças locais | Comparar combinações legíveis em títulos, listas densas, acentos pt-BR e timers | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Fraunces + Plus Jakarta Sans + JetBrains Mono** (`SIL OFL 1.1`) |
 | D04 | Marca, logotipo, ícones do jardim/constelações e coleção inicial de avatares | Apresentar conceitos visuais reutilizáveis e catálogo inicial de avatares | IA propõe; Athos aprova | Fase 03 | Aprovada em 20/11/2026: Soft-3D Clay Matte + Bento UI, marca Sol de 4 Ls (4 favicons por horário), diorama/plantas/sol/lua 3D e 16 avatares (+ Google/upload) |
-| D05 | Primeiro acesso: formato de nome de usuário, avatar e tarefas-guia iniciais | Definir regras de nome de exibição e se usuário novo pode importar exemplos editáveis | IA propõe; Athos decide | Fase 04 | Em aberto |
-| D06 | Exclusão de conta: fluxo de confirmação e remoção definitiva em ambos os bancos | Detalhar aviso, palavra/ação de confirmação e remoção completa de dados pessoais | IA propõe; Athos aprova | Fase 04 | Em aberto |
-| D07 | Política de sessão, cookie e ambiente local/produção para Google OAuth | Mapear uso de mesma origem/rewrite `/api`, expiração de sessão e proteção CSRF | IA propõe; Athos valida | Fase 04 | Em aberto |
-| D08 | Detalhes finos da cascata: cálculo do %, desfazer conclusão em lote e regra ao excluir mãe com filhas | Demonstrar cenários práticos (ponderação igual vs folhas; excluir cascata vs promover filhas) | IA propõe; Athos escolhe | Fase 04 | Em aberto |
-| D09 | Limites operacionais (tamanho de título/notas, máx. etiquetas, máx. tarefas ativas por usuário) | Propor limites saudáveis contra abuso e para boa legibilidade do mapa/3D | IA propõe; Athos aprova | Fase 04 | Em aberto |
-| D10 | Blocos suportados em `notas_em_blocos` (MongoDB) e formato de exportação/diário | Definir conjunto enxuto e rico (parágrafos, subtítulos, citações, listas, código/links) | IA propõe; Athos aprova | Fase 04 | Em aberto |
+| D05 | Primeiro acesso: formato de nome de usuário, avatar e tarefas-guia iniciais | Definir regras de nome de exibição e se usuário novo pode importar exemplos editáveis | IA propõe; Athos decide | Fase 04 | Aprovada em 21/11/2026: nome Google editável (`2`-`60` chars), escolha de avatar (`16` Soft-3D/Google/upload) e opção marcada (desmarcável) de `1` árvore-guia editável |
+| D06 | Exclusão de conta: fluxo de confirmação e remoção definitiva em ambos os bancos | Detalhar aviso, palavra/ação de confirmação e remoção completa de dados pessoais | IA propõe; Athos aprova | Fase 04 | Aprovada em 21/11/2026: modal de aviso + digitar `EXCLUIR` para remover tudo no MongoDB, PostgreSQL (`CASCADE` incl. push/lembretes) e avatar |
+| D07 | Política de sessão, cookie e ambiente local/produção para Google OAuth | Mapear uso de mesma origem/rewrite `/api`, expiração de sessão e proteção CSRF | IA propõe; Athos valida | Fase 04 | Aprovada em 21/11/2026: sessão deslizante `7d` (teto `30d`), `lume_sessao` (`HttpOnly`, `SameSite=Lax`) via `/api`, `X-CSRF-Token` e sair de todos os aparelhos |
+| D08 | Detalhes finos da cascata: cálculo do %, desfazer conclusão em lote e regra ao excluir mãe com filhas | Demonstrar cenários práticos (ponderação igual vs folhas; excluir cascata vs promover filhas) | IA propõe; Athos escolhe | Fase 04 | Aprovada em 21/11/2026: `%` por tarefas-folha, Desfazer cascata por `10s` (`TTL 15s`) e exclusão de mãe com 2 opções (`cascata` ou `promover_filhas`) |
+| D09 | Limites operacionais (tamanho de título/notas, máx. etiquetas, máx. tarefas ativas por usuário) | Propor limites saudáveis contra abuso e para boa legibilidade do mapa/3D | IA propõe; Athos aprova | Fase 04 | Aprovada em 21/11/2026: perfil equilibrado (título `140`, `50` blocos/`15k`, `30` tags, `500` ativas/`2k`, avatar `2 MB`, `3` lembretes/tarefa, `10` push) |
+| D10 | Blocos suportados em `notas_em_blocos` (MongoDB) e formato de exportação/diário | Definir conjunto enxuto e rico (parágrafos, subtítulos, citações, listas, código/links) | IA propõe; Athos aprova | Fase 04 | Aprovada em 21/11/2026: `6` blocos ricos (parágrafo, subtítulo, lista, checklist, citação e código/link `http`/`https`) + exportação `.md`/`.json` |
 | D11 | Biblioteca do editor do Mapa Visual (`@xyflow/react` vs motor SVG customizado) | Comparar flexibilidade visual orgânica (ramos/constelação), acessibilidade e tamanho de bundle | IA analisa; Athos confirma | Fase 05 | Em aberto |
 | D12 | Navegação principal e organização responsiva das 5 visões | Protótipo interativo em desktop, tablet e celular (Jornada, Mapa, Foco, Calendário, Estatísticas) | IA prototipa; Athos aprova | Fase 05 | Em aberto |
 | D13 | Modelos 3D / assets do jardim e desempenho máximo (orçamento de triângulos e FPS) | Escolher abordagem autoral Soft-3D / instanciada ou assets livres documentados + Fallback 2D | IA propõe; Athos aprova | Fase 13 | Em aberto |
@@ -199,6 +199,23 @@ A tabela abaixo lista todas as decisões estruturantes (`D01`-`D16`) que governa
 **Entrega:** `Doc/Contratos-api.md` completo e `D05`-`D10` fechadas.
 
 **Concluída quando:** backend e frontend possuem contratos inequívocos de entrada, saída e erro para iniciar modelagem e código.
+
+#### Registro de execução da fase 04
+
+**Estado:** concluída em 21/11/2026.
+
+- **Decisões fechadas por Athos (`D05`-`D10`, registradas em `ID-28` a `ID-33`):**
+  - `D05`: nome sugerido do Google (`2`-`60` chars), escolha de avatar (`16` Soft-3D, foto Google ou upload `2 MB` a `256x256`) e opção marcada (desmarcável) de criar `1` árvore-guia de boas-vindas editável.
+  - `D06`: exclusão definitiva exige confirmação `EXCLUIR` em modal de aviso e limpa MongoDB, avatar e PostgreSQL (`CASCADE`, incl. `inscricoes_push` e `lembretes_tarefas`).
+  - `D07`: sessão deslizante de `7` dias (teto `30` dias), cookies `lume_sessao` (`HttpOnly`) e `lume_csrf` em mesma origem `/api`, `X-CSRF-Token` e ação de sair de todos os aparelhos.
+  - `D08`: percentual da mãe calculado pelas **tarefas-folha**, conclusão em cascata com **Desfazer por `10s`** (`token_desfazer` TTL `15s`) e exclusão de tarefa-mãe com `2` escolhas explícitas (`cascata` ou `promover_filhas`).
+  - `D09`: perfil de limites equilibrados (`140` chars de título, `50` blocos/`15.000` chars de notas, `30` etiquetas / `8` por tarefa, `500` tarefas ativas / `2.000` totais, `50` filhas diretas/mãe, avatar `2 MB`, `3` lembretes/tarefa, `10` dispositivos push).
+  - `D10`: `6` blocos ricos (`paragrafo`, `subtitulo`, `lista`, `checklist`, `citacao`, `codigo_ou_link` validando `http`/`https`) e exportação `.md`/`.json`.
+- **Entrega verificada:** [Contratos-api.md](Contratos-api.md) criado em `12` seções (cobrindo saúde, Google OAuth/sessão, tarefas compostas/cascata, etiquetas, blocos ricos/exportação, Mapa Constelação, Modo Foco, Calendário Mensal, Estatísticas/Diário/Preferências, Clima opt-in `Open-Meteo` e Lembretes/Web Push `VAPID`), validado por script automatizado com `JSON.parse()` em todos os exemplos JSON e checagem de UTF-8 sem travessões.
+- **Checklist interno da fase 04:**
+  - [x] Resolver com Athos e documentar decisões `D05` a `D10` em [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md), [Detalhes.md](Detalhes.md) e [Planejamento-tecnico.md](Planejamento-tecnico.md).
+  - [x] Redigir [Contratos-api.md](Contratos-api.md) cobrindo todas as rotas, limites, envelopes de erro e exemplos JSON validados.
+  - [x] Atualizar matriz `D01`-`D16` e concluir `Fase 04` no roteiro.
 
 ---
 
