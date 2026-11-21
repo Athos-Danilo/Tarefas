@@ -15,6 +15,11 @@ class Configuracoes(BaseSettings):
     nome_servico: str = "lume-api"
     versao_api: str = "0.1.0"
     origens_cors: str = "http://localhost:5173,http://127.0.0.1:5173"
+    postgres_url: str | None = None
+    postgres_teste_url: str | None = None
+    mongo_url: str | None = None
+    mongo_banco: str = "lume_dev"
+    mongo_banco_teste: str = "tarefas_teste"
 
     @property
     def lista_origens_cors(self) -> list[str]:

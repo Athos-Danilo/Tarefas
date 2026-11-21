@@ -51,15 +51,35 @@ Copy-Item Backend\.env.exemplo Backend\.env
 
 Em Linux/macOS, o interpretador dentro da `.venv` fica em `Backend/.venv/bin/python`.
 
+### Criar bancos locais no PostgreSQL 18 e aplicar migracoes Alembic
+
+1. Crie os bancos `lume_dev` (desenvolvimento) e `tarefas_teste` (testes isolados) no PostgreSQL local informando a sua senha local no prompt ou via variavel temporaria da sessao PowerShell:
+
+```powershell
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -h 127.0.0.1 -p 5432 -U postgres -d postgres -c "CREATE DATABASE lume_dev ENCODING 'UTF8';"
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -h 127.0.0.1 -p 5432 -U postgres -d postgres -c "CREATE DATABASE tarefas_teste ENCODING 'UTF8';"
+```
+
+2. Preencha `LUME_POSTGRES_URL`, `LUME_POSTGRES_TESTE_URL` e `LUME_MONGO_URL` dentro de `Backend/.env` e aplique/verifique o esquema inicial via Alembic:
+
+```powershell
+cd Backend
+.\.venv\Scripts\python.exe -m alembic upgrade head
+# Opcional para reverter migracoes em ambiente local/teste:
+.\.venv\Scripts\python.exe -m alembic downgrade base
+```
+
 ### Verificacoes do Backend
 
 ```powershell
 cd Backend
-.\.venv\Scripts\python.exe -m ruff check src testes
-.\.venv\Scripts\python.exe -m ruff format --check src testes
+.\.venv\Scripts\python.exe -m ruff check src testes alembic
+.\.venv\Scripts\python.exe -m ruff format --check src testes alembic
 .\.venv\Scripts\python.exe -m mypy src
-.\.venv\Scripts\python.exe -m pytest
+.\.venv\Scripts\python.exe -m pytest -v
 ```
+
+*(Observacao: os testes de integracao exigem que `LUME_POSTGRES_TESTE_URL` e `LUME_MONGO_BANCO_TESTE` apontem para bancos cujo nome termine em `_teste`, como `tarefas_teste`.)*
 
 ### Subir a API em desenvolvimento (porta `8000`)
 
@@ -107,5 +127,5 @@ Com ambos os servidores ativos (`8000` e `5173`), acesse `http://127.0.0.1:5173/
 
 O workflow [.github/workflows/ci.yml](../.github/workflows/ci.yml) executa automaticamente a cada `push` ou `pull_request` na branch `main` as duas baterias independentes:
 
-1. **Backend:** `ruff check`, `ruff format --check`, `mypy src` e `pytest`.
+1. **Backend:** sobe containers de servico `postgres:18` e `mongo:8`, executa `ruff check`, `ruff format --check`, `mypy src` e `pytest` (incluindo migracoes Alembic `upgrade`/`downgrade` e integracao real nos bancos isolados de teste).
 2. **Frontend:** `prettier --check`, `eslint .`, `tsc -b --noEmit`, `vitest run` e `vite build`.

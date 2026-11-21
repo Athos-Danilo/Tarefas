@@ -10,7 +10,9 @@ from testes.unitarios.test_servico_de_saude import VerificadorEmMemoria
 
 
 def test_get_api_saude_retorna_contrato_inicial_em_portugues() -> None:
-    app = criar_aplicacao()
+    app = criar_aplicacao(
+        configuracoes=Configuracoes(_env_file=None, postgres_url=None, mongo_url=None)
+    )
     cliente = TestClient(app)
 
     resposta = cliente.get("/api/saude")
@@ -35,9 +37,10 @@ def test_get_api_saude_retorna_contrato_inicial_em_portugues() -> None:
 
 
 def test_get_api_saude_reporta_degradado_quando_dependencia_falha() -> None:
-    app = criar_aplicacao()
+    config_sem_banco = Configuracoes(_env_file=None, postgres_url=None, mongo_url=None)
+    app = criar_aplicacao(configuracoes=config_sem_banco)
     servico_degradado = ServicoDeSaude(
-        configuracoes=Configuracoes(),
+        configuracoes=config_sem_banco,
         verificador_relacional=VerificadorEmMemoria("indisponivel"),
         verificador_documental=VerificadorEmMemoria("conectado"),
     )
@@ -51,7 +54,9 @@ def test_get_api_saude_reporta_degradado_quando_dependencia_falha() -> None:
 
 
 def test_envelope_de_erro_padronizado_para_erro_de_dominio_e_validacao() -> None:
-    app = criar_aplicacao()
+    app = criar_aplicacao(
+        configuracoes=Configuracoes(_env_file=None, postgres_url=None, mongo_url=None)
+    )
 
     @app.get("/api/_teste-dominio")
     async def rota_dominio() -> None:

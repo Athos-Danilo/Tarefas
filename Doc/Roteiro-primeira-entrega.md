@@ -1,6 +1,6 @@
 # Roteiro de desenvolvimento - primeira entrega (Lume)
 
-**Registro de situação em 21/11/2026:** **Fases 01, 02, 03, 04, 05 e 06 concluídas** (Ciclo 1 completo com `D01`-`D12` fechadas e protótipo V2 aprovado; **Fase 06 concluída** iniciando o Ciclo 2 com `.gitignore` revisado, skeletons FastAPI + React/TS/Vite em TDD+SOLID, proxy `/api/saude` validado e CI no GitHub Actions). Próxima etapa: **Fase 07: migrações PostgreSQL, conexão MongoDB `PyMongo` (`AsyncMongoClient`) e adaptadores base (TDD)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Contratos-api.md](Contratos-api.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Ambiente-local.md](Ambiente-local.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
+**Registro de situação em 21/11/2026:** **Fases 01 a 07 concluídas** (Ciclo 1 completo com `D01`-`D12` fechadas e protótipo V2 aprovado; **Fase 06 e Fase 07 concluídas** no Ciclo 2 com ambiente Python/Node, skeletons FastAPI + React/TS/Vite, CI com `postgres:18` e `mongo:8`, esquema inicial Alembic de `8` tabelas no PostgreSQL, conexão `PyMongo` (`AsyncMongoClient`) com índices nas `4` coleções e adaptadores base em TDD + SOLID). Próxima etapa: **Fase 08: autenticação Google OAuth 2.0, sessão segura, primeiro acesso e exclusão de conta (TDD)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Contratos-api.md](Contratos-api.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Ambiente-local.md](Ambiente-local.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
 
 **Escopo da primeira entrega:** aplicação web responsiva e PWA instalável de gerenciamento de tarefas pessoais para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) com **Lua 3D na fase lunar real (Hemisfério Sul)**, **clima local opt-in (Cidade + Horário + Temperatura)** e **cenário climático reativo (nuvens, chuva e tempestade suave)** em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas locais, Jornada do Dia, Mapa Visual Constelação/Ramos, Modo Foco Imersivo, Calendário Mensal dos Prazos, Estatísticas/Diário do Ciclo, experiência sonora opt-in, **Sistema de Lembretes + Web Push multi-dispositivo** e publicação gratuita na web.
 
@@ -29,7 +29,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 - [x] Fase 04 - fechar contratos de API (incl. clima local e lembretes/push), regras finas da árvore (`D08`-`D10`) e exclusão de conta (`D06`)
 - [x] Fase 05 - prototipar navegação, atmosferas, mini-card de clima/seletor climático, lembretes/push e telas principais
 - [x] Fase 06 - preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
-- [ ] Fase 07 - migrações PostgreSQL (incl. push e lembretes), conexão MongoDB e adaptadores base (TDD)
+- [x] Fase 07 - migrações PostgreSQL (incl. push e lembretes), conexão MongoDB e adaptadores base (TDD)
 - [ ] Fase 08 - autenticação Google OAuth 2.0, sessão segura, primeiro acesso e exclusão de conta (TDD)
 - [ ] Fase 09 - motor de domínio da árvore de tarefas compostas (profundidade 5, ciclos, cascata, alerta urgente) (TDD)
 - [ ] Fase 10 - API poliglota completa de tarefas, etiquetas, notas ricas e consistência (TDD)
@@ -266,6 +266,8 @@ A tabela abaixo lista todas as decisões estruturantes (`D01`-`D16`) que governa
 **Entrega:** camada de persistência poliglota inicial testada em integração real.
 
 **Concluída quando:** migrações Alembic aplicam/revertem limpas e testes de integração passam nos dois bancos de teste.
+
+**Registro de conclusão (21/11/2026):** Bancos `lume_dev` e `tarefas_teste` configurados no PostgreSQL `18.0` e no MongoDB `8.2.5`; esquema relacional criado via Alembic (`20261121_0001_esquema_inicial_lume.py`) com as `8` tabelas (`usuarios`, `sessoes`, `tarefas`, `etiquetas`, `tarefa_etiquetas`, `sessoes_foco`, `inscricoes_push`, `lembretes_tarefas`), restrições `CHECK`/`UNIQUE`, índice único parcial e `ON DELETE CASCADE`; camada documental com `PyMongo` (`AsyncMongoClient`), índices idempotentes nas `4` coleções e `RepositorioPreferenciasMongo`; `.github/workflows/ci.yml` atualizado com containers `postgres:18` e `mongo:8`; `ruff check`, `ruff format --check`, `mypy --strict` e `pytest` (`15 passed` em testes unitários e integração real nos dois bancos) aprovados após a última edição.
 
 ---
 

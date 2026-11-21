@@ -1,11 +1,20 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager, suppress
+
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pymongo.errors import PyMongoError
 
 from configuracao.configuracoes import Configuracoes
 from contratos.verificador_saude import VerificadorDeDependencia
 from dominio.erros import ErroDeDominio
+from infraestrutura.mongo.conexao import GerenciadorMongo
+from infraestrutura.mongo.verificador_mongo import VerificadorMongo
+from infraestrutura.postgres.conexao import FabricaPostgres
+from infraestrutura.postgres.politica_loop import configurar_loop_assincrono_windows
+from infraestrutura.postgres.verificador_postgres import VerificadorPostgres
 from infraestrutura.verificadores_iniciais import VerificadorAindaNaoConfigurado
 from rotas.esquemas_saude import DetalheErro, EnvelopeErro
 from rotas.rotas_saude import roteador_saude
@@ -16,15 +25,46 @@ def criar_aplicacao(
     verificador_relacional: VerificadorDeDependencia | None = None,
     verificador_documental: VerificadorDeDependencia | None = None,
 ) -> FastAPI:
-    """Fabrica da aplicacao FastAPI com injecao explicita de configuracao e portas."""
+    """Fabrica da aplicacao FastAPI com injecao explicita e ciclo de vida dos bancos."""
+    configurar_loop_assincrono_windows()
     config = configuracoes or Configuracoes()
+
+    @asynccontextmanager
+    async def ciclo_de_vida(app: FastAPI) -> AsyncIterator[None]:
+        fabrica_pg: FabricaPostgres | None = None
+        gerenciador_mongo: GerenciadorMongo | None = None
+
+        if verificador_relacional is None and config.postgres_url:
+            fabrica_pg = FabricaPostgres(config.postgres_url)
+            app.state.fabrica_postgres = fabrica_pg
+            app.state.verificador_relacional = VerificadorPostgres(fabrica_pg)
+
+        if verificador_documental is None and config.mongo_url:
+            gerenciador_mongo = GerenciadorMongo(config.mongo_url, config.mongo_banco)
+            app.state.gerenciador_mongo = gerenciador_mongo
+            app.state.verificador_documental = VerificadorMongo(gerenciador_mongo)
+            # Permite /api/saude reportar "indisponivel" sem travar a inicializacao.
+            with suppress(PyMongoError, OSError, TimeoutError):
+                await gerenciador_mongo.garantir_indices()
+
+        try:
+            yield
+        finally:
+            if gerenciador_mongo is not None:
+                await gerenciador_mongo.fechar()
+            if fabrica_pg is not None:
+                await fabrica_pg.fechar()
+
     aplicacao = FastAPI(
         title="Lume API",
         description="API do gerenciador de tarefas pessoais Lume (Horizonte Vivo).",
         version=config.versao_api,
+        lifespan=ciclo_de_vida,
     )
 
     aplicacao.state.configuracoes = config
+    aplicacao.state.fabrica_postgres = None
+    aplicacao.state.gerenciador_mongo = None
     aplicacao.state.verificador_relacional = (
         verificador_relacional or VerificadorAindaNaoConfigurado()
     )

@@ -15,7 +15,7 @@ class VerificadorEmMemoria:
 
 async def test_deve_retornar_status_ok_quando_dependencias_estao_conectadas() -> None:
     servico = ServicoDeSaude(
-        configuracoes=Configuracoes(),
+        configuracoes=Configuracoes(_env_file=None),
         verificador_relacional=VerificadorEmMemoria("conectado"),
         verificador_documental=VerificadorEmMemoria("conectado"),
     )
@@ -31,7 +31,7 @@ async def test_deve_retornar_status_ok_quando_dependencias_estao_conectadas() ->
 
 async def test_deve_retornar_status_ok_quando_dependencias_nao_estao_configuradas() -> None:
     servico = ServicoDeSaude(
-        configuracoes=Configuracoes(),
+        configuracoes=Configuracoes(_env_file=None),
         verificador_relacional=VerificadorEmMemoria("nao_configurado"),
         verificador_documental=VerificadorEmMemoria("nao_configurado"),
     )
@@ -45,12 +45,12 @@ async def test_deve_retornar_status_ok_quando_dependencias_nao_estao_configurada
 
 async def test_deve_retornar_status_degradado_quando_dependencia_esta_indisponivel() -> None:
     servico_doc = ServicoDeSaude(
-        configuracoes=Configuracoes(),
+        configuracoes=Configuracoes(_env_file=None),
         verificador_relacional=VerificadorEmMemoria("conectado"),
         verificador_documental=VerificadorEmMemoria("indisponivel"),
     )
     servico_rel = ServicoDeSaude(
-        configuracoes=Configuracoes(),
+        configuracoes=Configuracoes(_env_file=None),
         verificador_relacional=VerificadorEmMemoria("indisponivel"),
         verificador_documental=VerificadorEmMemoria("nao_configurado"),
     )
@@ -62,7 +62,7 @@ async def test_deve_retornar_status_degradado_quando_dependencia_esta_indisponiv
 async def test_deve_formatar_timestamp_em_iso_8601_utc_com_sufixo_z() -> None:
     instante_fixo = datetime(2026, 11, 21, 14, 30, 0, tzinfo=UTC)
     servico = ServicoDeSaude(
-        configuracoes=Configuracoes(),
+        configuracoes=Configuracoes(_env_file=None),
         verificador_relacional=VerificadorEmMemoria("nao_configurado"),
         verificador_documental=VerificadorEmMemoria("nao_configurado"),
         relogio=lambda: instante_fixo,
