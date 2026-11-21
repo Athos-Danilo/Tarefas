@@ -66,7 +66,7 @@ flowchart TD
 Além da orquestração multimodelo, o desenvolvimento apoia-se em quatro pilares integrados:
 
 1. **Levantamento interativo guiado (`/grill-me`):** antes de criar qualquer arquivo no projeto, todas as ramificações do domínio (conceito do ciclo do dia, árvore até 5 níveis, prioridades independentes com alerta de filha urgente, Google OAuth, persistência poliglota e 3D híbrido) foram entrevistadas decisão a decisão com alternativas recomendadas.
-2. **Spec-Driven Development (SDD):** toda a verdade do projeto mora em `Agents/` e `Doc/` (`Regras.md`, `Detalhes.md`, `Planejamento-tecnico.md`, `Roteiro-primeira-entrega.md`, além dos futuros `Guia-visual.md`, `Contratos-api.md` e `Prototipos/`). As **22 fases** distribuídas em **5 ciclos** impedem pular etapas visuais ou técnicas.
+2. **Spec-Driven Development (SDD):** toda a verdade do projeto mora em `Agents/` e `Doc/` (`Regras.md`, `Detalhes.md`, `Planejamento-tecnico.md`, `Roteiro-primeira-entrega.md`, `Guia-visual.md`, além dos futuros `Contratos-api.md` e `Prototipos/`). As **24 fases** distribuídas em **5 ciclos** impedem pular etapas visuais ou técnicas.
 3. **SOLID e código 100% em `pt-BR`:** desde o banco de dados (tabelas e coleções) até componentes React e erros da API, todos os identificadores próprios usam português do Brasil, mantendo separação estrita entre domínio puro, contratos/protocolos, serviços e adaptadores de infraestrutura (PostgreSQL, MongoDB, Google OAuth, Three.js e Web Audio).
 4. **TDD obrigatório e verificação real:** todo comportamento executável novo ou alterado nasce de um teste com falha esperada (**Vermelho**), recebe implementação limpa (**Verde**) e passa por revisão estrutural e **SOLID** (**Refatoração**), complementado por checagem de tipos, linters e verificação visual/E2E em navegador (inclusive do Modo Desempenho / Fallback 2D).
 
@@ -84,7 +84,7 @@ Além da orquestração multimodelo, o desenvolvimento apoia-se em quatro pilare
 
 Resumo objetivo para apresentar como o projeto foi construído à turma e ao professor:
 
-1. **Do conceito ao plano antes do código:** explicação de como o `/grill-me` e o SDD transformaram uma ideia original ("simulação viva do dia + jardim + constelações") em 22 fases documentadas e 16 decisões rastreáveis (`D01`-`D16`).
+1. **Do conceito ao plano antes do código:** explicação de como o `/grill-me` e o SDD transformaram uma ideia original ("simulação viva do dia + jardim + constelações") em 24 fases documentadas e 16 decisões rastreáveis (`D01`-`D16`).
 2. **Arquitetura multimodelo na prática (Orchestrator):** demonstração de como `Gemini 4 Neon` (planejamento/arquitetura/revisão) e `Gemini 4 Hydrogen` (execução ágil/TDD/verificações) colaboram dentro do Google Antigravity sem perder controle humano.
 3. **Qualidade de software verificável:** exigência de **SOLID**, código 100% em **português do Brasil**, bancos de teste isolados e **TDD** desde a primeira fase executável.
 4. **Arquitetura poliglota e experiência 3D híbrida justificadas:** PostgreSQL ACID para integridade da árvore multinível até 5 níveis; MongoDB para notas ricas, layouts de constelação, eventos do ciclo e preferências; cena 3D em WebGL combinada a painéis 2D/SVG nítidos com fallback acessível.

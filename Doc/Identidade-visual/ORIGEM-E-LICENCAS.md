@@ -35,7 +35,7 @@ Símbolo radial proprietário aprovado em `ID-23`, modelado e renderizado proced
 
 | Família / Recurso | Escopo de uso | Licença oficial | Observação técnica |
 | --- | --- | --- | --- |
-| **Fraunces** (Display variável, incl. Bold e Italic) | Marca `Lume`, saudações, títulos e citações | `SIL Open Font License 1.1` (`SIL OFL 1.1`) | Hospedagem local em `Frontend/src/estilos/fontes/` na Fase 11 |
-| **Plus Jakarta Sans** (400-700 + Italic) | Listas de tarefas, notas ricas, formulários e menus | `SIL Open Font License 1.1` (`SIL OFL 1.1`) | Hospedagem local na Fase 11 |
-| **JetBrains Mono** (400-600 tabular) | Relógio 24h, timers do Modo Foco, prazos e percentuais | `SIL Open Font License 1.1` (`SIL OFL 1.1`) | Hospedagem local na Fase 11 |
+| **Fraunces** (Display variável, incl. Bold e Italic) | Marca `Lume`, saudações, títulos e citações | `SIL Open Font License 1.1` (`SIL OFL 1.1`) | Hospedagem local em `Frontend/src/estilos/fontes/` na Fase 12 |
+| **Plus Jakarta Sans** (400-700 + Italic) | Listas de tarefas, notas ricas, formulários e menus | `SIL Open Font License 1.1` (`SIL OFL 1.1`) | Hospedagem local na Fase 12 |
+| **JetBrains Mono** (400-600 tabular) | Relógio 24h, timers do Modo Foco, prazos e percentuais | `SIL Open Font License 1.1` (`SIL OFL 1.1`) | Hospedagem local na Fase 12 |
 | **Avatares adicionais de usuário (`ID-22`)** | Foto vinculada à conta Google OAuth e upload próprio (`PNG/JPG/WebP`) | Dados fornecidos pelo próprio usuário autenticado | Redimensionamento/otimização a `256x256` e remoção integral ao excluir a conta (`D06`) |

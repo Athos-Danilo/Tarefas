@@ -23,6 +23,7 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 - **PostgreSQL:** `SQLAlchemy 2.x` (modo assíncrono), driver `psycopg` (v3 async) e `Alembic` para migrações versionadas.
 - **MongoDB:** `PyMongo` oficial com `AsyncMongoClient` nativo (evitando o legado `Motor`, descontinuado pela MongoDB Inc.).
 - **Autenticação:** `httpx` e `google-auth` para fluxo Google OAuth 2.0 no servidor e verificação segura de tokens/claims.
+- **Clima local e Web Push:** `httpx` para consulta gratuita à API **Open-Meteo** (previsão climática e busca de cidades) com cache em memória (`15-30 min`) e fallback seguro; `pywebpush` para envio gratuito de notificações **Web Push (`VAPID`)**.
 - **Qualidade e TDD:** `pytest`, `pytest-asyncio`, `httpx` (`AsyncClient` / `TestClient`), `ruff` (lint e formatação) e `mypy` (verificação estrita de tipos).
 
 ### 2.2 Frontend & Ecossistema de Design (React + TypeScript + Vite)
@@ -35,7 +36,8 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
   - **Atenção obrigatória antes da Fase 06:** verificar na documentação oficial a matriz de compatibilidade exata entre a versão instalada do `React` (`18` vs `19`) e a versão correspondente do `@react-three/fiber` / `@react-three/drei` antes de fixar o `package.json`.
 - **Mapa Visual de Constelação / Ramos:** `@xyflow/react` ou motor SVG/Canvas 2D customizado (escolha técnica e visual a ser fechada na decisão `D11`, na Fase 04/05).
 - **Dados, formulários e estado:** `@tanstack/react-query` (cache e sincronização com a API), `react-hook-form` + `zod` (validação tipada de formulários), `zustand` (estado efêmero de UI, Modo Simulador do Arco do Dia e controlador de foco/áudio).
-- **Iconografia, assets Soft-3D e favicons adaptativos:** `Lucide React` combinado com SVGs autorais para ícones do mapa/fases lunares, os renders **Soft-3D Clay Matte** catalogados em `Doc/Identidade-visual/assets-3d/` (publicados em `Frontend/public/favicons/` e `Frontend/public/assets-3d/` na Fase 11) e um controlador leve no cliente que atualiza `<link rel="icon">` somente na troca entre os 4 turnos do dia (`Manhã`, `Tarde`, `Entardecer` e `Noite`), evitando cintilação na aba.
+- **Iconografia, assets Soft-3D e favicons adaptativos:** `Lucide React` combinado com SVGs autorais para ícones do mapa/fases lunares, os renders **Soft-3D Clay Matte** catalogados em `Doc/Identidade-visual/assets-3d/` (publicados em `Frontend/public/favicons/` e `Frontend/public/assets-3d/` na Fase 12) e um controlador leve no cliente que atualiza `<link rel="icon">` somente na troca entre os 4 turnos do dia (`Manhã`, `Tarde`, `Entardecer` e `Noite`), evitando cintilação na aba.
+- **PWA, Web Push e astronomia lunar offline:** `manifest.webmanifest`, *Service Worker* próprio com suporte a `PushManager` (Web Push `VAPID` multi-dispositivo) e módulo astronômico puro offline para cálculo da fase lunar real atual com orientação do **Hemisfério Sul**.
 - **Tipografia:** trio tipográfico aprovado em `D03` (**`Fraunces`** Display + **`Plus Jakarta Sans`** Sans UI + **`JetBrains Mono`** Mono tabular para horários/timers), com uso expressivo de **bold** e **itálico** em títulos, saudações, Modo Foco e notas ricas (`ID-17`), hospedando localmente todas as variantes (incluindo itálicos) sob licença `SIL OFL 1.1`.
 - **Responsividade:** arquitetura **desktop-first** (base principal para computador) com layout fluido e componentes adaptados para total usabilidade em **tablets e celulares** (`ID-18`).
 - **Qualidade e TDD:** `Vitest`, `@testing-library/react`, `@testing-library/user-event`, `Playwright` (testes E2E e inspeção visual), `ESLint` e `Prettier`.
@@ -45,12 +47,13 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 Para entregar um visual cinematográfico sem comprometer legibilidade, acessibilidade nem dispositivos simples:
 
 1. **Cenário 3D vivo ao fundo (`CenarioDoHorizonte`):**
-   - Céu procedural / shader com **transição cromática contínua ao longo das 24 horas** (sobre os keyframes de *Alvorada Poética* atravessando `manha`, `tarde`, `crepusculo` e `noite`), arco orbital real do Sol e da Lua (com fase lunar), campo de estrelas, vagalumes e constelações panorâmicas 3D que se iluminam conforme as tarefas compostas avançam, além de jardim estilizado Soft-3D Clay Matte / instanciado em camadas.
+   - Céu procedural / shader com **transição cromática contínua ao longo das 24 horas** (sobre os keyframes de *Alvorada Poética* atravessando `manha`, `tarde`, `crepusculo` e `noite`), arco orbital real do Sol e da **Lua 3D iluminada exatamente na fase lunar do dia atual** (orientação do Hemisfério Sul + luz cinérea sutil na face escura), campo de estrelas, vagalumes e constelações panorâmicas 3D que se iluminam conforme as tarefas compostas avançam, além de jardim estilizado Soft-3D Clay Matte / instanciado em camadas.
+   - **Clima atmosférico reativo (`ID-27`):** reage aos 5 estados WMO (`limpo`, `parcialmente_nublado`, `nublado`, `chuvoso`, `tempestade`) com nuvens **Soft-3D**, gotas de chuva via `InstancedMesh` e tempestade suave (sem flashes quando `prefers-reduced-motion: reduce` está ativo), controlado pelo clima local opt-in ou pelo seletor de clima no Modo Simulador.
    - Uso de `InstancedMesh`, controle de `dpr` (`devicePixelRatio`), pausa automática em aba inativa e descarte explícito de recursos WebGL ao desmontar.
 2. **Camada 2D de alta nitidez por cima:**
-   - Todos os textos, listas hierárquicas, formulários, notas ricas, Calendário Mensal, Modo Foco e o editor interativo do Mapa Constelação/Ramos são renderizados em DOM/SVG nítido com superfícies translúcidas que acompanham a progressão horária sem cruzar a faixa de baixo contraste.
+   - Todos os textos, listas hierárquicas, formulários, notas ricas, **mini-card opt-in de Cidade + Horário + Temperatura**, Calendário Mensal, Modo Foco e o editor interativo do Mapa Constelação/Ramos são renderizados em DOM/SVG nítido com superfícies translúcidas que acompanham a progressão horária sem cruzar a faixa de baixo contraste.
 3. **Modo Desempenho / Fallback 2D obrigatório:**
-   - Substitui a cena WebGL por uma paisagem equivalente em camadas SVG/CSS suaves com a mesma interpolação contínua de 24h, garantindo funcionamento integral quando:
+   - Substitui a cena WebGL por uma paisagem equivalente em camadas SVG/CSS suaves com a mesma interpolação contínua de 24h, fase lunar real em SVG e nuvens/chuva leves, garantindo funcionamento integral quando:
      - O usuário ativa o **Modo Desempenho** nas preferências;
      - O navegador ou ambiente de CI não suporta contexto WebGL;
      - O sistema operacional sinaliza `prefers-reduced-motion: reduce`.
@@ -79,12 +82,14 @@ Tarefas/
 │   │   ├── principal.py
 │   │   ├── configuracao/        # settings por ambiente, validação sem segredos no código
 │   │   ├── dominio/             # entidades, enums, erros de domínio e regras puras da árvore
-│   │   ├── contratos/           # Protocolos (portas) para repositórios, OAuth e relógio
-│   │   ├── servicos/            # casos de uso (autenticacao, tarefas, arvore, foco, calendario, estatisticas)
+│   │   ├── contratos/           # Protocolos (portas) para repositórios, OAuth, clima e Web Push
+│   │   ├── servicos/            # casos de uso (autenticacao, tarefas, arvore, clima, lembretes, foco, calendario, estatisticas)
 │   │   ├── infraestrutura/
 │   │   │   ├── postgres/        # modelos ORM, sessao async e repositórios SQLAlchemy
 │   │   │   ├── mongo/           # cliente PyMongo async e repositórios de documentos
-│   │   │   └── google/          # adaptador Google OAuth 2.0
+│   │   │   ├── google/          # adaptador Google OAuth 2.0
+│   │   │   ├── open_meteo/      # adaptador de clima local e busca de cidades com cache
+│   │   │   └── web_push/        # adaptador pywebpush (VAPID)
 │   │   └── rotas/               # roteadores FastAPI e esquemas Pydantic (entrada/saída)
 │   └── testes/
 │       ├── unitarios/
@@ -92,15 +97,20 @@ Tarefas/
 └── Frontend/
     ├── package.json
     ├── index.html
+    ├── public/
+    │   ├── manifest.webmanifest # manifesto PWA com ícone Sol de 4 Ls
+    │   └── assets-3d/           # renders Soft-3D e os 4 favicons por horário
     ├── src/
+    │   ├── sw.ts                # Service Worker (PWA + recebimento/clique de Push)
     │   ├── aplicacao/           # rotas, provedores, guarda de autenticacao
-    │   ├── dominios/            # tarefas, mapa-constelacao, foco, calendario, estatisticas, conta
-    │   ├── cenario/             # mundo 3D R3F, shaders/luz do ciclo, jardim, fallback 2D
-    │   ├── audio/               # controlador central Web Audio opt-in e paisagens sonoras
-    │   ├── servicos/            # cliente HTTP, mapeadores snake_case <-> camelCase
-    │   ├── componentes/         # sistema visual base (botões, cartões, modais, badges)
+    │   ├── dominios/            # tarefas, mapa-constelacao, foco, calendario, estatisticas, lembretes, conta
+    │   ├── astronomia/          # cálculo puro offline da fase lunar real (Hemisfério Sul)
+    │   ├── cenario/             # mundo 3D R3F, shaders/luz do ciclo, Lua 3D, nuvens/chuva, jardim, fallback 2D
+    │   ├── audio/               # controlador central Web Audio opt-in e paisagens sonoras (incl. chuva)
+    │   ├── servicos/            # cliente HTTP, notificacoes Web Push, mapeadores snake_case <-> camelCase
+    │   ├── componentes/         # sistema visual base (botões, cartões, mini-card clima/hora, modais, badges)
     │   ├── hooks/               # hooks React (`usar-*.ts` exportando `use*`)
-    │   └── estilos/             # tokens CSS por momento do dia e tipografia local
+    │   └── estilos/             # tokens CSS contínuos 24h e tipografia local SIL OFL 1.1
     └── testes/
 ```
 
@@ -119,12 +129,14 @@ Tarefas/
   - Consultas de árvore completa e subárvores utilizam `WITH RECURSIVE` (CTE recursiva) filtrada por `usuario_id` para garantir consistência e bloqueio de ciclos em transação atômica.
 - **`etiquetas` e `tarefa_etiquetas`:** etiquetas nomeadas e coloridas por usuário (`UNIQUE (usuario_id, nome_normalizado)`) com tabela associativa `N:N`.
 - **`sessoes_foco`:** `id` (UUID), `usuario_id` (FK), `tarefa_id` (FK), `duracao_planejada_seg`, `duracao_real_seg`, `iniciada_em`, `encerrada_em`, `status` (`concluida` | `interrompida`).
+- **`inscricoes_push`:** `id` (UUID), `usuario_id` (FK com `ON DELETE CASCADE`), `endpoint` (único), `chave_p256dh`, `chave_auth`, `rotulo_dispositivo`, `plataforma` (`desktop` | `android` | `ios` | `outro`), `criado_em`, `ultimo_envio_em`.
+- **`lembretes_tarefas`:** `id` (UUID), `usuario_id` (FK com `ON DELETE CASCADE`), `tarefa_id` (FK com `ON DELETE CASCADE`), `disparar_em`, `antecedencia_min`, `status` (`pendente` | `enviado` | `cancelado`), `enviado_em`, `criado_em` (indexado por `(status, disparar_em)` para varredura eficiente do agendador).
 
 ### 5.2 MongoDB: Documentos flexíveis, mapa visual, eventos e preferências
 - **`detalhes_tarefas`:** `{ _id, tarefa_id (único), usuario_id, notas_em_blocos: [...], metadados_visuais: { forma_botanica, cor_estrela, icone }, atualizado_em }`.
 - **`layouts_constelacao`:** `{ _id, usuario_id, tarefa_raiz_id (único por usuário), nos: { [tarefa_id]: { x, y, fixado } }, viewport: { zoom, centro_x, centro_y }, atualizado_em }`.
 - **`eventos_ciclo`:** `{ _id, usuario_id, tipo_evento, tarefa_id, momento_do_dia, resumo, detalhes: {...}, criado_em }` (indexado por `(usuario_id, criado_em DESC)` para histórico e diário).
-- **`preferencias_cenario`:** `{ _id, usuario_id (único), modo_temporal, hora_simulada, qualidade_3d, reduzir_movimento, audio: { habilitado, volume_geral, volume_efeitos, volume_ambiente }, atualizado_em }`.
+- **`preferencias_cenario`:** `{ _id, usuario_id (único), modo_temporal, hora_simulada, qualidade_3d, reduzir_movimento, clima: { habilitado, modo_localizacao, cidade, uf, latitude_aprox, longitude_aprox }, audio: { habilitado, volume_geral, volume_efeitos, volume_ambiente }, atualizado_em }` (por padrão `clima.habilitado = false`; ao desativar, cidade e coordenadas aproximadas são limpas).
 
 ### 5.3 Estratégia de consistência poliglota (sem transação distribuída)
 1. Toda criação, edição estrutural, movimentação, conclusão em cascata ou reabertura é concluída primeiro em **transação atômica no PostgreSQL**.
@@ -144,7 +156,7 @@ Tarefas/
 
 ## 7. Experiência sonora opt-in
 
-- Arquitetura baseada em controlador único (`controlador-de-audio.ts`) sobre a **Web Audio API** (micro-efeitos sintetizados ou arquivos leves com licença livre documentada + trilhas ambientes carregadas sob demanda apenas quando o usuário ativar o áudio).
+- Arquitetura baseada em controlador único (`controlador-de-audio.ts`) sobre a **Web Audio API** (micro-efeitos sintetizados ou arquivos leves com licença livre documentada + trilhas ambientes carregadas sob demanda apenas quando o usuário ativar o áudio, incluindo **som suave de chuva** acoplado aos estados climáticos `chuvoso` e `tempestade`).
 - Estado inicial sempre silenciado (`habilitado: false`), respeitando bloqueio automático de autoplay dos navegadores e desabilitando imediatamente quando o usuário desligar.
 
 ## 8. Execução local, publicação gratuita e CI
@@ -152,7 +164,8 @@ Tarefas/
 - **Execução local:** scripts e guia documentado (`Doc/Ambiente-local.md` a ser criado na Fase 06), proxy do Vite (`/api` → FastAPI local), bancos locais PostgreSQL `18.0` e MongoDB `8.2.5` com instâncias/bases separadas para desenvolvimento e teste.
 - **Publicação gratuita (custo zero):**
   - Frontend: **Vercel** (com rewrite `/api/*` para a API em produção para preservar cookie de mesma origem).
-  - Backend: **Render** (Web Service gratuito com saúde `/api/saude` e variáveis seguras).
+  - Backend: **Render** (Web Service gratuito com saúde `/api/saude`, chaves `VAPID` em variáveis seguras e endpoint protegido por token para disparo de lembretes).
+  - Agendador gratuito de lembretes: cron externo gratuito (ex.: GitHub Actions ou `cron-job.org` a cada 5 minutos) acionando o endpoint protegido de varredura/envio de lembretes, evitando atrasos caso a instância gratuita do Render hiberne após inatividade.
   - PostgreSQL gerenciado: **Neon** (tier gratuito).
   - MongoDB gerenciado: **MongoDB Atlas** (cluster `M0` gratuito).
   - Google Cloud Console configurado com URLs autorizadas local e de produção.

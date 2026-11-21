@@ -31,7 +31,9 @@ Para manter consistência absoluta entre especificações, banco de dados, API e
 | `sessao_de_foco` | Período cronometrado de concentração vinculado a uma tarefa no Modo Foco Imersivo. |
 | `etiqueta` | Marcador temático personalizado do usuário associado a uma ou mais tarefas. |
 | `evento_do_ciclo` | Registro rico no diário/histórico do usuário (conclusões, florescimentos, constelações acesas e sessões de foco). |
-| `preferencias_cenario` | Configurações visuais, de simulação temporal, acessibilidade/desempenho 3D e áudio do usuário. |
+| `preferencias_cenario` | Configurações visuais, de simulação temporal, acessibilidade/desempenho 3D, consentimento de clima/localização e áudio do usuário. |
+| `estado_climatico` | Condição atmosférica derivada do código WMO (`limpo`, `parcialmente_nublado`, `nublado`, `chuvoso`, `tempestade`), com padrão `limpo` quando clima local está desativado. |
+| `lembrete` / `inscricao_push` | Agendamento de aviso vinculado a uma tarefa e credencial Web Push (`VAPID`) de um dispositivo autorizado (PC ou celular). |
 
 ## 3. Conceito central: o ciclo vivo do dia
 
@@ -41,13 +43,14 @@ A aplicação transforma o planejamento diário em uma paisagem viva que acompan
 1. **Manhã:** luz fresca e clara, sol nascente baixo no horizonte, jardim despertando com orvalho e tons suaves.
 2. **Tarde:** sol alto e energia dourada, vegetação vibrante, visibilidade nítida dos ramos e tarefas em curso.
 3. **Crepúsculo:** transição quente coral e violeta, sol poente cedendo espaço às primeiras estrelas, momento de fechamento e revisão do dia.
-4. **Noite:** céu índigo profundo, lua com fase lunar correspondente, estrelas e **constelações** formadas pelas tarefas compostas concluídas ou em progresso.
+4. **Noite:** céu índigo profundo, **Lua 3D iluminada na fase lunar real do dia** (cálculo astronômico offline fiel à orientação do **Hemisfério Sul** com leve luz cinérea na face escura), estrelas e **constelações** formadas pelas tarefas compostas concluídas ou em progresso.
 
-### Modos de controle do tempo e transição contínua 24h
+### Modos de controle do tempo, clima atmosférico e transição contínua 24h
 - **Transição cromática contínua:** as cores atmosféricas do céu, colinas, astros e superfícies evoluem gradualmente minuto a minuto ao longo das 24 horas sobre os keyframes de *Alvorada Poética*, preservando contraste acessível WCAG AA em qualquer horário conforme detalhado em [Guia-visual.md](Guia-visual.md).
-- **Modo Relógio Real (padrão):** calcula o momento do dia e a posição do sol/lua a partir do horário local do usuário, com transição contínua entre os 4 períodos.
-- **Modo Simulador / Arco do Dia:** controle interativo visível que permite arrastar o sol/lua ao longo das 24 horas (ou selecionar diretamente Manhã/Tarde/Crepúsculo/Noite) para inspecionar tarefas por turno, testar a estética ou apresentar o projeto ao vivo sem alterar o relógio real do sistema.
 - **Identidade e favicon adaptativos por horário (`ID-23`):** tanto no Modo Relógio Real quanto no Simulador, o símbolo da marca (**Sol de 4 Ls**) e o **favicon da aba do navegador** alternam automaticamente entre as 4 variações oficiais (`Manhã` `05:45-11:59`, `Tarde` `12:00-16:59`, `Entardecer` `17:00-18:59` e `Noite` `19:00-05:44`) conforme especificado em [Guia-visual.md](Guia-visual.md).
+- **Clima local consentido (`Open-Meteo`) e cenário reativo (`ID-24`, `ID-27`):** recurso **desativado por padrão** (100% opt-in). Somente quando o usuário autoriza a localização pelo navegador ou escolhe manualmente sua cidade, o sistema consulta a previsão via **Open-Meteo** no backend e adapta o cenário em 5 estados climáticos (`limpo`, `parcialmente_nublado`, `nublado`, `chuvoso`, `tempestade`), com nuvens Soft-3D, chuva instanciada e tempestade suave (sem flashes quando `prefers-reduced-motion` está ativo). Se desativado, o padrão visual permanece `limpo` e os dados de cidade são removidos.
+- **Modo Relógio Real (padrão):** calcula o momento do dia, a posição do sol/lua e a fase lunar atual a partir do horário e data locais do usuário, com transição contínua entre os 4 períodos.
+- **Modo Simulador / Arco do Dia:** controle interativo visível que permite arrastar o sol/lua ao longo das 24 horas (ou selecionar diretamente Manhã/Tarde/Crepúsculo/Noite) e alternar o **seletor de clima simulado** (*Automático*, *Limpo*, *Nublado*, *Chuva*, *Tempestade*) para testar a estética ou apresentar o projeto ao vivo sem alterar o relógio real nem o clima salvo.
 - A reatividade do jardim e do céu traduz o avanço real das tarefas do dia: concluir tarefas e subtarefas acende pontos estelares e faz elementos do jardim florescerem sem interferir na clareza da lista.
 - **Experiência responsiva desktop-first:** concebida com base em computador para aproveitar palco 3D e painéis lado a lado, mantendo operação completa em tablets (`768px-1023px`) e celulares (`320px-767px`), inclusive por toque e Modo Desempenho / Fallback 2D.
 
@@ -102,8 +105,8 @@ O usuário pode, a qualquer momento:
 - **Exclusão de conta:** fluxo explícito de exclusão definitiva da própria conta e de todos os seus dados pessoais no PostgreSQL e MongoDB mediante confirmação explícita (definida em `D06`).
 
 ### 6.3 Jornada do Dia (visão principal)
-- Cenário 3D vivo ocupando a atmosfera do ambiente com controle do Arco do Dia (Relógio Real vs Simulador) e indicador imediato de progresso diário.
-- Lista hierárquica interativa agrupada ou filtrável por turnos (`manha`, `tarde`, `noite`, `livre`) e prioridades, com expansão de subtarefas até 5 níveis, barras de progresso automático, alerta visual para filhas urgentes, arrastar-e-soltar (com alternativa por teclado), criação rápida, filtros, busca e gaveta/painel lateral de edição e notas ricas.
+- Cenário 3D vivo ocupando a atmosfera do ambiente com controle do Arco do Dia (Relógio Real vs Simulador + seletor climático), indicador imediato de progresso diário e **mini-card Bento compacto** com horário local e, quando autorizado pelo usuário (`ID-24`), **cidade atual, temperatura e ícone climático**.
+- Lista hierárquica interativa agrupada ou filtrável por turnos (`manha`, `tarde`, `noite`, `livre`) e prioridades, com expansão de subtarefas até 5 níveis, barras de progresso automático, alerta visual para filhas urgentes, arrastar-e-soltar (com alternativa por teclado), criação rápida, filtros, busca, seleção opcional de **lembretes** por tarefa (`ID-26`) e gaveta/painel lateral de edição e notas ricas.
 
 ### 6.4 Mapa Visual de Constelação / Ramos
 - Experiência **híbrida inteligente**: constelações panorâmicas brilham no céu 3D de fundo enquanto o usuário opera um **mapa/editor interativo 2D/SVG de altíssima nitidez** sobre o cenário.
@@ -124,8 +127,14 @@ O usuário pode, a qualquer momento:
 
 ### 6.8 Experiência Sonora e Preferências do Cenário
 - **Áudio opt-in:** todo som inicia **silenciado/desativado** até ativação voluntária pelo usuário.
-- Micro-efeitos sutis ao concluir tarefa, acender nó da constelação ou finalizar timer + paisagens sonoras opcionais adequadas ao momento do dia e ao Modo Foco.
-- Volumes independentes (geral, efeitos, ambiente) + escolha de modo temporal (Relógio Real / Simulador), **Modo Desempenho / Fallback 2D** e preferência de movimento reduzido salvos em `preferencias_cenario`.
+- Micro-efeitos sutis ao concluir tarefa, acender nó da constelação ou finalizar timer + paisagens sonoras opcionais adequadas ao momento do dia, ao Modo Foco e ao estado climático (incluindo **som suave de chuva** quando o cenário estiver chuvoso ou em tempestade e o áudio ambiente estiver ligado).
+- Volumes independentes (geral, efeitos, ambiente) + escolha de modo temporal (Relógio Real / Simulador), **toggle opt-in de Clima e Localização** (com escolha entre geolocalização do navegador ou busca de cidade e remoção imediata dos dados de localização ao desativar), **gerenciamento de dispositivos Web Push**, **Modo Desempenho / Fallback 2D** e preferência de movimento reduzido salvos em `preferencias_cenario`.
+
+### 6.9 PWA Instalável, Sistema de Lembretes e Notificações Web Push (`ID-26`)
+- **PWA instalável:** manifesto (`manifest.webmanifest`) e *Service Worker* utilizando o ícone **Sol de 4 Ls**, permitindo instalar o **Lume** na tela inicial do celular (Android/iOS) ou no computador sem precisar de loja de aplicativos.
+- **Notificações Web Push multi-dispositivo (100% opt-in):** o usuário autenticado decide em cada aparelho (PC ou celular) se deseja ativar avisos nativos (`PushManager` + protocolo `VAPID`), podendo listar, nomear ou revogar dispositivos conectados a qualquer momento.
+- **Suporte guiado a Android, Desktop e iOS 16.4+:** funciona diretamente no navegador em Desktop/Android (e como app instalado); no iPhone/iPad, quando necessário, exibe um mini-guia visual de 2 passos (*Compartilhar -> Adicionar à Tela de Início*) para habilitar Web Push nativo da Apple.
+- **Lembretes por tarefa:** tarefas com prazo ou horário definido permitem configurar antecedência de lembrete (ex.: na hora, 15 min antes, 1 hora antes), disparados automaticamente pelo backend e removidos em definitivo caso o usuário exclua a tarefa ou sua própria conta.
 
 ## 7. Matriz inicial de cenários principais
 
@@ -142,14 +151,17 @@ O usuário pode, a qualquer momento:
 | Mapa Constelação/Ramos | Abre tarefa composta no mapa 2D/SVG, move nós, conclui nó e recarrega | Posições recuperadas de `layouts_constelacao`; status confirmado no PostgreSQL |
 | Modo Foco | Inicia sessão de foco na tarefa, conclui subtarefas e encerra ciclo | Sessão gravada no PostgreSQL e evento gravado no MongoDB |
 | Calendário Mensal | Abre mês com prazos variados e clica em tarefa urgente no dia | Datas respeitam fuso e filtros sem misturar dados de outros usuários |
-| Fallback 2D / Reduced Motion | Navegador sem WebGL ou usuário ativa Modo Desempenho / movimento reduzido | Cenário 2D/SVG assume suavemente sem quebrar nenhuma funcionalidade |
+| Clima local opt-in | Usuário ativa clima no card, escolhe geolocalização ou cidade e depois desativa | Nenhuma consulta externa ocorre antes do consentimento; ao desativar, cidade/coordenadas aproximadas são apagadas e o cenário volta a `limpo` |
+| Lembrete Web Push | Usuário cria lembrete no computador e recebe aviso no celular/PC inscrito | Apenas dispositivos autenticados e autorizados recebem push `VAPID`; exclusão da conta remove todas as inscrições |
+| Fallback 2D / Reduced Motion | Navegador sem WebGL ou usuário ativa Modo Desempenho / movimento reduzido | Cenário 2D/SVG assume suavemente (inclusive nuvens/chuva sem flashes de tempestade) sem quebrar nenhuma funcionalidade |
 
 ## 8. O que não entra automaticamente na primeira entrega
 
 - Compartilhamento de tarefas entre usuários distintos, colaboração em tempo real ou workspaces de equipe.
 - Login por e-mail/senha própria ou múltiplos provedores de autenticação além do Google.
+- **Vinculação ou sincronização com calendários externos** (Google Agenda, Apple Calendar, Samsung Calendar), reservada como evolução futura em favor do sistema próprio de Lembretes + Web Push (`ID-26`).
 - Upload livre de anexos binários pesados (PDFs, vídeos, imagens arbitrárias) nas tarefas.
-- Aplicativos nativos mobile/desktop (o projeto entrega aplicação web responsiva para desktop, tablet e celular).
+- Aplicativos nativos de loja mobile/desktop (o projeto entrega aplicação web responsiva e **PWA instalável com notificações Web Push** para desktop, tablet e celular).
 - Serviços de hospedagem, banco ou assets pagos.
 
 ## 9. Decisões em aberto e evolução controlada

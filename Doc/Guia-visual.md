@@ -1,6 +1,6 @@
 # Guia visual e sistema de design - Lume
 
-Este documento consolida as decisões **`D01`**, **`D02`** e **`D03`** aprovadas na Fase 02 em [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), além das diretrizes visuais registradas em [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md) (`ID-13` a `ID-18`). Ele serve como fonte única para tokens CSS, shaders/iluminação 3D, tipografia e adaptação responsiva do projeto.
+Este documento consolida as decisões **`D01`**, **`D02`**, **`D03`** e **`D04`** aprovadas nas Fases 02 e 03 em [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), além das diretrizes visuais registradas em [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md) (`ID-13` a `ID-27`). Ele serve como fonte única para tokens CSS, shaders/iluminação 3D, tipografia e adaptação responsiva do projeto.
 
 ---
 
@@ -94,7 +94,7 @@ Nenhum indicador do **Lume** depende exclusivamente de cor. Cada prioridade comb
 
 ## 4. Trio tipográfico (`D03`) e uso expressivo de Bold e Itálico (`ID-17`)
 
-Todas as fontes aprovadas possuem licença livre **`SIL Open Font License 1.1` (`SIL OFL 1.1`)**, suporte completo a acentuação em português (`Á, É, Í, Ó, Ú, Ã, Õ, Ê, Ç`) e serão **hospedadas localmente no frontend** (`Frontend/src/estilos/fontes/`) na Fase 11, sem depender de CDN externa em produção.
+Todas as fontes aprovadas possuem licença livre **`SIL Open Font License 1.1` (`SIL OFL 1.1`)**, suporte completo a acentuação em português (`Á, É, Í, Ó, Ú, Ã, Õ, Ê, Ç`) e serão **hospedadas localmente no frontend** (`Frontend/src/estilos/fontes/`) na Fase 12, sem depender de CDN externa em produção.
 
 | Papel | Família aprovada | Pesos e estilos obrigatórios | Onde usar |
 | --- | --- | --- | --- |
@@ -183,7 +183,7 @@ O símbolo mantém exatamente a mesma geometria simétrica em todos os arquivos 
 | **Entardecer** | `17:00` - `18:59` | `1020` - `1139` | `favicon-lume-entardecer.png` | **2 Ls Coral Poente + 2 Ls Ametista Crepúsculo** alternados em diagonal |
 | **Noite** | `19:00` - `05:44` | `1140` - `1439` e `0` - `344` | `favicon-lume-noite.png` | **2 Ls Índigo Estelar + 2 Ls Ciano Vagalume** alternados em diagonal |
 
-**Regra técnica no frontend (Fase 11 em diante):** manter o estado da faixa ativa (`manha`, `tarde`, `entardecer` ou `noite`) e atualizar o `href` de `<link rel="icon">` **somente quando houver mudança de faixa** (evitando recarregamentos e piscadas na aba ao deslizar o Arco do Dia ou durante o Timelapse 24h), sincronizando também o símbolo exibido no cabeçalho/logotipo.
+**Regra técnica no frontend (Fase 12 em diante):** manter o estado da faixa ativa (`manha`, `tarde`, `entardecer` ou `noite`) e atualizar o `href` de `<link rel="icon">` **somente quando houver mudança de faixa** (evitando recarregamentos e piscadas na aba ao deslizar o Arco do Dia ou durante o Timelapse 24h), sincronizando também o símbolo exibido no cabeçalho/logotipo.
 
 ### 8.3 Catálogo de assets Soft-3D aprovados (`Doc/Identidade-visual/assets-3d/`)
 - `diorama-jardim-dia-3d.png`: diorama panorâmico diurno do jardim vivo em Soft-3D.
@@ -196,6 +196,11 @@ O símbolo mantém exatamente a mesma geometria simétrica em todos os arquivos 
   - **Criaturas:** `vagalume-estelar`, `coruja-noturna`, `borboleta-aurora`, `beija-flor-solar`
   - **Observatório:** `telescopio-celeste`, `bussola-astral`, `ampulheta-solar`, `estrela-guia`
 - **Opções adicionais de perfil (`ID-22`):** além dos 16 avatares Soft-3D, o usuário pode manter a foto importada da conta **Google OAuth** ou realizar **upload de imagem própria** (`PNG`, `JPG` ou `WebP`, padronizada para `256x256`).
+
+### 8.4 Clima atmosférico reativo, mini-card de clima opt-in e Lua 3D real (`ID-24`, `ID-25`, `ID-27`)
+- **Mini-card Bento de clima e horário (Jornada do Dia):** cartão compacto translúcido na faixa protegida do momento atual exibindo hora local (`JetBrains Mono`), e somente quando autorizado pelo usuário (`habilitado: true`), **nome da cidade, temperatura atual e ícone do clima**, além de atalho rápido para ligar/desligar ou trocar cidade.
+- **Cinco estados climáticos no cenário (`limpo`, `parcialmente_nublado`, `nublado`, `chuvoso`, `tempestade`):** nuvens **Soft-3D** com densidade gradual, escurecimento sutil apenas na camada atmosférica de fundo (sem alterar a legibilidade WCAG AA das superfícies 2D de texto/cartões), gotas de chuva leves via `InstancedMesh` (ou SVG no Fallback 2D) e clarões suaves de tempestade **estritamente desativados quando `prefers-reduced-motion: reduce` estiver ativo**.
+- **Lua 3D iluminada pela fase real (Hemisfério Sul):** shader/iluminação lunar alinhada ao percentual real de iluminação da data atual, exibindo o arco iluminado pela **esquerda na fase Crescente** (visão padrão no Brasil) e mantendo leve **luz cinérea** na metade sombreada para preservar recorte estético no céu noturno.
 
 ---
 
