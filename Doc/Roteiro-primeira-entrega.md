@@ -1,6 +1,6 @@
 # Roteiro de desenvolvimento - primeira entrega (Lume)
 
-**Registro de situação em 21/11/2026:** **Fases 01, 02, 03, 04 e 05 concluídas** (Ciclo 1 completo; `D01`-`D12` fechadas, [Contratos-api.md](Contratos-api.md) consolidado, protótipo interativo V2 aprovado em [Doc/Prototipos/index.html](Prototipos/index.html) e evoluções `ID-24` a `ID-27` incorporadas no roteiro de `24` fases). Próxima etapa: **Fase 06: preparar ambiente, revisar `.gitignore`, criar skeletons FastAPI + React/TS/Vite e CI inicial (início do Ciclo 2)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Contratos-api.md](Contratos-api.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
+**Registro de situação em 21/11/2026:** **Fases 01, 02, 03, 04, 05 e 06 concluídas** (Ciclo 1 completo com `D01`-`D12` fechadas e protótipo V2 aprovado; **Fase 06 concluída** iniciando o Ciclo 2 com `.gitignore` revisado, skeletons FastAPI + React/TS/Vite em TDD+SOLID, proxy `/api/saude` validado e CI no GitHub Actions). Próxima etapa: **Fase 07: migrações PostgreSQL, conexão MongoDB `PyMongo` (`AsyncMongoClient`) e adaptadores base (TDD)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Contratos-api.md](Contratos-api.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Ambiente-local.md](Ambiente-local.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
 
 **Escopo da primeira entrega:** aplicação web responsiva e PWA instalável de gerenciamento de tarefas pessoais para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) com **Lua 3D na fase lunar real (Hemisfério Sul)**, **clima local opt-in (Cidade + Horário + Temperatura)** e **cenário climático reativo (nuvens, chuva e tempestade suave)** em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas locais, Jornada do Dia, Mapa Visual Constelação/Ramos, Modo Foco Imersivo, Calendário Mensal dos Prazos, Estatísticas/Diário do Ciclo, experiência sonora opt-in, **Sistema de Lembretes + Web Push multi-dispositivo** e publicação gratuita na web.
 
@@ -28,7 +28,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 - [x] Fase 03 - definir marca, elementos do jardim, constelações e coleção de avatares
 - [x] Fase 04 - fechar contratos de API (incl. clima local e lembretes/push), regras finas da árvore (`D08`-`D10`) e exclusão de conta (`D06`)
 - [x] Fase 05 - prototipar navegação, atmosferas, mini-card de clima/seletor climático, lembretes/push e telas principais
-- [ ] Fase 06 - preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
+- [x] Fase 06 - preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
 - [ ] Fase 07 - migrações PostgreSQL (incl. push e lembretes), conexão MongoDB e adaptadores base (TDD)
 - [ ] Fase 08 - autenticação Google OAuth 2.0, sessão segura, primeiro acesso e exclusão de conta (TDD)
 - [ ] Fase 09 - motor de domínio da árvore de tarefas compostas (profundidade 5, ciclos, cascata, alerta urgente) (TDD)
@@ -249,6 +249,8 @@ A tabela abaixo lista todas as decisões estruturantes (`D01`-`D16`) que governa
 **Entrega:** repositório estruturado, ambiente reproduzível e testes/linters iniciais passando.
 
 **Concluída quando:** outra sessão consegue subir API e Frontend localmente e o pipeline de verificação básica executa sem erros.
+
+**Registro de conclusão (21/11/2026):** Ambiente e skeletons entregues em [Backend/](../Backend/pyproject.toml) (Python `3.13.0`, FastAPI, `ruff`, `mypy --strict`, `pytest` `7 passed`, lock em `requirements-lock.txt`) e [Frontend/](../Frontend/package.json) (`react ~19.3.1`, `typescript ~5.9.3` strict, `jsdom ~27.4.0`, Tailwind v4, Vite `8.3.8`, Vitest `5.1.1` `5 passed`, ESLint, Prettier, build limpo), `.gitignore` atualizado, CI configurado em [.github/workflows/ci.yml](../.github/workflows/ci.yml) e guia em [Ambiente-local.md](Ambiente-local.md). Comunicação ponta a ponta `React -> proxy Vite -> FastAPI /api/saude` verificada ao vivo no navegador (`200 OK`, `0` erros no console).
 
 ---
 

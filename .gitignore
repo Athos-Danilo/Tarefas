@@ -30,6 +30,8 @@ blob-report/
 
 # Logs, temporários, sistema operacional e editores
 *.log
+*.tsbuildinfo
+coverage/
 npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
@@ -39,3 +41,4 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 Capturas-locais/
+Backend/uploads/
