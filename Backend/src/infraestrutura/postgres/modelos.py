@@ -45,6 +45,8 @@ class UsuarioModelo(BaseRelacional):
         server_default=text("'preset'"),
     )
     avatar_id: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    foto_google_url: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    avatar_arquivo: Mapped[str | None] = mapped_column(String(255), nullable=True)
     primeiro_acesso_concluido: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,

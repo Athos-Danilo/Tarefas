@@ -31,3 +31,8 @@ def test_preferencias_padrao_iniciam_com_clima_e_audio_desativados() -> None:
         "volume_efeitos": 0.8,
         "volume_ambiente": 0.5,
     }
+    assert padrao["tutorial"] == {
+        "status": "pendente",
+        "etapa_atual": 0,
+        "atualizado_em": None,
+    }

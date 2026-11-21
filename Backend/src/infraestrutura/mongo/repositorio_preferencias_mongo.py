@@ -6,6 +6,7 @@ from dominio.preferencias_padrao import (
     PreferenciasAudio,
     PreferenciasCenario,
     PreferenciasClima,
+    PreferenciasTutorial,
     criar_preferencias_cenario_padrao,
 )
 from infraestrutura.mongo.indices import COLECAO_PREFERENCIAS_CENARIO
@@ -33,6 +34,22 @@ def _mesclar_audio(audio_bruto: Any, padrao: PreferenciasAudio) -> PreferenciasA
     }
 
 
+def _mesclar_tutorial(
+    tutorial_bruto: Any,
+    padrao: PreferenciasTutorial,
+) -> PreferenciasTutorial:
+    dados = tutorial_bruto if isinstance(tutorial_bruto, dict) else {}
+    status_bruto = dados.get("status", padrao["status"])
+    status = (
+        status_bruto if status_bruto in ("pendente", "pulado", "concluido") else padrao["status"]
+    )
+    return {
+        "status": status,
+        "etapa_atual": int(dados.get("etapa_atual", padrao["etapa_atual"])),
+        "atualizado_em": dados.get("atualizado_em", padrao["atualizado_em"]),
+    }
+
+
 class RepositorioPreferenciasMongo:
     """Repositorio MongoDB para preferencias_cenario com degradacao segura para o padrao."""
 
@@ -53,6 +70,7 @@ class RepositorioPreferenciasMongo:
             "reduzir_movimento": documento.get("reduzir_movimento", padrao["reduzir_movimento"]),
             "clima": _mesclar_clima(documento.get("clima"), padrao["clima"]),
             "audio": _mesclar_audio(documento.get("audio"), padrao["audio"]),
+            "tutorial": _mesclar_tutorial(documento.get("tutorial"), padrao["tutorial"]),
             "atualizado_em": documento.get("atualizado_em", padrao["atualizado_em"]),
         }
 

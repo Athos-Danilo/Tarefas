@@ -8,8 +8,11 @@ from fastapi.responses import JSONResponse
 from pymongo.errors import PyMongoError
 
 from configuracao.configuracoes import Configuracoes
+from contratos.autenticacao import ProvedorGoogleOAuth
 from contratos.verificador_saude import VerificadorDeDependencia
 from dominio.erros import ErroDeDominio
+from infraestrutura.armazenamento_avatar import ArmazenamentoAvatarLocal
+from infraestrutura.google.provedor_google_oauth import ProvedorGoogleOAuthReal
 from infraestrutura.mongo.conexao import GerenciadorMongo
 from infraestrutura.mongo.verificador_mongo import VerificadorMongo
 from infraestrutura.postgres.conexao import FabricaPostgres
@@ -17,6 +20,8 @@ from infraestrutura.postgres.politica_loop import configurar_loop_assincrono_win
 from infraestrutura.postgres.verificador_postgres import VerificadorPostgres
 from infraestrutura.verificadores_iniciais import VerificadorAindaNaoConfigurado
 from rotas.esquemas_saude import DetalheErro, EnvelopeErro
+from rotas.rotas_autenticacao import roteador_autenticacao
+from rotas.rotas_conta import roteador_conta
 from rotas.rotas_saude import roteador_saude
 
 
@@ -24,6 +29,7 @@ def criar_aplicacao(
     configuracoes: Configuracoes | None = None,
     verificador_relacional: VerificadorDeDependencia | None = None,
     verificador_documental: VerificadorDeDependencia | None = None,
+    provedor_google: ProvedorGoogleOAuth | None = None,
 ) -> FastAPI:
     """Fabrica da aplicacao FastAPI com injecao explicita e ciclo de vida dos bancos."""
     configurar_loop_assincrono_windows()
@@ -65,6 +71,8 @@ def criar_aplicacao(
     aplicacao.state.configuracoes = config
     aplicacao.state.fabrica_postgres = None
     aplicacao.state.gerenciador_mongo = None
+    aplicacao.state.provedor_google = provedor_google or ProvedorGoogleOAuthReal(config)
+    aplicacao.state.armazenamento_avatar = ArmazenamentoAvatarLocal(config.diretorio_uploads)
     aplicacao.state.verificador_relacional = (
         verificador_relacional or VerificadorAindaNaoConfigurado()
     )
@@ -117,6 +125,8 @@ def criar_aplicacao(
         return JSONResponse(status_code=422, content=envelope.model_dump())
 
     aplicacao.include_router(roteador_saude)
+    aplicacao.include_router(roteador_autenticacao)
+    aplicacao.include_router(roteador_conta)
     return aplicacao
 
 

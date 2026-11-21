@@ -4,6 +4,7 @@ from typing import Literal, TypedDict
 ModoTemporal = Literal["relogio_real", "simulador"]
 Qualidade3D = Literal["auto", "alto", "desempenho_2d"]
 ModoLocalizacaoClima = Literal["navegador", "manual"]
+StatusTutorial = Literal["pendente", "pulado", "concluido"]
 
 
 class PreferenciasClima(TypedDict):
@@ -26,6 +27,14 @@ class PreferenciasAudio(TypedDict):
     volume_ambiente: float
 
 
+class PreferenciasTutorial(TypedDict):
+    """Estado de exibicao do modo tutorial guiado."""
+
+    status: StatusTutorial
+    etapa_atual: int
+    atualizado_em: datetime | None
+
+
 class PreferenciasCenario(TypedDict):
     """Documento de preferencias de cenario persistido no MongoDB."""
 
@@ -36,6 +45,7 @@ class PreferenciasCenario(TypedDict):
     reduzir_movimento: bool
     clima: PreferenciasClima
     audio: PreferenciasAudio
+    tutorial: PreferenciasTutorial
     atualizado_em: datetime
 
 
@@ -64,6 +74,11 @@ def criar_preferencias_cenario_padrao(
             "volume_geral": 0.7,
             "volume_efeitos": 0.8,
             "volume_ambiente": 0.5,
+        },
+        "tutorial": {
+            "status": "pendente",
+            "etapa_atual": 0,
+            "atualizado_em": None,
         },
         "atualizado_em": instante,
     }

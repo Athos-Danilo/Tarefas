@@ -20,6 +20,12 @@ class Configuracoes(BaseSettings):
     mongo_url: str | None = None
     mongo_banco: str = "lume_dev"
     mongo_banco_teste: str = "tarefas_teste"
+    google_client_id: str | None = None
+    google_client_secret: str | None = None
+    google_redirect_uri: str = "http://localhost:5173/api/autenticacao/google/callback"
+    segredo_sessao: str = "segredo-desenvolvimento-local-alterar-em-producao-32b"
+    cookie_seguro: bool = False
+    diretorio_uploads: str = "uploads"
 
     @property
     def lista_origens_cors(self) -> list[str]:
