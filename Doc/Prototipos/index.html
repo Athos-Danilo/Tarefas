@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lume - Horizonte Vivo</title>
+  <link id="favicon-ativo" rel="icon" type="image/png" href="../Identidade-visual/assets-3d/favicons/favicon-lume-manha.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:ital,wght@0,400..700;1,400..600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="estilos.css" />
+  <script src="dados-e-astronomia.js" defer></script>
+  <script src="prototipo.js" defer></script>
+</head>
+<body>
+  <div class="palco-viewport" id="palco-viewport">
+    <div class="app-frame vp-desktop" id="app-frame">
+      <div class="cenario-vivo" id="cenario-vivo" aria-hidden="true">
+        <div class="ceu-gradiente" id="ceu-gradiente"></div>
+        <div class="camada-estrelas" id="camada-estrelas"></div>
+        <div class="astro-orbital" id="astro-sol"><div class="sol-3d"></div></div>
+        <div class="astro-orbital" id="astro-lua"></div>
+        <div class="nuvens-camada" id="camada-nuvens">
+          <div class="nuvem-clay" style="top:11%;left:7%;width:158px;height:44px;"></div>
+          <div class="nuvem-clay" style="top:18%;left:45%;width:196px;height:52px;animation-delay:-7s;"></div>
+          <div class="nuvem-clay" style="top:13%;left:76%;width:142px;height:38px;animation-delay:-14s;"></div>
+        </div>
+        <div class="camada-clima-veo" id="camada-clima-veo"></div>
+        <div class="chuva-camada" id="camada-chuva"></div>
+        <div class="relampago-camada" id="camada-relampago"></div>
+        <img id="diorama-dia" class="diorama-camada" src="../Identidade-visual/assets-3d/diorama-jardim-dia-3d.png" alt="" />
+        <img id="diorama-noite" class="diorama-camada" src="../Identidade-visual/assets-3d/diorama-jardim-noite-3d.png" alt="" style="opacity:0;" />
+      </div>
+
+      <div class="camada-conteudo" id="conteudo-dinamico"></div>
+      <div id="area-popover"></div>
+    </div>
+  </div>
+
+  <!-- Pilula discreta recolhivel de controles do prototipo (nao invade o topo do app) -->
+  <div class="proto-dock" id="proto-dock"></div>
+  <div id="area-modal"></div>
+  <div id="area-toast" aria-live="polite"></div>
+</body>
+</html>

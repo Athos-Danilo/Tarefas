@@ -43,12 +43,14 @@ Conforme estabelecido em [Regras.md](../Agents/Regras.md), toda nova ideia ou de
 | ID-31 | 21/11/2026 | Decisão conjunta (Athos escolheu `D08`) | **Progresso por folhas, Desfazer 10s e exclusão com 2 opções** | Percentual da tarefa-mãe ponderado pelas **tarefas-folha**; conclusão em cascata com **Desfazer por `10s`** (`token_desfazer` TTL `15s`); exclusão de mãe com filhas oferece escolha explícita entre apagar em cascata ou promover filhas um nível. | Fecha `D08` no domínio puro (Fase 09) e em [Contratos-api.md](Contratos-api.md). |
 | ID-32 | 21/11/2026 | Decisão conjunta (Athos escolheu `D09`) | **Perfil de limites equilibrados na API e bancos** | Título `1`-`140` chars, `50` blocos/`15.000` chars de notas, `30` etiquetas (`8`/tarefa), `500` tarefas ativas (`2.000` totais), `50` filhas diretas/mãe, avatar `2 MB` (`256x256`), `3` lembretes/tarefa e `10` dispositivos Web Push. | Fecha `D09` nos validadores Pydantic/SQL e em [Contratos-api.md](Contratos-api.md). |
 | ID-33 | 21/11/2026 | Decisão conjunta (Athos escolheu `D10`) | **6 blocos ricos em `notas_em_blocos` + exportação `.md`/`.json`** | Suporte a `parágrafo` (bold/itálico), `subtítulo`, `lista`, `checklist`, `citação` e `código/link` (somente `http`/`https`) no MongoDB, mais exportação da árvore/diário em Markdown ou JSON. | Fecha `D10` em [Contratos-api.md](Contratos-api.md) e nas Fases 10 e 15. |
+| ID-34 | 21/11/2026 | Decisão conjunta (Athos escolheu `D11`) | **Mapa Visual com `@xyflow/react` customizado** | Uso de `@xyflow/react` com nós e arestas estilizados como ramos botânicos durante o dia e constelações luminosas à noite, aproveitando zoom, pan, minimapa e navegação acessível por teclado. | Fecha `D11` em [Planejamento-tecnico.md](Planejamento-tecnico.md) e orienta a Fase 16. |
+| ID-35 | 21/11/2026 | Decisão conjunta (Athos aprovou V2 e `D12`) | **Navegação Bento + Bottom Nav, cartões pastéis editoriais e protótipo V2 aprovado** | Aprovação do layout responsivo (Sidebar Bento à esquerda no Desktop, barra compacta `78px` no Tablet, barra inferior fixa no Celular e gaveta/modal de notas e lembretes), além do estilo editorial pastel da V2 em `Doc/Prototipos/`, deixando microajustes visuais para a implementação oficial em React + TypeScript + Vite. | Fecha `D12` e conclui o Ciclo 1 (Fases 01-05) em [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md). |
 
 ---
 
 ## Convenção para novos registros
 
-Sempre que uma nova ideia surgir ou uma decisão (`D11`-`D16` ou nova evolução) for aprovada:
+Sempre que uma nova ideia surgir ou uma decisão (`D13`-`D16` ou nova evolução) for aprovada:
 
 1. Acrescentar uma nova entrada sequencial (`ID-NN`) com data, autoria/origem, descrição objetiva e impacto na tabela acima.
 2. Refletir a mudança na tabela `D01`-`D16` de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md) e nos documentos afetados ([Detalhes.md](Detalhes.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Contratos-api.md](Contratos-api.md) ou [Guia-visual.md](Guia-visual.md)).
