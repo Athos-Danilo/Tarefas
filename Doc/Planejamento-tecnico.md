@@ -35,8 +35,9 @@ Levantamento executado diretamente na máquina de desenvolvimento (`c:\Users\Ath
 - **Mundo 3D (WebGL):** `three`, `@react-three/fiber` e `@react-three/drei`.
   - **Compatibilidade verificada na Fase 06 (`21/11/2026`):** `react` e `react-dom` fixados em `~19.3.1` (compativel com `@react-three/fiber@9.8.2` que exige `>=19 <19.4`, `@react-three/drei@10.7.9` e `@xyflow/react@13.0.2`), `typescript` fixado em `~5.9.3` (exigido pelo `typescript-eslint@8.73.0`) e `jsdom ~27.4.0` para Node `v22.13.0`. Os pacotes `three`/`R3F` serão instalados apenas na Fase 13.
 - **Mapa Visual de Constelação / Ramos:** `@xyflow/react` aprovado em `D11` (Fase 05) com nós e arestas customizados (ramos botânicos durante o dia e constelações luminosas à noite), zoom/pan nativo, minimapa e navegação acessível por teclado.
-- **Dados, formulários e estado:** `@tanstack/react-query` (cache e sincronização com a API), `react-hook-form` + `zod` (validação tipada de formulários), `zustand` (estado efêmero de UI, Modo Simulador do Arco do Dia e controlador de foco/áudio).
-- **Iconografia, assets Soft-3D e favicons adaptativos:** `Lucide React` combinado com SVGs autorais para ícones do mapa/fases lunares, os renders **Soft-3D Clay Matte** catalogados em `Doc/Identidade-visual/assets-3d/` (publicados em `Frontend/public/favicons/` e `Frontend/public/assets-3d/` na Fase 12) e um controlador leve no cliente que atualiza `<link rel="icon">` somente na troca entre os 4 turnos do dia (`Manhã`, `Tarde`, `Entardecer` e `Noite`), evitando cintilação na aba.
+- **Gráficos e Visualização de Dados (`D14`):** `Recharts` combinado a mapa de calor SVG customizado para o Dashboard completo de Estatísticas (Fase 21), adaptando cores e contraste aos 4 momentos do dia.
+- **Dados, formulários e estado:** `@tanstack/react-query` (cache e sincronização com a API, incluindo *polling* inteligente `10-15s` com aba ativa para Tarefas em Conjunto), `react-hook-form` + `zod` (validação tipada de formulários), `zustand` (estado efêmero de UI, Modo Simulador do Arco do Dia e controlador de foco/áudio).
+- **Iconografia, assets Soft-3D e favicons adaptativos:** `Lucide React` combinado com SVGs autorais para ícones do mapa/fases lunares, os renders **Soft-3D Clay Matte** catalogados em `Doc/Identidade-visual/assets-3d/` (publicados em `Frontend/public/favicons/` e `Frontend/public/assets-3d/` na Fase 13) e um controlador leve no cliente que atualiza `<link rel="icon">` somente na troca entre os 4 turnos do dia (`Manhã`, `Tarde`, `Entardecer` e `Noite`), evitando cintilação na aba.
 - **PWA, Web Push e astronomia lunar offline:** `manifest.webmanifest`, *Service Worker* próprio com suporte a `PushManager` (Web Push `VAPID` multi-dispositivo) e módulo astronômico puro offline para cálculo da fase lunar real atual com orientação do **Hemisfério Sul**.
 - **Tipografia:** trio tipográfico aprovado em `D03` (**`Fraunces`** Display + **`Plus Jakarta Sans`** Sans UI + **`JetBrains Mono`** Mono tabular para horários/timers), com uso expressivo de **bold** e **itálico** em títulos, saudações, Modo Foco e notas ricas (`ID-17`), hospedando localmente todas as variantes (incluindo itálicos) sob licença `SIL OFL 1.1`.
 - **Responsividade:** arquitetura **desktop-first** (base principal para computador) com layout fluido e componentes adaptados para total usabilidade em **tablets e celulares** (`ID-18`).
@@ -82,9 +83,9 @@ Tarefas/
 │   ├── src/
 │   │   ├── principal.py
 │   │   ├── configuracao/        # settings por ambiente, validação sem segredos no código
-│   │   ├── dominio/             # entidades, enums, erros de domínio e regras puras da árvore
-│   │   ├── contratos/           # Protocolos (portas) para repositórios, OAuth, clima e Web Push
-│   │   ├── servicos/            # casos de uso (autenticacao, tarefas, arvore, clima, lembretes, foco, calendario, estatisticas)
+│   │   ├── dominio/             # entidades, enums, erros de domínio e regras puras da árvore e recorrência
+│   │   ├── contratos/           # Protocolos (portas) para repositórios, OAuth, clima, grupos e Web Push
+│   │   ├── servicos/            # casos de uso (autenticacao, tarefas, arvore, recorrencia, grupos, clima, lembretes, foco, calendario, estatisticas)
 │   │   ├── infraestrutura/
 │   │   │   ├── postgres/        # modelos ORM, sessao async e repositórios SQLAlchemy
 │   │   │   ├── mongo/           # cliente PyMongo async e repositórios de documentos
@@ -104,12 +105,12 @@ Tarefas/
     ├── src/
     │   ├── sw.ts                # Service Worker (PWA + recebimento/clique de Push)
     │   ├── aplicacao/           # rotas, provedores, guarda de autenticacao
-    │   ├── dominios/            # tarefas, mapa-constelacao, foco, calendario, estatisticas, lembretes, conta
+    │   ├── dominios/            # tarefas, grupos, mapa-constelacao, foco, calendario, estatisticas, tutorial, lembretes, conta
     │   ├── astronomia/          # cálculo puro offline da fase lunar real (Hemisfério Sul)
     │   ├── cenario/             # mundo 3D R3F, shaders/luz do ciclo, Lua 3D, nuvens/chuva, jardim, fallback 2D
     │   ├── audio/               # controlador central Web Audio opt-in e paisagens sonoras (incl. chuva)
     │   ├── servicos/            # cliente HTTP, notificacoes Web Push, mapeadores snake_case <-> camelCase
-    │   ├── componentes/         # sistema visual base (botões, cartões, mini-card clima/hora, modais, badges)
+    │   ├── componentes/         # sistema visual base (botões, cartões, mini-card clima/hora, graficos, modais, badges)
     │   ├── hooks/               # hooks React (`usar-*.ts` exportando `use*`)
     │   └── estilos/             # tokens CSS contínuos 24h e tipografia local SIL OFL 1.1
     └── testes/
@@ -126,8 +127,11 @@ Tarefas/
 ### 5.1 PostgreSQL: Fonte de verdade estrutural e transacional (ACID)
 - **`usuarios`:** `id` (UUID), `google_sub` (único), `email`, `nome_exibicao`, `avatar_id`, `primeiro_acesso_concluido`, `criado_em`, `atualizado_em`.
 - **`sessoes`:** `id` (UUID), `usuario_id` (FK), `token_hash` (único), `csrf_token_hash`, `expira_em`, `criado_em`, `revogada_em`.
-- **`tarefas`:** `id` (UUID), `usuario_id` (FK), `tarefa_pai_id` (FK auto-referenciada anulável com índice), `titulo`, `prioridade` (`baixa` | `media` | `alta` | `urgente`), `status` (`pendente` | `em_andamento` | `concluida`), `turno` (`manha` | `tarde` | `noite` | `livre`), `prazo` (anulável, indexado por `(usuario_id, prazo)`), `profundidade` (`1` a `5`, com restrição `CHECK`), `ordem_manual`, `concluida_em`, `criado_em`, `atualizado_em`.
-  - Consultas de árvore completa e subárvores utilizam `WITH RECURSIVE` (CTE recursiva) filtrada por `usuario_id` para garantir consistência e bloqueio de ciclos em transação atômica.
+- **`tarefas`:** `id` (UUID), `usuario_id` (FK), `tarefa_pai_id` (FK auto-referenciada anulável com índice), `titulo`, `prioridade` (`baixa` | `media` | `alta` | `urgente`), `status` (`pendente` | `em_andamento` | `concluida`), `turno` (`manha` | `tarde` | `noite` | `livre`), `prazo` (anulável, indexado por `(usuario_id, prazo)`), `profundidade` (`1` a `5`, com restrição `CHECK`), `ordem_manual`, `recorrencia_tipo` (`nenhuma` | `diaria` | `semanal` | `mensal`, adicionado na Fase 10), `recorrencia_config` (JSON/texto opcional), `serie_recorrencia_id` (UUID anulável), `vezes_reaberta` (inteiro padrão `0`), `compartilhada` (booleano padrão `false`, adicionado na Fase 11), `responsavel_usuario_id` (FK anulável com `ON DELETE SET NULL`), `vaga_responsavel_id` (FK anulável com `ON DELETE SET NULL`), `concluida_em`, `criado_em`, `atualizado_em`.
+  - Consultas de árvore completa e subárvores utilizam `WITH RECURSIVE` (CTE recursiva) filtrada por `usuario_id` ou associação em `membros_tarefa` para garantir consistência e bloqueio de ciclos em transação atômica.
+- **`membros_tarefa` (Fase 11):** `id` (UUID), `tarefa_raiz_id` (FK -> `tarefas.id` com `ON DELETE CASCADE`), `usuario_id` (FK -> `usuarios.id` com `ON DELETE CASCADE`), `papel` (`lider` | `colaborador`), `entrou_em` (`UNIQUE (tarefa_raiz_id, usuario_id)`).
+- **`vagas_tarefa` (Fase 11):** `id` (UUID), `tarefa_raiz_id` (FK -> `tarefas.id` com `ON DELETE CASCADE`), `nome_exibicao`, `email_opcional` (anulável, indexado), `ocupada_por_usuario_id` (FK -> `usuarios.id` com `ON DELETE SET NULL`), `criada_em`.
+- **`convites_tarefa` (Fase 11):** `id` (UUID), `tarefa_raiz_id` (FK -> `tarefas.id` com `ON DELETE CASCADE`), `codigo_token` (único), `criado_por_usuario_id` (FK), `ativo` (booleano), `expira_em` (anulável), `criado_em`, `revogado_em` (anulável).
 - **`etiquetas` e `tarefa_etiquetas`:** etiquetas nomeadas e coloridas por usuário (`UNIQUE (usuario_id, nome_normalizado)`) com tabela associativa `N:N`.
 - **`sessoes_foco`:** `id` (UUID), `usuario_id` (FK), `tarefa_id` (FK), `duracao_planejada_seg`, `duracao_real_seg`, `iniciada_em`, `encerrada_em`, `status` (`concluida` | `interrompida`).
 - **`inscricoes_push`:** `id` (UUID), `usuario_id` (FK com `ON DELETE CASCADE`), `endpoint` (único), `chave_p256dh`, `chave_auth`, `rotulo_dispositivo`, `plataforma` (`desktop` | `android` | `ios` | `outro`), `criado_em`, `ultimo_envio_em`.
@@ -136,8 +140,8 @@ Tarefas/
 ### 5.2 MongoDB: Documentos flexíveis, mapa visual, eventos e preferências
 - **`detalhes_tarefas`:** `{ _id, tarefa_id (único), usuario_id, notas_em_blocos: [...], metadados_visuais: { forma_botanica, cor_estrela, icone }, atualizado_em }`.
 - **`layouts_constelacao`:** `{ _id, usuario_id, tarefa_raiz_id (único por usuário), nos: { [tarefa_id]: { x, y, fixado } }, viewport: { zoom, centro_x, centro_y }, atualizado_em }`.
-- **`eventos_ciclo`:** `{ _id, usuario_id, tipo_evento, tarefa_id, momento_do_dia, resumo, detalhes: {...}, criado_em }` (indexado por `(usuario_id, criado_em DESC)` para histórico e diário).
-- **`preferencias_cenario`:** `{ _id, usuario_id (único), modo_temporal, hora_simulada, qualidade_3d, reduzir_movimento, clima: { habilitado, modo_localizacao, cidade, uf, latitude_aprox, longitude_aprox }, audio: { habilitado, volume_geral, volume_efeitos, volume_ambiente }, atualizado_em }` (por padrão `clima.habilitado = false`; ao desativar, cidade e coordenadas aproximadas são limpas).
+- **`eventos_ciclo`:** `{ _id, usuario_id, autor_usuario_id, tarefa_id, tarefa_raiz_id, tipo_evento, momento_do_dia, resumo, detalhes: {...}, criado_em }` (indexado por `(usuario_id, criado_em DESC)` e `(tarefa_raiz_id, criado_em DESC)` para diário pessoal e linha do tempo da equipe).
+- **`preferencias_cenario`:** `{ _id, usuario_id (único), modo_temporal, hora_simulada, qualidade_3d, reduzir_movimento, clima: { habilitado, modo_localizacao, cidade, uf, latitude_aprox, longitude_aprox }, audio: { habilitado, volume_geral, volume_efeitos, volume_ambiente }, tutorial: { status: 'pendente'|'pulado'|'concluido', etapa_atual, atualizado_em }, atualizado_em }` (por padrão `clima.habilitado = false` e `tutorial.status = 'pendente'` após criação de conta; ao desativar clima, cidade e coordenadas aproximadas são limpas).
 
 ### 5.3 Estratégia de consistência poliglota (sem transação distribuída)
 1. Toda criação, edição estrutural, movimentação, conclusão em cascata ou reabertura é concluída primeiro em **transação atômica no PostgreSQL**.

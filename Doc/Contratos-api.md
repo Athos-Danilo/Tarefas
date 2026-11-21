@@ -33,6 +33,7 @@ Este documento especifica os contratos HTTP/JSON oficiais entre o frontend (`Rea
 | Dispositivos Web Push (`inscricoes_push`) | Máximo `10` por usuário | `422 LIMITE_DISPOSITIVOS_PUSH` |
 | Lembretes ativos por tarefa | Máximo `3` pendentes por tarefa | `422 LIMITE_LEMBRETES_EXCEDIDO` |
 | Janela do `token_desfazer` (cascata) | Exibição `10s` na interface; expiração no servidor `15s` | `409 DESFAZER_EXPIRADO` |
+| Membros e vagas em Tarefa em Conjunto | Máximo `10` membros ativos e `10` vagas por tarefa-raiz | `422 LIMITE_MEMBROS_GRUPO_EXCEDIDO` |
 
 ### 1.2 Envelope padrão de erro e códigos estáveis
 
@@ -59,17 +60,21 @@ Todas as respostas `4xx` e `5xx` utilizam o envelope único abaixo:
 | `403` | `CSRF_INVALIDO` | Cabeçalho `X-CSRF-Token` ausente ou divergente |
 | `403` | `PRIMEIRO_ACESSO_PENDENTE` | Tentativa de acessar rotas do workspace antes de concluir `/api/conta/primeiro-acesso` |
 | `403` | `CLIMA_NAO_AUTORIZADO` | Consulta a `/api/clima/atual` com `preferencias_cenario.clima.habilitado = false` |
+| `403` | `PERMISSAO_GRUPO_INSUFICIENTE` | Membro colaborador tenta ação exclusiva do Líder ou fora das suas subtarefas atribuídas |
 | `403` | `TOKEN_INTERNO_INVALIDO` | Acesso ao disparo interno de lembretes sem `X-Token-Interno` válido |
 | `404` | `TAREFA_NAO_ENCONTRADA` | `tarefa_id` inexistente ou pertencente a outro usuário |
-| `404` | `RECURSO_NAO_ENCONTRADO` | Etiqueta, sessão de foco, dispositivo ou lembrete inexistente para o usuário |
+| `404` | `CONVITE_INVALIDO_OU_REVOGADO` | Link de convite de tarefa em conjunto inexistente, revogado ou expirado |
+| `404` | `RECURSO_NAO_ENCONTRADO` | Etiqueta, sessão de foco, dispositivo, vaga ou lembrete inexistente |
 | `409` | `CICLO_DETECTADO` | Tentativa de mover tarefa para si mesma ou para um descendente |
 | `409` | `CONFIRMACAO_ESTRATEGIA_OBRIGATORIA` | `DELETE /api/tarefas/{id}` em tarefa-mãe com filhas sem `estrategia` |
 | `409` | `CONFIRMACAO_EXCLUSAO_INVALIDA` | Texto diferente de `EXCLUIR` em `/api/conta/excluir` |
+| `409` | `LIDER_DEVE_TRANSFERIR_OU_EXCLUIR` | Líder tenta sair de tarefa em conjunto com outros membros antes de transferir liderança |
+| `409` | `VAGA_JA_OCUPADA` | Tentativa de vincular-se a uma vaga nomeada já associada a outro usuário |
 | `409` | `SESSAO_FOCO_JA_ATIVA` | Abertura de segunda sessão de foco enquanto existe outra `em_andamento` |
 | `409` | `DESFAZER_EXPIRADO` | Uso de `token_desfazer` após `15s` ou já consumido |
 | `409` | `ETIQUETA_DUPLICADA` | Nome normalizado de etiqueta já cadastrado pelo usuário |
 | `413` | `ARQUIVO_MUITO_GRANDE` | Avatar enviado maior que `2 MB` |
-| `422` | `VALIDACAO_INVALIDA` / `URL_NAO_SEGURA` | Regra Pydantic violada ou link fora de `http://` / `https://` |
+| `422` | `VALIDACAO_INVALIDA` / `URL_NAO_SEGURA` / `LIMITE_MEMBROS_GRUPO_EXCEDIDO` | Regra Pydantic violada, link fora de `http://`/`https://` ou teto de `10` membros/vagas atingido |
 | `503` | `SERVICO_EXTERNO_INDISPONIVEL` | Falha temporária do provedor Open-Meteo (quando sem cache válido) ou Google OAuth |
 
 ---
@@ -234,6 +239,13 @@ Parâmetros de query opcionais: `turno` (`manha|tarde|noite|livre`), `status` (`
           "cor": "#1D5C87"
         }
       ],
+      "recorrencia": {
+        "tipo": "semanal",
+        "dias_semana": [2, 5]
+      },
+      "vezes_reaberta": 0,
+      "compartilhada": false,
+      "responsavel": null,
       "lembretes_pendentes": 1,
       "criado_em": "2026-11-21T12:00:00Z",
       "atualizado_em": "2026-11-21T14:20:00Z",
@@ -253,6 +265,13 @@ Parâmetros de query opcionais: `turno` (`manha|tarde|noite|livre`), `status` (`
           "folhas_concluidas": 0,
           "tem_filha_urgente_aberta": false,
           "etiquetas": [],
+          "recorrencia": {
+            "tipo": "nenhuma",
+            "dias_semana": []
+          },
+          "vezes_reaberta": 1,
+          "compartilhada": false,
+          "responsavel": null,
           "lembretes_pendentes": 0,
           "criado_em": "2026-11-21T12:05:00Z",
           "atualizado_em": "2026-11-21T14:20:00Z",
@@ -270,7 +289,7 @@ Parâmetros de query opcionais: `turno` (`manha|tarde|noite|livre`), `status` (`
 ```
 
 ### `POST /api/tarefas` (autenticado + CSRF)
-Valida limites (`D09`: máximo `5` níveis, `50` filhas diretas, `500` ativas, `2.000` totais, `8` etiquetas por tarefa). Retorna `201 Created` com o nó criado e resumo atualizado dos ancestrais se houver `tarefa_pai_id`.
+Valida limites (`D09`: máximo `5` níveis, `50` filhas diretas, `500` ativas, `2.000` totais, `8` etiquetas por tarefa). Aceita opcionalmente `recorrencia` (`nenhuma` | `diaria` | `semanal` | `mensal`) e, em árvores compartilhadas, `responsavel_usuario_id` ou `vaga_responsavel_id`. Retorna `201 Created` com o nó criado e resumo atualizado dos ancestrais se houver `tarefa_pai_id`.
 
 ```json
 {
@@ -279,6 +298,10 @@ Valida limites (`D09`: máximo `5` níveis, `50` filhas diretas, `500` ativas, `
   "prioridade": "media",
   "turno": "tarde",
   "prazo": "2026-11-25T18:00:00Z",
+  "recorrencia": {
+    "tipo": "nenhuma",
+    "dias_semana": []
+  },
   "etiqueta_ids": ["e1000000-0000-4000-8000-000000000001"]
 }
 ```
@@ -540,11 +563,59 @@ Consulta tarefas com `prazo` dentro da janela mensal corrigida para o fuso do cl
 
 ---
 
-## 10. Estatísticas, Diário do Ciclo e Preferências
+## 10. Estatísticas, Diário do Ciclo e Preferências (`D14`, `ID-36`, `ID-38`)
 
-- **`GET /api/estatisticas/resumo?dias=30`** (autenticado): retorna totais concluídos no período, distribuição por `prioridade` e `turno`, tempo total em `sessoes_foco` e contagem de árvores-raiz concluídas.
-- **`GET /api/diario/eventos?limite=20&cursor=<opcional>&tipo=<opcional>`** (autenticado): pagina eventos ricos em `eventos_ciclo` (`tarefa_concluida`, `arvore_iluminada`, `foco_concluido`, etc.) ordenados de forma decrescente por `criado_em`.
-- **`GET /api/preferencias` e `PATCH /api/preferencias`** (autenticado; `PATCH` exige CSRF): lê e atualiza `preferencias_cenario` (modo temporal, qualidade 3D / Fallback 2D, movimento reduzido e configurações de áudio opt-in com volumes independentes).
+- **`GET /api/estatisticas/resumo?periodo=30d&escopo=todas&etiqueta_id=`** (autenticado): retorna KPIs completos, séries temporais, mapa de calor diário, distribuição por `prioridade`, `turno` e `etiqueta`, acompanhamento de **tarefas recorrentes** e **análise de repetições/reaberturas (`vezes_reaberta`)** (`periodo`: `7d|30d|90d|tudo`; `escopo`: `todas|pessoais|grupo`).
+
+```json
+{
+  "periodo": "30d",
+  "escopo": "todas",
+  "kpis": {
+    "total_criadas": 42,
+    "total_concluidas": 34,
+    "taxa_conclusao_pct": 81,
+    "tempo_medio_conclusao_horas": 18.4,
+    "pontualidade_pct": 88,
+    "sequencia_atual_dias": 6,
+    "sequencia_recorde_dias": 12,
+    "minutos_foco_totais": 640,
+    "taxa_foco_concluido_pct": 85
+  },
+  "serie_temporal": [
+    { "data": "2026-11-20", "criadas": 3, "concluidas": 4, "minutos_foco": 50 },
+    { "data": "2026-11-21", "criadas": 2, "concluidas": 3, "minutos_foco": 75 }
+  ],
+  "mapa_calor": [
+    { "data": "2026-11-20", "intensidade": 3, "acoes": 5 },
+    { "data": "2026-11-21", "intensidade": 4, "acoes": 6 }
+  ],
+  "por_turno": { "manha": 12, "tarde": 11, "noite": 7, "livre": 4 },
+  "por_prioridade": { "baixa": 8, "media": 14, "alta": 8, "urgente": 4 },
+  "por_etiqueta": [
+    { "etiqueta_id": "e1000000-0000-4000-8000-000000000001", "nome": "Faculdade", "cor": "#1D5C87", "concluidas": 15 }
+  ],
+  "recorrencias": {
+    "rotinas_ativas": 4,
+    "ocorrencias_cumpridas": 22,
+    "taxa_consistencia_pct": 79
+  },
+  "repeticoes_e_retrabalho": {
+    "total_reaberturas": 5,
+    "tarefas_reabertas_distintas": 3,
+    "titulos_mais_repetidos": [
+      { "titulo_normalizado": "revisar resumo de aula", "ocorrencias": 6, "concluidas": 5 }
+    ]
+  },
+  "arvores": {
+    "constelacoes_concluidas": 3,
+    "profundidade_media": 2.4
+  }
+}
+```
+
+- **`GET /api/diario/eventos?limite=20&cursor=<opcional>&tipo=<opcional>&busca=<opcional>`** (autenticado): pagina eventos ricos em `eventos_ciclo` (`tarefa_criada`, `tarefa_concluida`, `cascata_concluida`, `tarefa_reaberta`, `arvore_iluminada`, `foco_concluido`, `foco_interrompido`, `grupo_atribuicao`, etc.) ordenados de forma decrescente por `criado_em`.
+- **`GET /api/preferencias` e `PATCH /api/preferencias`** (autenticado; `PATCH` exige CSRF): lê e atualiza `preferencias_cenario` (modo temporal, qualidade 3D / Fallback 2D, movimento reduzido, áudio opt-in com volumes independentes e estado do **Modo Tutorial Guiado** `tutorial.status`: `pendente|pulado|concluido`).
 
 ```json
 {
@@ -556,6 +627,10 @@ Consulta tarefas com `prazo` dentro da janela mensal corrigida para o fuso do cl
     "volume_geral": 0.7,
     "volume_efeitos": 0.8,
     "volume_ambiente": 0.5
+  },
+  "tutorial": {
+    "status": "pulado",
+    "etapa_atual": 6
   }
 }
 ```
@@ -609,5 +684,70 @@ Acionado periodicamente (ex.: cron gratuito a cada `5` min para mitigar hiberna�
   "lembretes_processados": 4,
   "notificacoes_enviadas": 7,
   "inscricoes_removidas_expiradas": 1
+}
+```
+
+---
+
+## 13. Tarefas em Conjunto (Grupos, Vagas e Link de Convite, `ID-37`)
+
+- **`POST /api/grupos/{tarefa_raiz_id}/compartilhar`** (autenticado + CSRF, exclusivo do criador): transforma a tarefa-raiz em tarefa em conjunto (`compartilhada = true`), registra o criador como `lider` em `membros_tarefa` e gera o primeiro token de convite ativo.
+- **`POST /api/grupos/{tarefa_raiz_id}/vagas`** e **`DELETE /api/grupos/{tarefa_raiz_id}/vagas/{vaga_id}`** (autenticado + CSRF, exclusivo do Líder): cria ou remove vaga nomeada com `nome_exibicao` (`2-60` chars) e `email_opcional`, respeitando o teto de `10` vagas/membros. Ao remover vaga ou membro, subtarefas associadas passam automaticamente para *Sem responsável* (`responsavel_usuario_id = null`, `vaga_responsavel_id = null`).
+- **`POST /api/grupos/{tarefa_raiz_id}/convites/regenerar`** e **`DELETE /api/grupos/{tarefa_raiz_id}/convites`** (autenticado + CSRF, exclusivo do Líder): gera novo link invalidando o anterior ou revoga o link ativo sem afetar membros que já entraram.
+- **`GET /api/grupos/convites/{token}`** (autenticado): retorna prévia segura do projeto compartilhado (título da tarefa-raiz, nome do Líder, membros já ativos e vagas ainda disponíveis para seleção).
+- **`POST /api/grupos/convites/{token}/entrar`** (autenticado + CSRF): aceita `{ "vaga_id": "<opcional>" }`. Se houver vaga livre com `email_opcional` igual ao e-mail Google verificado do usuário, realiza vínculo automático e herda suas subtarefas pré-atribuídas; caso contrário usa `vaga_id` escolhido ou entra como colaborador disponível.
+- **`PATCH /api/tarefas/{tarefa_id}/atribuir`** (autenticado + CSRF, exclusivo do Líder): define `{ "responsavel_usuario_id": ..., "vaga_responsavel_id": ... }` (no máximo `1` preenchido ou ambos `null` para *Sem responsável*) e dispara evento + Web Push opcional ao membro atribuído.
+- **`GET /api/grupos/{tarefa_raiz_id}/desempenho`** (autenticado para qualquer membro): retorna painel consolidado da equipe para *polling* inteligente (`10-15s` com aba ativa).
+- **`POST /api/grupos/{tarefa_raiz_id}/transferir-lideranca`** (Líder), **`DELETE /api/grupos/{tarefa_raiz_id}/membros/{usuario_id}`** (Líder remove membro) e **`POST /api/grupos/{tarefa_raiz_id}/sair`** (se Líder tentar sair com outros membros presentes sem transferir liderança antes, retorna `409 LIDER_DEVE_TRANSFERIR_OU_EXCLUIR`).
+
+Exemplo de resposta de `GET /api/grupos/{tarefa_raiz_id}/desempenho`:
+
+```json
+{
+  "tarefa_raiz_id": "11111111-1111-4111-8111-111111111111",
+  "titulo": "Trabalho em Trio de Web II",
+  "meu_papel": "lider",
+  "link_convite_ativo": true,
+  "resumo_geral": {
+    "total_subtarefas_folha": 9,
+    "folhas_concluidas": 5,
+    "percentual_geral": 56
+  },
+  "integrantes": [
+    {
+      "usuario_id": "5b7c1e12-8a4f-4a7e-9c12-104d2c9b0001",
+      "nome_exibicao": "Athos Danilo",
+      "papel": "lider",
+      "avatar_url": "/assets-3d/avatares/vagalume-estelar.png",
+      "atribuidas": 3,
+      "concluidas": 2,
+      "percentual": 67
+    },
+    {
+      "usuario_id": "5b7c1e12-8a4f-4a7e-9c12-104d2c9b0002",
+      "nome_exibicao": "Maria Silva",
+      "papel": "colaborador",
+      "avatar_url": "/assets-3d/avatares/lua-crescente.png",
+      "atribuidas": 3,
+      "concluidas": 3,
+      "percentual": 100
+    }
+  ],
+  "vagas_abertas": [
+    {
+      "vaga_id": "v1000000-0000-4000-8000-000000000003",
+      "nome_exibicao": "Integrante 3 (Frontend)",
+      "atribuidas": 3
+    }
+  ],
+  "atividade_recente": [
+    {
+      "evento_id": "evt-901",
+      "autor_nome": "Maria Silva",
+      "tipo_evento": "tarefa_concluida",
+      "resumo": "Maria Silva concluiu a etapa Testes do mapa",
+      "criado_em": "2026-11-21T16:40:00Z"
+    }
+  ]
 }
 ```

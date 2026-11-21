@@ -34,6 +34,9 @@ Para manter consistência absoluta entre especificações, banco de dados, API e
 | `preferencias_cenario` | Configurações visuais, de simulação temporal, acessibilidade/desempenho 3D, consentimento de clima/localização e áudio do usuário. |
 | `estado_climatico` | Condição atmosférica derivada do código WMO (`limpo`, `parcialmente_nublado`, `nublado`, `chuvoso`, `tempestade`), com padrão `limpo` quando clima local está desativado. |
 | `lembrete` / `inscricao_push` | Agendamento de aviso vinculado a uma tarefa e credencial Web Push (`VAPID`) de um dispositivo autorizado (PC ou celular). |
+| `recorrencia` | Regra opcional de repetição periódica da tarefa (`nenhuma`, `diaria`, `semanal`, `mensal`) e registro de reaberturas (`vezes_reaberta`) que alimentam o Calendário e as Estatísticas. |
+| `tarefa_em_conjunto` | Tarefa-raiz compartilhada via link de convite onde um **Líder** organiza vagas nomeadas, atribui subtarefas (`1` responsável por nó) e colabora com **Membros colaboradores**. |
+| `modo_tutorial` | Tour interativo guiado em `6` passos exibido uma única vez após a criação de nova conta (podendo ser pulado e revisto depois no Perfil). |
 
 ## 3. Conceito central: o ciclo vivo do dia
 
@@ -90,6 +93,8 @@ O usuário pode, a qualquer momento:
 | `etiquetas` | Coleção de tags do usuário | Cada etiqueta possui nome único por usuário e cor compatível com o tema. |
 | `ordem_manual` | Inteiro sequencial por nível/contexto | Permite ordenação personalizada persistida no servidor. |
 | `metadados_visuais` | Documento leve no MongoDB | Tipo/estética de planta/estrela e cor de destaque no cenário/mapa. |
+| `recorrencia` | `nenhuma`, `diaria`, `semanal`, `mensal` (+ dias/dia opcional e `vezes_reaberta`) | Permite rotinas repetitivas automáticas e mede reaberturas e repetições no Dashboard (`ID-36`). |
+| `grupo_e_responsavel` | `compartilhada`, `responsavel_usuario_id`, `vaga_responsavel_id` | Marca árvores compartilhadas por link e define até `1` responsável (usuário ou vaga) por subtarefa (`ID-37`). |
 
 ## 6. Telas, fluxos e experiências da primeira entrega
 
@@ -122,8 +127,12 @@ O usuário pode, a qualquer momento:
 - Grade mensal clara exibindo tarefas com `prazo` definido, indicadores luminosos por `prioridade` (incluindo destaque para urgentes e atrasadas) e indicação da **fase lunar** de cada dia em harmonia com a temática celeste.
 - Permite navegar entre meses, filtrar por prioridade/turno e abrir/editar/concluir a tarefa diretamente a partir do dia selecionado.
 
-### 6.7 Estatísticas e Diário do Ciclo
-- Painel com indicadores de conclusão por período, distribuição por prioridade e turno, tempo acumulado em `sessoes_foco` e histórico/linha do tempo rica (`eventos_ciclo` do MongoDB) celebrando constelações concluídas e metas cumpridas.
+### 6.7 Estatísticas e Diário do Ciclo (`D14`, `ID-36`)
+- **Dashboard completo com filtro global** (`7 dias`, `30 dias`, `90 dias`, `Todo o período`, além de filtro por etiqueta e escopo **Todas / Pessoais / Em Grupo**).
+- **Indicadores-chave (KPIs):** taxa geral de conclusão, tempo médio de conclusão, taxa de pontualidade (no prazo vs. atrasadas), sequência ativa e recorde (*streak*), além de horas acumuladas e taxa de conclusão no Modo Foco.
+- **Múltiplos gráficos (`Recharts` + SVG acessível):** curva/área temporal (criadas vs. concluídas e minutos de foco), **mapa de calor de atividade** (*heatmap* diário), rosca por prioridade, barras/radar comparativo por turno (`manha`, `tarde`, `noite`, `livre`), ranking de etiquetas e árvores/constelações finalizadas.
+- **Tarefas recorrentes, repetidas e retrabalho (`ID-36`):** suporte a **recorrência periódica** (`diaria`, `semanal`, `mensal`) com percentual de cumprimento da rotina, além de análise de **tarefas repetidas com frequência** (agrupamento por título/etiqueta recorrente) e **taxa de retrabalho/reabertura** (`vezes_reaberta`).
+- **Histórico / Diário do Ciclo detalhado (`eventos_ciclo`):** linha do tempo filtrável por tipo de evento (criação, conclusão, cascata, reabertura, sessões de foco, atribuições/conclusões em grupo e constelações acesas) com **exportação em `.md` e `.json`**.
 
 ### 6.8 Experiência Sonora e Preferências do Cenário
 - **Áudio opt-in:** todo som inicia **silenciado/desativado** até ativação voluntária pelo usuário.
@@ -134,30 +143,43 @@ O usuário pode, a qualquer momento:
 - **PWA instalável:** manifesto (`manifest.webmanifest`) e *Service Worker* utilizando o ícone **Sol de 4 Ls**, permitindo instalar o **Lume** na tela inicial do celular (Android/iOS) ou no computador sem precisar de loja de aplicativos.
 - **Notificações Web Push multi-dispositivo (100% opt-in):** o usuário autenticado decide em cada aparelho (PC ou celular) se deseja ativar avisos nativos (`PushManager` + protocolo `VAPID`), podendo listar, nomear ou revogar dispositivos conectados a qualquer momento.
 - **Suporte guiado a Android, Desktop e iOS 16.4+:** funciona diretamente no navegador em Desktop/Android (e como app instalado); no iPhone/iPad, quando necessário, exibe um mini-guia visual de 2 passos (*Compartilhar -> Adicionar à Tela de Início*) para habilitar Web Push nativo da Apple.
-- **Lembretes por tarefa:** tarefas com prazo ou horário definido permitem configurar antecedência de lembrete (ex.: na hora, 15 min antes, 1 hora antes), disparados automaticamente pelo backend e removidos em definitivo caso o usuário exclua a tarefa ou sua própria conta.
+- **Lembretes por tarefa:** tarefas com prazo ou horário definido permitem configurar antecedência de lembrete (ex.: na hora, 15 min antes, 1 hora antes), disparados automaticamente pelo backend (incluindo alertas para atribuições e conclusões em **Tarefas em Conjunto**) e removidos em definitivo caso o usuário exclua a tarefa ou sua própria conta.
+
+### 6.10 Tarefas em Conjunto (Projetos em Grupo, `ID-37`)
+- **Fluxo do Líder e pré-atribuição:** qualquer tarefa-raiz pode ser marcada como compartilhada pelo seu criador (**Líder**). Antes mesmo de os colegas entrarem, o Líder cria **vagas nomeadas** (com e-mail opcional) e atribui `1` responsável (vaga ou membro) a cada subtarefa.
+- **Convite e entrada:** o Líder gera um **link de convite** único (revogável/regenerável a qualquer momento, com limite de `10` membros por grupo). Ao abrir o link e entrar com Google, o participante é vinculado automaticamente pelo e-mail da vaga ou escolhe sua vaga na tela de entrada (com ajuste livre pelo Líder).
+- **Papéis claros:** **Líder** administra toda a árvore, vagas, convites e membros (podendo transferir liderança ou excluir o projeto); **Membro colaborador** visualiza toda a árvore e o progresso do time, conclui/reabre, edita notas e pode criar subetapas apenas dentro das suas subtarefas atribuídas.
+- **Saída/remoção segura:** caso um integrante saia ou seja removido, todas as suas subtarefas permanecem intactas na árvore com responsável limpo (*Sem responsável*) para o Líder reatribuir.
+- **Painel de desempenho e sincronização:** exibe progresso individual de cada integrante e linha do tempo de conclusões, notas compartilhadas, avisos Web Push e atualização automática quase em tempo real via *polling* inteligente (`10-15s` com aba ativa + recarga ao focar a aba).
+
+### 6.11 Modo Tutorial Guiado (`ID-38`)
+- **Exibição única para novas contas:** logo após finalizar o Primeiro Acesso de uma conta recém-criada (`tutorial.status = "pendente"` no MongoDB), o **Lume** inicia um tour interativo em `6` passos (*spotlight*) cobrindo Horizonte Vivo/clima, árvore e recorrência, Tarefas em Conjunto, notas/Web Push e as demais visões.
+- **Pular e rever:** o usuário pode clicar em **"Pular tutorial"** ou pressionar `Esc` a qualquer momento (gravando `status = "pulado"` para não abrir mais sozinho em nenhum dispositivo), ou acessar **"Rever tutorial"** em Perfil sempre que desejar.
 
 ## 7. Matriz inicial de cenários principais
 
 | Cenário | Comportamento esperado | Validação crítica |
 | --- | --- | --- |
 | Visitante na Landing | Vê o cenário 3D animado e testa demos locais (Arco do Dia + subtarefa exemplo) | Nenhuma escrita no servidor; acesso ao app real exige Google OAuth |
-| Primeiro login Google | OAuth válido → tela de primeiro acesso (nome/avatar) → entra no workspace | Conta criada no PostgreSQL; preferências padrão criadas com segurança |
-| Conta existente | Login Google → restaura tarefas, notas, layouts e preferências | Dados privados isolados estritamente pelo `usuario_id` |
+| Primeiro login Google | OAuth válido → tela de primeiro acesso (nome/avatar) → entra no workspace com Tutorial inicial | Conta criada no PostgreSQL; preferências padrão e `tutorial.status = "pendente"` criados com segurança |
+| Conta existente | Login Google → restaura tarefas, notas, layouts e preferências | Dados privados isolados estritamente pelo `usuario_id`; tutorial não reabre após pulado/concluído |
 | Exclusão de conta | Confirmação explícita → remoção dos dados em PostgreSQL e MongoDB → logout | Nova entrada com o mesmo Google reinicia como primeiro acesso |
-| Criação e edição composta | Cria tarefa raiz e subtarefas até nível 5; edita prioridades e notas ricas | Nível 6 bloqueado no servidor (`PROFUNDIDADE_EXCEDIDA`) |
+| Criação e edição composta | Cria tarefa raiz e subtarefas até nível 5; edita prioridades, recorrência e notas ricas | Nível 6 bloqueado no servidor (`PROFUNDIDADE_EXCEDIDA`) |
 | Reparenting com ciclo | Tenta mover mãe para dentro de sua própria neta ou exceder 5 níveis | Bloqueio atômico no backend (`CICLO_DETECTADO` / `PROFUNDIDADE_EXCEDIDA`) |
-| Cascata e reabertura | Conclui todas as filhas → mãe conclui; reabre uma filha → mãe vira `em_andamento` | Transação ACID no PostgreSQL; progresso (%) recalculado corretamente |
+| Cascata e reabertura | Conclui todas as filhas → mãe conclui; reabre uma filha → mãe vira `em_andamento` (`vezes_reaberta++`) | Transação ACID no PostgreSQL; progresso (%) recalculado corretamente |
 | Alerta de urgência | Subtarefa nível 3 marcada como `urgente` enquanto mãe tem prioridade `media` | Mãe mantém prioridade `media` e exibe alerta visual de filha urgente |
-| Mapa Constelação/Ramos | Abre tarefa composta no mapa 2D/SVG, move nós, conclui nó e recarrega | Posições recuperadas de `layouts_constelacao`; status confirmado no PostgreSQL |
+| Tarefa em Conjunto | Líder cria vagas nomeadas, gera link; colega entra com Google, conclui sua subtarefa; Líder remove outro colega | Vínculo de vaga aplicado; Membro colaborador bloqueado de alterar subtarefa alheia; subtarefas de quem sai preservadas como *Sem responsável* |
+| Mapa Constelação/Ramos | Abre tarefa composta no mapa `@xyflow/react`, move nós, conclui nó e recarrega | Posições recuperadas de `layouts_constelacao`; status confirmado no PostgreSQL |
 | Modo Foco | Inicia sessão de foco na tarefa, conclui subtarefas e encerra ciclo | Sessão gravada no PostgreSQL e evento gravado no MongoDB |
-| Calendário Mensal | Abre mês com prazos variados e clica em tarefa urgente no dia | Datas respeitam fuso e filtros sem misturar dados de outros usuários |
+| Calendário Mensal | Abre mês com prazos e recorrências e clica em tarefa urgente no dia | Datas respeitam fuso e filtros sem misturar dados de outros usuários |
+| Dashboard de Estatísticas | Filtra período (`7d`/`30d`/`90d`/`tudo`), consulta taxa de conclusão, recorrências, repetições/retrabalho e Diário | Métricas e gráficos batem fielmente com PostgreSQL e `eventos_ciclo` (inclusive escopo pessoal vs grupo) |
 | Clima local opt-in | Usuário ativa clima no card, escolhe geolocalização ou cidade e depois desativa | Nenhuma consulta externa ocorre antes do consentimento; ao desativar, cidade/coordenadas aproximadas são apagadas e o cenário volta a `limpo` |
-| Lembrete Web Push | Usuário cria lembrete no computador e recebe aviso no celular/PC inscrito | Apenas dispositivos autenticados e autorizados recebem push `VAPID`; exclusão da conta remove todas as inscrições |
+| Lembrete Web Push | Usuário cria lembrete no computador (ou recebe atribuição em grupo) e recebe aviso no celular/PC inscrito | Apenas dispositivos autenticados e autorizados recebem push `VAPID`; exclusão da conta remove todas as inscrições |
 | Fallback 2D / Reduced Motion | Navegador sem WebGL ou usuário ativa Modo Desempenho / movimento reduzido | Cenário 2D/SVG assume suavemente (inclusive nuvens/chuva sem flashes de tempestade) sem quebrar nenhuma funcionalidade |
 
 ## 8. O que não entra automaticamente na primeira entrega
 
-- Compartilhamento de tarefas entre usuários distintos, colaboração em tempo real ou workspaces de equipe.
+- Workspaces corporativos multi-empresa, permissões granulares de empresa ou edição simultânea estilo CRDT/cursor ao vivo em tempo real no mesmo parágrafo de texto (a colaboração implementada foca em **Tarefas em Conjunto por link de convite**, papéis Líder/Colaborador e *polling* inteligente `10-15s`, `ID-37`).
 - Login por e-mail/senha própria ou múltiplos provedores de autenticação além do Google.
 - **Vinculação ou sincronização com calendários externos** (Google Agenda, Apple Calendar, Samsung Calendar), reservada como evolução futura em favor do sistema próprio de Lembretes + Web Push (`ID-26`).
 - Upload livre de anexos binários pesados (PDFs, vídeos, imagens arbitrárias) nas tarefas.
@@ -166,4 +188,4 @@ O usuário pode, a qualquer momento:
 
 ## 9. Contratos de API, decisões em aberto e evolução controlada
 
-Os contratos completos de requisição/resposta HTTP/JSON para as decisões fechadas (`D01`-`D10`, clima opt-in e lembretes/Web Push) residem em [Contratos-api.md](Contratos-api.md). As definições pendentes (escolha de biblioteca do editor do mapa, navegação prototipada, orçamento 3D, métricas, sons e contas de deploy) estão catalogadas como **`D11` a `D16`** na Seção 3 de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), com seus respectivos responsáveis e fases-limite. Nenhuma implementação pode presumir respostas para decisões abertas sem registro formal neste documento.
+Os contratos completos de requisição/resposta HTTP/JSON para as decisões fechadas (`D01`-`D12`, `D14`, clima opt-in, lembretes/Web Push, Tarefas em Conjunto e Modo Tutorial) residem em [Contratos-api.md](Contratos-api.md). As definições ainda pendentes (`D13` orçamento 3D, `D15` sons e `D16` contas de deploy) estão catalogadas na Seção 3 de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md), com seus respectivos responsáveis e fases-limite. Nenhuma implementação pode presumir respostas para decisões abertas sem registro formal neste documento.
