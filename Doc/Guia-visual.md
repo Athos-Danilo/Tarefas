@@ -166,7 +166,42 @@ O movimento no **Lume** é pensado para dar vida poética e resposta tátil à i
 
 ---
 
-## 8. Referências visuais e protótipos desta fase
+## 8. Identidade visual, marca "Sol de 4 Ls", favicon adaptativo por horário e assets Soft-3D (`D04`, `ID-21` a `ID-23`)
 
+### 8.1 Logotipo, chamada oficial e estética Soft-3D Clay Matte
+- **Logotipo oficial:** palavra **`Lume`** em `Fraunces Bold` (`700`) acompanhada pelo símbolo radial **"Sol de 4 Ls"** em **Soft-3D Clay Matte** com fundo 100% transparente (`PNG RGBA 256x256`).
+- **Chamada oficial (subtítulo da marca):** *"Suas tarefas no ritmo vivo do dia."* (combinando **`tarefas`** em peso `700` e ***`ritmo vivo`*** em `Fraunces Italic 600` na cor primária do horário atual).
+- **Linguagem visual:** troca do estilo low-poly geométrico plano por modelagem **Soft-3D Clay Matte** (cantos macios, iluminação difusa tátil e profundidade em relevo) combinada a painéis **Bento UI** translúcidos sobre o céu contínuo de 24h.
+
+### 8.2 Sistema oficial de 4 favicons adaptativos por horário (`Sol de 4 Ls`)
+O símbolo mantém exatamente a mesma geometria simétrica em todos os arquivos (`PNG RGBA 256x256`, traço leve e estrela negativa central sem deslocamento de bounding box), alternando as cores dos pares diagonais de braços conforme o horário exibido pelo **Modo Relógio Real** ou pelo **Simulador do Arco do Dia**:
+
+| Turno | Faixa horária | Minutos do dia | Arquivo oficial (`Doc/Identidade-visual/assets-3d/favicons/`) | Composição cromática dos 4 Ls |
+| --- | --- | --- | --- | --- |
+| **Manhã** | `05:45` - `11:59` | `345` - `719` | `favicon-lume-manha.png` | **4 Ls Ouro Solar** uniforme (mesmo tom em todos os braços) |
+| **Tarde** | `12:00` - `16:59` | `720` - `1019` | `favicon-lume-tarde.png` | **2 Ls Ouro Solar (Manhã) + 2 Ls Laranja mais escuro** alternados em diagonal |
+| **Entardecer** | `17:00` - `18:59` | `1020` - `1139` | `favicon-lume-entardecer.png` | **2 Ls Coral Poente + 2 Ls Ametista Crepúsculo** alternados em diagonal |
+| **Noite** | `19:00` - `05:44` | `1140` - `1439` e `0` - `344` | `favicon-lume-noite.png` | **2 Ls Índigo Estelar + 2 Ls Ciano Vagalume** alternados em diagonal |
+
+**Regra técnica no frontend (Fase 11 em diante):** manter o estado da faixa ativa (`manha`, `tarde`, `entardecer` ou `noite`) e atualizar o `href` de `<link rel="icon">` **somente quando houver mudança de faixa** (evitando recarregamentos e piscadas na aba ao deslizar o Arco do Dia ou durante o Timelapse 24h), sincronizando também o símbolo exibido no cabeçalho/logotipo.
+
+### 8.3 Catálogo de assets Soft-3D aprovados (`Doc/Identidade-visual/assets-3d/`)
+- `diorama-jardim-dia-3d.png`: diorama panorâmico diurno do jardim vivo em Soft-3D.
+- `diorama-jardim-noite-3d.png`: diorama panorâmico noturno com constelações e vagalumes para transição cruzada contínua com a camada diurna.
+- `prancha-sol-lua-3d.png`: 5 variações solares do dia e fases lunares esculpidas para o cenário e Calendário Mensal.
+- `prancha-plantas-evolucao-3d.png`: grade com 4 estágios evolutivos das tarefas compostas (Broto Inicial, Muda Viva, Botões Dourados e Florescimento Pleno) e espécies colecionáveis para os cartões Bento.
+- `prancha-avatares-16-3d.png`: prancha 4x4 com os **16 avatares Soft-3D oficiais** (`256x256` efetivo na entrega):
+  - **Astros:** `sol-nascente`, `lua-crescente`, `cometa-dourado`, `aurora-boreal`
+  - **Botânicos:** `girassol-lume`, `samambaia-orvalho`, `lotus-serena`, `broto-vivo`
+  - **Criaturas:** `vagalume-estelar`, `coruja-noturna`, `borboleta-aurora`, `beija-flor-solar`
+  - **Observatório:** `telescopio-celeste`, `bussola-astral`, `ampulheta-solar`, `estrela-guia`
+- **Opções adicionais de perfil (`ID-22`):** além dos 16 avatares Soft-3D, o usuário pode manter a foto importada da conta **Google OAuth** ou realizar **upload de imagem própria** (`PNG`, `JPG` ou `WebP`, padronizada para `256x256`).
+
+---
+
+## 9. Referências visuais e protótipos desta fase
+
+- [ORIGEM-E-LICENCAS.md](Identidade-visual/ORIGEM-E-LICENCAS.md): inventário oficial de origem e licenças dos assets Soft-3D, dos 4 favicons por horário, das fontes `SIL OFL 1.1` e dos avatares.
+- [estudo-fase-03-soft3d.html](Identidade-visual/estudo-fase-03-soft3d.html): estúdio interativo oficial da Fase 03 integrando a marca **Sol de 4 Ls**, os **4 favicons adaptativos por horário** ao vivo na aba, diorama dia/noite com paralaxe, evolução botânica de subtarefas e galeria dos **16 avatares Soft-3D + Google + upload**.
 - [simulacao-transicao-continua.html](Identidade-visual/simulacao-transicao-continua.html): estúdio interativo aprovado da **Transição Cromática Contínua 24h** com timelapse, hora real e auditoria WCAG dos 1.440 minutos.
 - [previa-fase-02.html](Identidade-visual/previa-fase-02.html): comparativo inicial das 3 direções cromáticas e 3 trios tipográficos avaliados na Fase 02.

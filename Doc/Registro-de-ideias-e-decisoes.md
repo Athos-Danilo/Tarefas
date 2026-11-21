@@ -2,7 +2,7 @@
 
 Este documento mantém a trilha cronológica oficial de todas as ideias autorais, preferências de produto e decisões técnicas/visuais tomadas pelo responsável pelo projeto (**Athos**), com registro de data, contexto e impacto nas especificações e no código.
 
-Conforme estabelecido em [Regras.md](../Agents/Regras.md), toda nova ideia ou decisão do responsável deve ser incorporada neste arquivo. Os detalhes funcionais consolidados residem em [Detalhes.md](Detalhes.md), a arquitetura técnica em [Planejamento-tecnico.md](Planejamento-tecnico.md), o sistema visual aprovado em [Guia-visual.md](Guia-visual.md) e as decisões ainda em aberto (`D04`-`D16`) em [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md).
+Conforme estabelecido em [Regras.md](../Agents/Regras.md), toda nova ideia ou decisão do responsável deve ser incorporada neste arquivo. Os detalhes funcionais consolidados residem em [Detalhes.md](Detalhes.md), a arquitetura técnica em [Planejamento-tecnico.md](Planejamento-tecnico.md), o sistema visual aprovado em [Guia-visual.md](Guia-visual.md) e as decisões ainda em aberto (`D05`-`D16`) em [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md).
 
 ---
 
@@ -30,12 +30,15 @@ Conforme estabelecido em [Regras.md](../Agents/Regras.md), toda nova ideia ou de
 | ID-18 | 20/11/2026 | Athos definiu | **Responsividade Desktop-first funcional em todos os dispositivos** | A interface tem como base principal o uso em **computador**, mas deve ser responsiva e plenamente funcional em **celulares e tablets** (zero transbordamento horizontal desde `320px`, alvos de toque confortáveis e Fallback 2D acessível). | Define breakpoints e regras de adaptação em [Guia-visual.md](Guia-visual.md), [Detalhes.md](Detalhes.md) e auditoria da Fase 20. |
 | ID-19 | 20/11/2026 | Athos solicitou | **Animações de texto, hover, movimento e efeitos de escrita** | Enriquecer toda a experiência visual com **animações tipográficas, efeitos de escrita/revelação progressiva, microinterações de hover táteis/luminosas e efeitos de movimento fluidos**, sempre mantendo agilidade nas tarefas diárias e respeito a `prefers-reduced-motion: reduce`. | Detalhado em [Guia-visual.md](Guia-visual.md), [Planejamento-tecnico.md](Planejamento-tecnico.md) e nas Fases 11 e 13 de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md). |
 | ID-20 | 20/11/2026 | Athos determinou | **Proibição de travessão** | Não utilizar travessão (`U+2014`) nem meia-risca (`U+2013`) em documentos, textos ou interfaces, substituindo por hífen simples (`-`), vírgula, dois-pontos ou parênteses conforme o contexto. | Formalizado como regra obrigatória na Seção 2 de [Regras.md](../Agents/Regras.md) e aplicado em todo o repositório. |
+| ID-21 | 20/11/2026 | Athos escolheu (`D04`) | **Direção artística Soft-3D Clay Matte + Bento UI** | Rejeição do estilo low-poly geométrico plano em favor da estética **Soft-3D Clay Matte** orgânica e tátil (inspirada em referências do Pinterest escolhidas por Athos) combinada a cartões Bento UI, cobrindo diorama do jardim (dia/noite), Sol (5 momentos), fases lunares e 4 estágios evolutivos botânicos. | Orienta todos os assets em `Doc/Identidade-visual/assets-3d/`, o estúdio `estudo-fase-03-soft3d.html` e a direção visual da cena 3D/2D. |
+| ID-22 | 20/11/2026 | Athos escolheu (`D04`) | **16 Avatares Soft-3D + Foto Google + Upload Próprio** | Definição da coleção inicial de **16 avatares Soft-3D** em 4 grupos temáticos (Astros, Botânicos, Criaturas e Observatório), somada à importação opcional da foto da conta Google e ao **upload de imagem própria** (`PNG/JPG/WebP` otimizado para `256x256`). | Regula a escolha de perfil no Primeiro Acesso e na tela de Perfil, além dos assets da Fase 11. |
+| ID-23 | 20/11/2026 | Ideia autoral e escolha de Athos (`D04`) | **Marca "Sol de 4 Ls" e Favicon adaptativo nos 4 horários** | Aprovação do símbolo radial **"Sol de 4 Ls"** em Soft-3D transparente (traço leve simétrico com estrela central negativa) com **4 versões cromáticas automáticas por horário**: **Manhã** (`05:45-11:59`, 4 Ls ouro solar), **Tarde** (`12:00-16:59`, 2 Ls ouro da Manhã + 2 Ls laranja mais escuro), **Entardecer** (`17:00-18:59`, 2 Ls coral + 2 Ls ametista) e **Noite** (`19:00-05:44`, 2 Ls índigo + 2 Ls ciano-vagalume), além da chamada oficial *"Suas tarefas no ritmo vivo do dia."*. | Consolidado em [Guia-visual.md](Guia-visual.md), [Detalhes.md](Detalhes.md), [Planejamento-tecnico.md](Planejamento-tecnico.md) e validado ao vivo em [estudo-fase-03-soft3d.html](Identidade-visual/estudo-fase-03-soft3d.html). |
 
 ---
 
 ## Convenção para novos registros
 
-Sempre que uma nova ideia surgir ou uma decisão (`D04`-`D16` ou nova evolução) for aprovada:
+Sempre que uma nova ideia surgir ou uma decisão (`D05`-`D16` ou nova evolução) for aprovada:
 
 1. Acrescentar uma nova entrada sequencial (`ID-NN`) com data, autoria/origem, descrição objetiva e impacto na tabela acima.
 2. Refletir a mudança na tabela `D01`-`D16` de [Roteiro-primeira-entrega.md](Roteiro-primeira-entrega.md) e nos documentos afetados ([Detalhes.md](Detalhes.md), [Planejamento-tecnico.md](Planejamento-tecnico.md) ou [Guia-visual.md](Guia-visual.md)).

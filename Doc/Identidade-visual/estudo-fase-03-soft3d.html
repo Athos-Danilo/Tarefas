@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lume - Estúdio Soft-3D &amp; Bento UI (Fase 03)</title>
+  <link id="favicon-ativo" rel="icon" type="image/png" href="assets-3d/favicons/favicon-lume-manha.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500..700;1,9..144,500..700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:ital,wght@0,400..700;1,400..600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --fonte-display: 'Fraunces', Georgia, serif;
+      --fonte-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --fonte-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --ceu-topo: #B5DFF8;
+      --ceu-meio: #E2F2F8;
+      --ceu-base: #F7F1E1;
+      --superficie: rgba(255, 253, 248, 0.90);
+      --superficie-solida: #FFFDF8;
+      --superficie-alt: #F1EDE0;
+      --borda: rgba(23, 36, 48, 0.14);
+      --texto: #172430;
+      --texto-sec: #4A5D6E;
+      --primaria: #256B4E;
+      --primaria-texto: #FFFFFF;
+      --sombra-bento: 0 20px 44px rgba(10, 16, 30, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--fonte-sans);
+      color: var(--texto);
+      background: linear-gradient(180deg, var(--ceu-topo) 0%, var(--ceu-meio) 52%, var(--ceu-base) 100%);
+      padding: 22px 16px 56px;
+      transition: color 300ms ease;
+    }
+
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--primaria);
+      outline-offset: 2px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .bento {
+      background: var(--superficie);
+      border: 1px solid var(--borda);
+      border-radius: 26px;
+      padding: 20px;
+      backdrop-filter: blur(18px);
+      box-shadow: var(--sombra-bento);
+      transition: background-color 420ms ease, color 320ms ease, border-color 320ms ease, transform 220ms ease;
+    }
+
+    .bento-interno {
+      background: var(--superficie-solida);
+      border: 1px solid var(--borda);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(10, 16, 30, 0.06);
+      transition: background-color 420ms ease, color 320ms ease, border-color 320ms ease, transform 200ms ease;
+    }
+    .bento-interno:hover { transform: translateY(-2px); }
+
+    .titulo-display {
+      font-family: var(--fonte-display);
+      letter-spacing: -0.02em;
+      line-height: 1.12;
+      margin: 0;
+    }
+
+    .mono {
+      font-family: var(--fonte-mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .btn {
+      border: 1px solid var(--borda);
+      background: var(--superficie-alt);
+      color: var(--texto);
+      font-family: var(--fonte-sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: transform 150ms ease, background-color 260ms ease, color 260ms ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn.ativo {
+      background: var(--primaria);
+      color: var(--primaria-texto);
+      border-color: transparent;
+    }
+
+    .grade-hero {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .grade-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+    @media (max-width: 940px) {
+      .grade-hero, .grade-2 { grid-template-columns: 1fr; }
+    }
+
+    .chamada-palavra {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(8px);
+      animation: revelarPalavra 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes revelarPalavra {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .palco-diorama {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--borda);
+      aspect-ratio: 16 / 9;
+      background: #F5F1E3;
+      perspective: 900px;
+    }
+
+    .camada-diorama {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity 420ms ease, transform 180ms ease-out;
+      will-change: transform, opacity;
+    }
+
+    .selo-flutuante {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 4;
+      padding: 8px 13px;
+      border-radius: 14px;
+      background: var(--superficie);
+      border: 1px solid var(--borda);
+      backdrop-filter: blur(12px);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .aba-simulada {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 12px 12px 0 0;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .grade-4-favicons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    @media (max-width: 520px) {
+      .grade-4-favicons { grid-template-columns: repeat(2, 1fr); }
+    }
+    .fav-turno-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 4px;
+      border-radius: 14px;
+      border: 1.5px solid var(--borda);
+      background: var(--superficie-alt);
+      color: var(--texto);
+      font-family: var(--fonte-sans);
+      cursor: pointer;
+      transition: transform 150ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+    .fav-turno-btn:hover { transform: translateY(-2px); }
+    .fav-turno-btn.ativo {
+      border-color: var(--primaria);
+      box-shadow: 0 0 0 2px var(--primaria);
+      background: var(--superficie-solida);
+    }
+
+    .planta-recorte {
+      width: 132px;
+      height: 132px;
+      border-radius: 22px;
+      border: 1px solid var(--borda);
+      background-image: url('assets-3d/prancha-plantas-evolucao-3d.png');
+      background-size: 400% 200%;
+      background-repeat: no-repeat;
+      box-shadow: 0 12px 26px rgba(10, 16, 30, 0.14);
+      transition: background-position 360ms cubic-bezier(0.22, 1, 0.36, 1);
+      flex-shrink: 0;
+    }
+
+    .grade-16-avatares {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 600px) {
+      .grade-16-avatares { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .avatar-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 6px;
+      border-radius: 16px;
+      border: 1.5px solid var(--borda);
+      background: var(--superficie-solida);
+      color: var(--texto);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 180ms ease;
+    }
+    .avatar-chip:hover { transform: translateY(-2px); }
+    .avatar-chip.ativo {
+      border-color: var(--primaria);
+      box-shadow: 0 0 0 2px var(--primaria);
+    }
+
+    .avatar-sprite {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      background-image: url('assets-3d/prancha-avatares-16-3d.png');
+      background-size: 430% 430%;
+      background-repeat: no-repeat;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .check-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: var(--superficie-alt);
+      border: 1px solid var(--borda);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .check-sub input { width: 16px; height: 16px; accent-color: var(--primaria); }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="bento" aria-label="Cabeçalho da marca e simulador 24h Soft-3D">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <img id="marca-icone-topo" src="assets-3d/favicons/favicon-lume-manha.png" alt="Simbolo Soft-3D Sol de 4 Ls do Lume" width="62" height="62" style="filter:drop-shadow(0 8px 18px rgba(14,23,46,0.20));transition:transform 220ms ease;" />
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+              <h1 class="titulo-display" style="font-size:40px;font-weight:700;">Lume</h1>
+              <span class="mono" style="font-size:12px;color:var(--texto-sec);">SOFT-3D STUDIO + BENTO UI · FASE 03</span>
+            </div>
+            <div id="chamada-animada" style="font-size:15px;margin-top:4px;color:var(--texto-sec);"></div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <button class="btn" id="btn-timelapse" type="button">▶ Timelapse 24h</button>
+          <button class="btn" id="btn-hora-real" type="button">Hora real</button>
+          <button class="btn" id="btn-escrita" type="button">Repetir escrita</button>
+          <div class="mono" id="pill-hora" style="padding:8px 12px;border-radius:12px;background:var(--superficie-alt);border:1px solid var(--borda);font-size:13px;font-weight:600;">
+            09:30 · Manhã
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;">
+        <button class="btn" data-min="350" type="button">05:50 Aurora</button>
+        <button class="btn ativo" data-min="570" type="button">09:30 Manhã</button>
+        <button class="btn" data-min="975" type="button">16:15 Tarde</button>
+        <button class="btn" data-min="1080" type="button">18:00 Crepúsculo</button>
+        <button class="btn" data-min="1290" type="button">21:30 Noite</button>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin-left:auto;">
+          Arco 24h
+          <input id="slider-hora" type="range" min="0" max="1439" step="1" value="570" style="accent-color:var(--primaria);" />
+        </label>
+      </div>
+    </section>
+
+    <div class="grade-hero">
+      <section class="bento" aria-label="Palco Diorama 3D vivo">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;">
+          <h2 class="titulo-display" style="font-size:22px;">Palco Diorama <strong>Soft-3D</strong> (Passe o mouse ou deslize 24h)</h2>
+          <span class="mono" id="label-diorama" style="font-size:12px;color:var(--texto-sec);">100% Luz do Dia</span>
+        </div>
+        <div class="palco-diorama" id="palco-diorama">
+          <div class="selo-flutuante mono" id="selo-diorama">Ciclo Vivo · Jardim Iluminado</div>
+          <img id="img-dia" class="camada-diorama" src="assets-3d/diorama-jardim-dia-3d.png" alt="Diorama 3D do jardim de dia" style="opacity:1;" />
+          <img id="img-noite" class="camada-diorama" src="assets-3d/diorama-jardim-noite-3d.png" alt="Diorama 3D do jardim à noite com constelações" style="opacity:0;" />
+        </div>
+      </section>
+
+      <aside class="bento" style="display:grid;gap:14px;align-content:start;" aria-label="Favicon 3D e card de evolução">
+        <div class="bento-interno">
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px;margin-bottom:8px;">
+            <div class="mono" style="font-size:11px;font-weight:600;color:var(--texto-sec);">FAVICON ADAPTATIVO EM 4 HORARIOS (SOL DE 4 Ls)</div>
+            <span class="mono" id="fav-turno-info" style="font-size:11px;font-weight:600;color:var(--primaria);">Manhã · 05:45 - 11:59</span>
+          </div>
+
+          <div class="grade-4-favicons" id="grade-4-favicons">
+            <button class="fav-turno-btn ativo" data-fase-favicon="manha" type="button">
+              <img src="assets-3d/favicons/favicon-lume-manha.png" width="34" height="34" alt="Favicon Manha" />
+              <span style="font-size:11px;font-weight:700;">Manhã</span>
+              <span class="mono" style="font-size:10px;color:var(--texto-sec);">05:45</span>
+            </button>
+            <button class="fav-turno-btn" data-fase-favicon="tarde" type="button">
+              <img src="assets-3d/favicons/favicon-lume-tarde.png" width="34" height="34" alt="Favicon Tarde" />
+              <span style="font-size:11px;font-weight:700;">Tarde</span>
+              <span class="mono" style="font-size:10px;color:var(--texto-sec);">12:00</span>
+            </button>
+            <button class="fav-turno-btn" data-fase-favicon="entardecer" type="button">
+              <img src="assets-3d/favicons/favicon-lume-entardecer.png" width="34" height="34" alt="Favicon Entardecer" />
+              <span style="font-size:11px;font-weight:700;">Entardecer</span>
+              <span class="mono" style="font-size:10px;color:var(--texto-sec);">17:00</span>
+            </button>
+            <button class="fav-turno-btn" data-fase-favicon="noite" type="button">
+              <img src="assets-3d/favicons/favicon-lume-noite.png" width="34" height="34" alt="Favicon Noite" />
+              <span style="font-size:11px;font-weight:700;">Noite</span>
+              <span class="mono" style="font-size:10px;color:var(--texto-sec);">19:00</span>
+            </button>
+          </div>
+
+          <div style="display:grid;gap:8px;">
+            <div style="background:#E6EAEF;padding:7px 7px 0;border-radius:10px;">
+              <div class="aba-simulada" style="background:#FFFFFF;color:#172430;">
+                <img id="fav-aba-clara" src="assets-3d/favicons/favicon-lume-manha.png" width="16" height="16" alt="Favicon 16px aba clara" />
+                <span>Lume · Jornada</span>
+              </div>
+            </div>
+            <div style="background:#181B24;padding:7px 7px 0;border-radius:10px;">
+              <div class="aba-simulada" style="background:#262B38;color:#F1F5FF;">
+                <img id="fav-aba-escura" src="assets-3d/favicons/favicon-lume-manha.png" width="16" height="16" alt="Favicon 16px aba escura" />
+                <span>Lume · Modo Foco</span>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;padding-top:4px;">
+              <img id="fav-escala-16" src="assets-3d/favicons/favicon-lume-manha.png" width="16" height="16" alt="16px" />
+              <img id="fav-escala-32" src="assets-3d/favicons/favicon-lume-manha.png" width="32" height="32" alt="32px" />
+              <img id="fav-escala-48" src="assets-3d/favicons/favicon-lume-manha.png" width="48" height="48" alt="48px" />
+              <span class="mono" style="font-size:12px;color:var(--texto-sec);">16 / 32 / 48 px</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bento-interno">
+          <div class="mono" style="font-size:12px;color:var(--texto-sec);margin-bottom:10px;">CARD ESTILO PRINT 2/3 · EVOLUÇÃO DA TAREFA</div>
+          <div style="display:flex;gap:14px;align-items:center;margin-bottom:10px;">
+            <div class="planta-recorte" id="planta-estagio" aria-label="Planta 3D evoluindo"></div>
+            <div>
+              <strong style="font-size:15px;">Projeto Web II</strong>
+              <div class="mono" id="estagio-texto" style="font-size:12px;color:var(--texto-sec);margin-top:4px;">Estágio 2/4 · 50%</div>
+              <div style="font-size:12px;color:var(--texto-sec);margin-top:4px;">Marque as subtarefas abaixo para ver a planta 3D florescer:</div>
+            </div>
+          </div>
+          <div style="display:grid;gap:6px;" id="checks-planta">
+            <label class="check-sub"><input type="checkbox" checked /> Modelar árvore no PostgreSQL</label>
+            <label class="check-sub"><input type="checkbox" checked /> Criar renders Soft-3D</label>
+            <label class="check-sub"><input type="checkbox" /> Integrar Mapa Constelação</label>
+            <label class="check-sub"><input type="checkbox" /> Publicar na Vercel + Render</label>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="grade-2">
+      <section class="bento" aria-label="Prancha Sol e Lua 3D">
+        <h2 class="titulo-display" style="font-size:22px;margin-bottom:6px;">Sol (5 momentos) &amp; Fases da <em>Lua Soft-3D</em></h2>
+        <p style="margin:0 0 12px;font-size:13px;color:var(--texto-sec);">
+          Da Aurora rosada ao Sol poente coral, mais as fases esculpidas da Lua e estrelas de constelação para o céu e Calendário Mensal.
+        </p>
+        <img src="assets-3d/prancha-sol-lua-3d.png" alt="Prancha de 5 variações do Sol e fases da Lua em Soft-3D" style="width:100%;border-radius:16px;border:1px solid var(--borda);display:block;" />
+      </section>
+
+      <section class="bento" aria-label="Prancha de Plantas e Árvores 3D">
+        <h2 class="titulo-display" style="font-size:22px;margin-bottom:6px;">Estágios de Crescimento &amp; <em>Árvores do Jardim</em></h2>
+        <p style="margin:0 0 12px;font-size:13px;color:var(--texto-sec);">
+          Acima: 4 estágios evolutivos de cada tarefa composta. Abaixo: espécies colecionáveis para o jardim e cartões Bento.
+        </p>
+        <img src="assets-3d/prancha-plantas-evolucao-3d.png" alt="Grade 2x4 com estágios de crescimento e espécies de árvores Soft-3D" style="width:100%;border-radius:16px;border:1px solid var(--borda);display:block;" />
+      </section>
+    </div>
+
+    <section class="bento" aria-label="Galeria dos 16 Avatares Soft-3D e Upload Próprio">
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px;">
+        <div>
+          <h2 class="titulo-display" style="font-size:24px;"><strong>16 Avatares Soft-3D</strong> + Foto Google + <em>Upload Próprio</em></h2>
+          <p style="margin:4px 0 0;font-size:13px;color:var(--texto-sec);">Clique em qualquer avatar abaixo para aplicar na prévia de perfil ou envie sua própria foto.</p>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+          <button class="btn" id="btn-google" type="button">Usar foto Google</button>
+          <label class="btn ativo" style="display:inline-flex;align-items:center;gap:6px;">
+            Subir minha imagem
+            <input id="input-upload" type="file" accept="image/png,image/jpeg,image/webp" style="display:none;" />
+          </label>
+        </div>
+      </div>
+
+      <div class="bento-interno" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div id="avatar-perfil" style="width:72px;height:72px;border-radius:999px;border:2.5px solid var(--primaria);overflow:hidden;background-color:var(--superficie-alt);"></div>
+          <div>
+            <div style="font-weight:700;font-size:16px;">Athos Danilo · <span class="mono" style="font-size:13px;" id="av-id">vagalume-estelar</span></div>
+            <div style="font-size:13px;color:var(--texto-sec);" id="av-origem">Avatar Soft-3D · Criaturas do Jardim</div>
+          </div>
+        </div>
+        <div class="mono" id="av-status" style="font-size:12px;color:var(--texto-sec);">Upload aceita PNG/JPG/WebP (otimizado para 256x256 no servidor)</div>
+      </div>
+
+      <div class="grade-2" style="align-items:start;">
+        <div class="grade-16-avatares" id="grade-avatares"></div>
+        <div>
+          <div class="mono" style="font-size:12px;color:var(--texto-sec);margin-bottom:8px;">PRANCHA ORIGINAL 4x4 COMPLETA</div>
+          <img src="assets-3d/prancha-avatares-16-3d.png" alt="Grade 4x4 dos 16 avatares Soft-3D do Lume" style="width:100%;border-radius:18px;border:1px solid var(--borda);display:block;" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const CEU = [
+      { min: 0,    c1: '#070C1A', c2: '#0D1730', c3: '#132040', pri: '#F5D076', nome: 'Meia-noite Estelar' },
+      { min: 345,  c1: '#5C5E96', c2: '#E79B9B', c3: '#FCE2C4', pri: '#8A3E52', nome: 'Aurora Rosada' },
+      { min: 450,  c1: '#B5DFF8', c2: '#E2F2F8', c3: '#F7F1E1', pri: '#256B4E', nome: 'Manhã Orvalhada' },
+      { min: 975,  c1: '#6CAEDB', c2: '#E6CFAF', c3: '#F8D19A', pri: '#A94F0D', nome: 'Tarde Dourada' },
+      { min: 1050, c1: '#47366E', c2: '#B55A74', c3: '#F3A172', pri: '#FFA26B', nome: 'Crepúsculo Coral' },
+      { min: 1215, c1: '#070C1A', c2: '#0D1730', c3: '#132040', pri: '#F5D076', nome: 'Noite Estelar' },
+      { min: 1440, c1: '#070C1A', c2: '#0D1730', c3: '#132040', pri: '#F5D076', nome: 'Meia-noite Estelar' }
+    ];
+
+    function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+    function rgbHex(r, g, b) { return '#' + [r, g, b].map(v => Math.round(Math.max(0, Math.min(255, v))).toString(16).padStart(2, '0')).join('').toUpperCase(); }
+    function lerpHex(a, b, t) { const [r1, g1, b1] = hexRgb(a), [r2, g2, b2] = hexRgb(b); return rgbHex(r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t); }
+
+    const FASES_FAVICON = {
+      manha: {
+        id: 'manha',
+        nome: 'Manhã',
+        faixa: '05:45 - 11:59',
+        minExemplo: 570,
+        arquivo: 'assets-3d/favicons/favicon-lume-manha.png',
+        cores: '4 Ls Ouro Solar'
+      },
+      tarde: {
+        id: 'tarde',
+        nome: 'Tarde',
+        faixa: '12:00 - 16:59',
+        minExemplo: 900,
+        arquivo: 'assets-3d/favicons/favicon-lume-tarde.png',
+        cores: '2 Ls Ouro + 2 Ls Laranja'
+      },
+      entardecer: {
+        id: 'entardecer',
+        nome: 'Entardecer',
+        faixa: '17:00 - 18:59',
+        minExemplo: 1065,
+        arquivo: 'assets-3d/favicons/favicon-lume-entardecer.png',
+        cores: '2 Ls Coral + 2 Ls Ametista'
+      },
+      noite: {
+        id: 'noite',
+        nome: 'Noite',
+        faixa: '19:00 - 05:44',
+        minExemplo: 1290,
+        arquivo: 'assets-3d/favicons/favicon-lume-noite.png',
+        cores: '2 Ls Índigo + 2 Ls Vagalume'
+      }
+    };
+
+    function obterFaseFavicon(min) {
+      if (min >= 345 && min < 720) return FASES_FAVICON.manha;
+      if (min >= 720 && min < 1020) return FASES_FAVICON.tarde;
+      if (min >= 1020 && min < 1140) return FASES_FAVICON.entardecer;
+      return FASES_FAVICON.noite;
+    }
+
+    let minAtual = 570;
+    let faseFaviconAtual = null;
+    let rodando = false;
+    let ultimoFrame = 0;
+
+    function sincronizarFavicon(min) {
+      const fase = obterFaseFavicon(min);
+      if (faseFaviconAtual === fase.id) return;
+      faseFaviconAtual = fase.id;
+
+      const link = document.getElementById('favicon-ativo');
+      if (link) link.href = `${fase.arquivo}?turno=${fase.id}`;
+
+      ['marca-icone-topo', 'fav-aba-clara', 'fav-aba-escura', 'fav-escala-16', 'fav-escala-32', 'fav-escala-48'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.src = fase.arquivo;
+      });
+
+      const info = document.getElementById('fav-turno-info');
+      if (info) info.textContent = `${fase.nome} · ${fase.faixa} · ${fase.cores}`;
+
+      document.querySelectorAll('.fav-turno-btn').forEach(btn => {
+        btn.classList.toggle('ativo', btn.dataset.faseFavicon === fase.id);
+      });
+    }
+
+    function aplicarMinuto(min) {
+      let a = CEU[0], b = CEU[CEU.length - 1];
+      for (let i = 0; i < CEU.length - 1; i++) {
+        if (min >= CEU[i].min && min <= CEU[i + 1].min) { a = CEU[i]; b = CEU[i + 1]; break; }
+      }
+      const t = b.min === a.min ? 0 : (min - a.min) / (b.min - a.min);
+      const clara = min >= 345 && min <= 1049;
+      const r = document.documentElement;
+      r.style.setProperty('--ceu-topo', lerpHex(a.c1, b.c1, t));
+      r.style.setProperty('--ceu-meio', lerpHex(a.c2, b.c2, t));
+      r.style.setProperty('--ceu-base', lerpHex(a.c3, b.c3, t));
+      r.style.setProperty('--primaria', lerpHex(a.pri, b.pri, t));
+      r.style.setProperty('--primaria-texto', clara ? '#FFFFFF' : '#0E172E');
+      r.style.setProperty('--superficie', clara ? 'rgba(255,253,248,0.90)' : 'rgba(14,23,46,0.90)');
+      r.style.setProperty('--superficie-solida', clara ? '#FFFDF8' : '#0E172E');
+      r.style.setProperty('--superficie-alt', clara ? '#F1EDE0' : '#162242');
+      r.style.setProperty('--texto', clara ? '#172430' : '#F1F5FF');
+      r.style.setProperty('--texto-sec', clara ? '#4A5D6E' : '#A5B4D4');
+      r.style.setProperty('--borda', clara ? 'rgba(23,36,48,0.14)' : 'rgba(241,245,255,0.18)');
+
+      const hh = Math.floor(min / 60).toString().padStart(2, '0');
+      const mm = (min % 60).toString().padStart(2, '0');
+      const nome = t < 0.5 ? a.nome : b.nome;
+      document.getElementById('pill-hora').textContent = `${hh}:${mm} · ${nome}`;
+
+      let opNoite = 0;
+      if (min >= 1140 || min <= 300) opNoite = 1;
+      else if (min > 990 && min < 1140) opNoite = (min - 990) / 150;
+      else if (min > 300 && min < 420) opNoite = 1 - (min - 300) / 120;
+
+      document.getElementById('img-noite').style.opacity = opNoite.toFixed(2);
+      document.getElementById('img-dia').style.opacity = (1 - opNoite * 0.85).toFixed(2);
+      const pctNoite = Math.round(opNoite * 100);
+      document.getElementById('label-diorama').textContent = pctNoite === 0 ? '100% Luz do Dia' : pctNoite === 100 ? '100% Noite Estelar' : `Transição ${pctNoite}% Noite`;
+      document.getElementById('selo-diorama').textContent = `${hh}:${mm} · ${nome}`;
+      sincronizarFavicon(min);
+    }
+
+    function animarChamada() {
+      const container = document.getElementById('chamada-animada');
+      const palavras = [
+        { txt: 'Suas', st: '' },
+        { txt: 'tarefas', st: 'font-weight:700;color:var(--texto);' },
+        { txt: 'no', st: '' },
+        { txt: 'ritmo', st: 'font-family:var(--fonte-display);font-style:italic;font-weight:600;color:var(--primaria);' },
+        { txt: 'vivo', st: 'font-family:var(--fonte-display);font-style:italic;font-weight:600;color:var(--primaria);' },
+        { txt: 'do', st: '' },
+        { txt: 'dia.', st: '' }
+      ];
+      container.innerHTML = palavras.map((p, i) =>
+        `<span class="chamada-palavra" style="animation-delay:${i * 75}ms;${p.st}">${p.txt}</span>`
+      ).join(' ');
+    }
+
+    function atualizarPlanta() {
+      const checks = Array.from(document.querySelectorAll('#checks-planta input'));
+      const ok = checks.filter(c => c.checked).length;
+      const idx = Math.min(3, Math.max(0, ok === 0 ? 0 : ok - 1));
+      const posX = (idx * 33.333).toFixed(2) + '%';
+      document.getElementById('planta-estagio').style.backgroundPosition = `${posX} 0%`;
+      const nomes = ['Broto Inicial', 'Muda Viva', 'Botões Dourados', 'Florescimento Pleno'];
+      const pct = Math.round((ok / checks.length) * 100);
+      document.getElementById('estagio-texto').textContent = `${nomes[idx]} · ${pct}% (${ok}/${checks.length})`;
+    }
+
+    const AVATARES = [
+      { id: 'sol-nascente', nome: 'Sol Nascente', g: 'Astros', r: 0, c: 0 },
+      { id: 'lua-crescente', nome: 'Lua Crescente', g: 'Astros', r: 0, c: 1 },
+      { id: 'cometa-dourado', nome: 'Cometa Dourado', g: 'Astros', r: 0, c: 2 },
+      { id: 'aurora-boreal', nome: 'Aurora Boreal', g: 'Astros', r: 0, c: 3 },
+      { id: 'girassol-lume', nome: 'Girassol Lume', g: 'Botânicos', r: 1, c: 0 },
+      { id: 'samambaia-orvalho', nome: 'Samambaia', g: 'Botânicos', r: 1, c: 1 },
+      { id: 'lotus-serena', nome: 'Lótus Serena', g: 'Botânicos', r: 1, c: 2 },
+      { id: 'broto-vivo', nome: 'Broto Vivo', g: 'Botânicos', r: 1, c: 3 },
+      { id: 'vagalume-estelar', nome: 'Vagalume', g: 'Criaturas', r: 2, c: 0 },
+      { id: 'coruja-noturna', nome: 'Coruja', g: 'Criaturas', r: 2, c: 1 },
+      { id: 'borboleta-aurora', nome: 'Borboleta', g: 'Criaturas', r: 2, c: 2 },
+      { id: 'beija-flor-solar', nome: 'Beija-flor', g: 'Criaturas', r: 2, c: 3 },
+      { id: 'telescopio-celeste', nome: 'Telescópio', g: 'Observatório', r: 3, c: 0 },
+      { id: 'bussola-astral', nome: 'Bússola', g: 'Observatório', r: 3, c: 1 },
+      { id: 'ampulheta-solar', nome: 'Ampulheta', g: 'Observatório', r: 3, c: 2 },
+      { id: 'estrela-guia', nome: 'Estrela-guia', g: 'Observatório', r: 3, c: 3 }
+    ];
+
+    function posSprite(r, c) {
+      const px = [4.5, 34.8, 65.2, 95.5][c];
+      const py = [4.5, 34.8, 65.2, 95.5][r];
+      return `${px}% ${py}%`;
+    }
+
+    function selecionarAvatar(id) {
+      const av = AVATARES.find(x => x.id === id) || AVATARES[8];
+      const box = document.getElementById('avatar-perfil');
+      box.innerHTML = '';
+      box.style.backgroundImage = "url('assets-3d/prancha-avatares-16-3d.png')";
+      box.style.backgroundSize = '430% 430%';
+      box.style.backgroundPosition = posSprite(av.r, av.c);
+      document.getElementById('av-id').textContent = av.id;
+      document.getElementById('av-origem').textContent = `Avatar Soft-3D · ${av.g}`;
+      document.querySelectorAll('.avatar-chip').forEach(b => b.classList.toggle('ativo', b.dataset.id === av.id));
+    }
+
+    document.getElementById('grade-avatares').innerHTML = AVATARES.map(av => `
+      <button class="avatar-chip" data-id="${av.id}" type="button">
+        <span class="avatar-sprite" style="background-position:${posSprite(av.r, av.c)};"></span>
+        <span style="font-size:12px;font-weight:700;">${av.nome}</span>
+        <span class="mono" style="font-size:11px;color:var(--texto-sec);">${av.g}</span>
+      </button>
+    `).join('');
+
+    document.querySelectorAll('.avatar-chip').forEach(b => b.addEventListener('click', () => selecionarAvatar(b.dataset.id)));
+
+    document.getElementById('btn-google').addEventListener('click', () => {
+      document.querySelectorAll('.avatar-chip').forEach(b => b.classList.remove('ativo'));
+      const box = document.getElementById('avatar-perfil');
+      box.style.backgroundImage = 'none';
+      box.innerHTML = '<div style="width:100%;height:100%;background:#1D5C87;color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;">AD</div>';
+      document.getElementById('av-id').textContent = 'foto-google';
+      document.getElementById('av-origem').textContent = 'Foto importada da conta Google OAuth';
+    });
+
+    document.getElementById('input-upload').addEventListener('change', (e) => {
+      const arq = e.target.files[0];
+      if (!arq) return;
+      if (!['image/png', 'image/jpeg', 'image/webp'].includes(arq.type)) {
+        document.getElementById('av-status').textContent = 'Formato inválido: envie PNG, JPG ou WebP.';
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        document.querySelectorAll('.avatar-chip').forEach(b => b.classList.remove('ativo'));
+        const box = document.getElementById('avatar-perfil');
+        box.style.backgroundImage = 'none';
+        box.innerHTML = `<img src="${reader.result}" alt="Avatar enviado" style="width:100%;height:100%;object-fit:cover;" />`;
+        document.getElementById('av-id').textContent = 'upload-usuario';
+        document.getElementById('av-origem').textContent = `Imagem própria (${arq.name})`;
+        document.getElementById('av-status').textContent = `Prévia carregada (${Math.round(arq.size / 1024)} KB)`;
+      };
+      reader.readAsDataURL(arq);
+    });
+
+    const palco = document.getElementById('palco-diorama');
+    palco.addEventListener('mousemove', (e) => {
+      const rect = palco.getBoundingClientRect();
+      const dx = (e.clientX - rect.left) / rect.width - 0.5;
+      const dy = (e.clientY - rect.top) / rect.height - 0.5;
+      const t = `scale(1.03) rotateY(${(dx * 5).toFixed(2)}deg) rotateX(${(-dy * 4).toFixed(2)}deg)`;
+      document.getElementById('img-dia').style.transform = t;
+      document.getElementById('img-noite').style.transform = t;
+    });
+    palco.addEventListener('mouseleave', () => {
+      document.getElementById('img-dia').style.transform = 'scale(1) rotateY(0deg) rotateX(0deg)';
+      document.getElementById('img-noite').style.transform = 'scale(1) rotateY(0deg) rotateX(0deg)';
+    });
+
+    function loop(ts) {
+      if (!rodando) return;
+      if (!ultimoFrame) ultimoFrame = ts;
+      if (ts - ultimoFrame >= 32) {
+        minAtual = (minAtual + 4) % 1440;
+        document.getElementById('slider-hora').value = minAtual;
+        aplicarMinuto(minAtual);
+        ultimoFrame = ts;
+      }
+      requestAnimationFrame(loop);
+    }
+
+    document.getElementById('btn-timelapse').addEventListener('click', (e) => {
+      rodando = !rodando;
+      e.target.textContent = rodando ? '⏸ Pausar' : '▶ Timelapse 24h';
+      e.target.classList.toggle('ativo', rodando);
+      document.getElementById('btn-hora-real').classList.remove('ativo');
+      ultimoFrame = 0;
+      if (rodando) requestAnimationFrame(loop);
+    });
+
+    document.getElementById('btn-hora-real').addEventListener('click', (e) => {
+      rodando = false;
+      document.getElementById('btn-timelapse').textContent = '▶ Timelapse 24h';
+      document.getElementById('btn-timelapse').classList.remove('ativo');
+      document.querySelectorAll('[data-min]').forEach(x => x.classList.remove('ativo'));
+      e.currentTarget.classList.add('ativo');
+      const agora = new Date();
+      minAtual = agora.getHours() * 60 + agora.getMinutes();
+      document.getElementById('slider-hora').value = minAtual;
+      aplicarMinuto(minAtual);
+    });
+
+    document.querySelectorAll('.fav-turno-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const fase = FASES_FAVICON[btn.dataset.faseFavicon];
+        if (!fase) return;
+        rodando = false;
+        document.getElementById('btn-timelapse').textContent = '▶ Timelapse 24h';
+        document.getElementById('btn-timelapse').classList.remove('ativo');
+        document.getElementById('btn-hora-real').classList.remove('ativo');
+        minAtual = fase.minExemplo;
+        document.getElementById('slider-hora').value = minAtual;
+        document.querySelectorAll('[data-min]').forEach(x => x.classList.toggle('ativo', parseInt(x.dataset.min, 10) === minAtual));
+        aplicarMinuto(minAtual);
+      });
+    });
+
+    document.querySelectorAll('[data-min]').forEach(b => {
+      b.addEventListener('click', () => {
+        rodando = false;
+        document.getElementById('btn-timelapse').textContent = '▶ Timelapse 24h';
+        document.getElementById('btn-timelapse').classList.remove('ativo');
+        document.getElementById('btn-hora-real').classList.remove('ativo');
+        minAtual = parseInt(b.dataset.min, 10);
+        document.getElementById('slider-hora').value = minAtual;
+        document.querySelectorAll('[data-min]').forEach(x => x.classList.toggle('ativo', x === b));
+        aplicarMinuto(minAtual);
+      });
+    });
+
+    document.getElementById('slider-hora').addEventListener('input', (e) => {
+      rodando = false;
+      document.getElementById('btn-timelapse').textContent = '▶ Timelapse 24h';
+      document.getElementById('btn-timelapse').classList.remove('ativo');
+      document.getElementById('btn-hora-real').classList.remove('ativo');
+      document.querySelectorAll('[data-min]').forEach(x => x.classList.remove('ativo'));
+      minAtual = parseInt(e.target.value, 10);
+      aplicarMinuto(minAtual);
+    });
+
+    document.getElementById('btn-escrita').addEventListener('click', animarChamada);
+    document.querySelectorAll('#checks-planta input').forEach(c => c.addEventListener('change', atualizarPlanta));
+
+    aplicarMinuto(570);
+    animarChamada();
+    atualizarPlanta();
+    selecionarAvatar('vagalume-estelar');
+  </script>
+</body>
+</html>

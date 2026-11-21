@@ -1,6 +1,6 @@
 # Roteiro de desenvolvimento - primeira entrega (Lume)
 
-**Registro de situação em 20/11/2026:** **Fases 01 e 02 concluídas** (`D01 = Lume`, `D02 = Alvorada Poética com transição cromática contínua 24h` e `D03 = Fraunces + Plus Jakarta Sans + JetBrains Mono` com uso expressivo de **bold/itálico** e responsividade **desktop-first** consolidados em [Guia-visual.md](Guia-visual.md)). Próxima etapa: **Fase 03: definir marca/logotipo do `Lume`, direção do jardim/constelações e coleção inicial de avatares (`D04`)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
+**Registro de situação em 20/11/2026:** **Fases 01, 02 e 03 concluídas** (`D01 = Lume`, `D02 = Alvorada Poética com transição cromática contínua 24h`, `D03 = Fraunces + Plus Jakarta Sans + JetBrains Mono` e `D04 = Soft-3D Clay Matte + Bento UI, marca Sol de 4 Ls com 4 favicons adaptativos por horário, diorama/plantas/sol/lua 3D e 16 avatares` consolidados em [Guia-visual.md](Guia-visual.md)). Próxima etapa: **Fase 04: fechar contratos de API (`Doc/Contratos-api.md`), regras finas da árvore (`D08`-`D10`), limites operacionais (`D09`), primeiro acesso (`D05`), sessão/CSRF (`D07`) e exclusão de conta (`D06`)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
 
 **Escopo da primeira entrega:** aplicação web de gerenciamento de tarefas pessoais para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas locais, Jornada do Dia, Mapa Visual Constelação/Ramos, Modo Foco Imersivo, Calendário Mensal dos Prazos, Estatísticas/Diário do Ciclo, experiência sonora opt-in e publicação gratuita na web.
 
@@ -25,7 +25,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 
 - [x] Fase 01 - consolidar escopo, SDD inicial e verificar ambiente local
 - [x] Fase 02 - escolher nome definitivo, paletas dos 4 momentos do dia e trio tipográfico
-- [ ] Fase 03 - definir marca, elementos do jardim, constelações e coleção de avatares
+- [x] Fase 03 - definir marca, elementos do jardim, constelações e coleção de avatares
 - [ ] Fase 04 - fechar contratos de API, regras finas da árvore (`D08`-`D11`) e exclusão de conta (`D06`)
 - [ ] Fase 05 - prototipar navegação, atmosferas e telas principais
 - [ ] Fase 06 - preparar ambiente, revisar `.gitignore`, skeletons FastAPI + React/TS/Vite e CI inicial
@@ -71,7 +71,7 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 | D01 | Nome definitivo da aplicação | Apresentar opções refinadas com racional de marca | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Lume** |
 | D02 | Paletas dos 4 momentos do dia + transição cromática contínua 24h | Preparar direções cromáticas e validar transição contínua minuto a minuto com checagem WCAG | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Alvorada Poética com transição contínua 24h** |
 | D03 | Trio tipográfico (Display + Sans + Mono) e licenças locais | Comparar combinações legíveis em títulos, listas densas, acentos pt-BR e timers | IA propõe; Athos escolhe | Fase 02 | Aprovada em 20/11/2026: **Fraunces + Plus Jakarta Sans + JetBrains Mono** (`SIL OFL 1.1`) |
-| D04 | Marca, logotipo, ícones do jardim/constelações e coleção inicial de avatares | Apresentar conceitos vetoriais reutilizáveis e catálogo inicial de avatares | IA propõe; Athos aprova | Fase 03 | Em aberto |
+| D04 | Marca, logotipo, ícones do jardim/constelações e coleção inicial de avatares | Apresentar conceitos visuais reutilizáveis e catálogo inicial de avatares | IA propõe; Athos aprova | Fase 03 | Aprovada em 20/11/2026: Soft-3D Clay Matte + Bento UI, marca Sol de 4 Ls (4 favicons por horário), diorama/plantas/sol/lua 3D e 16 avatares (+ Google/upload) |
 | D05 | Primeiro acesso: formato de nome de usuário, avatar e tarefas-guia iniciais | Definir regras de nome de exibição e se usuário novo pode importar exemplos editáveis | IA propõe; Athos decide | Fase 04 | Em aberto |
 | D06 | Exclusão de conta: fluxo de confirmação e remoção definitiva em ambos os bancos | Detalhar aviso, palavra/ação de confirmação e remoção completa de dados pessoais | IA propõe; Athos aprova | Fase 04 | Em aberto |
 | D07 | Política de sessão, cookie e ambiente local/produção para Google OAuth | Mapear uso de mesma origem/rewrite `/api`, expiração de sessão e proteção CSRF | IA propõe; Athos valida | Fase 04 | Em aberto |
@@ -166,6 +166,23 @@ A tabela abaixo lista exclusivamente as decisões ainda em aberto (ou de detalha
 **Entrega:** estudos de marca, direção do jardim/constelações e avatares aprovados em `Doc/Identidade-visual/`.
 
 **Concluída quando:** a identidade visual base está fechada sem bloqueios para prototipação.
+
+#### Registro de execução da fase 03
+
+**Estado:** concluída em 20/11/2026.
+
+- **Decisão fechada (`D04`) e ideias registradas (`ID-21` a `ID-23`):**
+  - Direção artística **Soft-3D Clay Matte + Bento UI** substituindo o estudo inicial low-poly plano.
+  - Logotipo **`Lume`** (`Fraunces Bold`), chamada oficial *"Suas tarefas no ritmo vivo do dia."* e símbolo radial **"Sol de 4 Ls"** em **4 variações de favicon adaptativas por horário** (`Manhã 05:45-11:59`, `Tarde 12:00-16:59`, `Entardecer 17:00-18:59` e `Noite 19:00-05:44`).
+  - Coleção de **16 avatares Soft-3D** em 4 grupos temáticos, mais foto da conta **Google OAuth** e **upload próprio** (`256x256`).
+- **Verificações executadas antes do fechamento:**
+  - Validação automatizada em Node sobre [estudo-fase-03-soft3d.html](Identidade-visual/estudo-fase-03-soft3d.html): sintaxe JS aprovada via `new Function`, `9` caminhos de assets confirmados em disco e cobertura exata dos `1.440` minutos do dia pelas 4 faixas de favicon (`manha: 375`, `tarde: 300`, `entardecer: 120`, `noite: 645`).
+  - Limpeza de `9` arquivos descartados em `Doc/Identidade-visual/`, registro de procedência/licenças em [ORIGEM-E-LICENCAS.md](Identidade-visual/ORIGEM-E-LICENCAS.md) e checagem de UTF-8 com zero travessões (`U+2014`/`U+2013`).
+- **Checklist interno da fase 03:**
+  - [x] Definir símbolo, logotipo, chamada da marca e os 4 favicons adaptativos por horário (`Doc/Identidade-visual/assets-3d/favicons/`).
+  - [x] Produzir e aprovar diorama do jardim (dia/noite), 5 variações do Sol, fases lunares e estágios botânicos em Soft-3D (`Doc/Identidade-visual/assets-3d/`).
+  - [x] Consolidar coleção de 16 avatares Soft-3D + Google + upload e documentar procedência/licenças em [ORIGEM-E-LICENCAS.md](Identidade-visual/ORIGEM-E-LICENCAS.md).
+  - [x] Validar tudo ao vivo em [estudo-fase-03-soft3d.html](Identidade-visual/estudo-fase-03-soft3d.html) e refletir nos documentos SDD ([Guia-visual.md](Guia-visual.md), [Detalhes.md](Detalhes.md), [Planejamento-tecnico.md](Planejamento-tecnico.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md)).
 
 ---
 
