@@ -2,8 +2,9 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { MotionConfig } from 'motion/react';
 import { useMemo } from 'react';
 import { obterSaudacaoDoMomento } from '../astronomia/ciclo-solar';
+import { useMotorTemporal } from '../astronomia/motor-temporal';
 import { BarraArcoDoDia } from '../cenario/BarraArcoDoDia';
-import { CenarioFallback2D } from '../cenario/CenarioFallback2D';
+import { CenarioDoHorizonte } from '../cenario/CenarioDoHorizonte';
 import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
 import { BadgePrioridade } from '../componentes/BadgePrioridade';
 import { Botao } from '../componentes/Botao';
@@ -28,13 +29,17 @@ export function Aplicacao({ buscadorDeSaude }: PropriedadesAplicacao) {
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
+  const qualidade3D = useMotorTemporal((s) => s.qualidade3D);
   const suporteWebGL = useMemo(() => detectarSuporteWebGL(), []);
   const saudacao = obterSaudacaoDoMomento(momentoDoDia);
 
   return (
     <MotionConfig reducedMotion="user">
       <Tooltip.Provider>
-        <CenarioFallback2D
+        <CenarioDoHorizonte
+          qualidadePreferida={qualidade3D}
+          suporteWebGL={suporteWebGL}
+          progressoTarefas={0.65}
           cromatico={cromatico}
           astros={astros}
           faseLunar={faseLunar}
