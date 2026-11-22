@@ -12,6 +12,7 @@ from contratos.autenticacao import ProvedorGoogleOAuth
 from contratos.verificador_saude import VerificadorDeDependencia
 from dominio.erros import ErroDeDominio
 from infraestrutura.armazenamento_avatar import ArmazenamentoAvatarLocal
+from infraestrutura.armazenamento_desfazer import ArmazenamentoDesfazerMemoria
 from infraestrutura.google.provedor_google_oauth import ProvedorGoogleOAuthReal
 from infraestrutura.mongo.conexao import GerenciadorMongo
 from infraestrutura.mongo.verificador_mongo import VerificadorMongo
@@ -22,7 +23,10 @@ from infraestrutura.verificadores_iniciais import VerificadorAindaNaoConfigurado
 from rotas.esquemas_saude import DetalheErro, EnvelopeErro
 from rotas.rotas_autenticacao import roteador_autenticacao
 from rotas.rotas_conta import roteador_conta
+from rotas.rotas_etiquetas import roteador_etiquetas
+from rotas.rotas_exportacao import roteador_exportacao
 from rotas.rotas_saude import roteador_saude
+from rotas.rotas_tarefas import roteador_tarefas
 
 
 def criar_aplicacao(
@@ -73,6 +77,7 @@ def criar_aplicacao(
     aplicacao.state.gerenciador_mongo = None
     aplicacao.state.provedor_google = provedor_google or ProvedorGoogleOAuthReal(config)
     aplicacao.state.armazenamento_avatar = ArmazenamentoAvatarLocal(config.diretorio_uploads)
+    aplicacao.state.armazenamento_desfazer = ArmazenamentoDesfazerMemoria()
     aplicacao.state.verificador_relacional = (
         verificador_relacional or VerificadorAindaNaoConfigurado()
     )
@@ -127,6 +132,9 @@ def criar_aplicacao(
     aplicacao.include_router(roteador_saude)
     aplicacao.include_router(roteador_autenticacao)
     aplicacao.include_router(roteador_conta)
+    aplicacao.include_router(roteador_etiquetas)
+    aplicacao.include_router(roteador_tarefas)
+    aplicacao.include_router(roteador_exportacao)
     return aplicacao
 
 

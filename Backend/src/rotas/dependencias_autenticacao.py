@@ -5,14 +5,23 @@ from fastapi import Depends, Request
 from configuracao.configuracoes import Configuracoes
 from contratos.autenticacao import ArmazenamentoAvatar, ProvedorGoogleOAuth
 from contratos.persistencia import FabricaSessaoRelacional
+from contratos.tarefas import ArmazenamentoDesfazerCascata
 from dominio.erros import ErroDeDominio
 from infraestrutura.mongo.conexao import GerenciadorMongo
 from infraestrutura.mongo.limpador_conta_mongo import LimpadorContaMongo
+from infraestrutura.mongo.repositorio_detalhes_tarefas_mongo import (
+    RepositorioDetalhesTarefasMongo,
+)
+from infraestrutura.mongo.repositorio_eventos_ciclo_mongo import RepositorioEventosCicloMongo
 from infraestrutura.mongo.repositorio_preferencias_mongo import RepositorioPreferenciasMongo
+from infraestrutura.postgres.repositorio_etiquetas import RepositorioEtiquetasPostgres
 from infraestrutura.postgres.repositorio_sessoes import RepositorioSessoesPostgres
+from infraestrutura.postgres.repositorio_tarefas import RepositorioTarefasPostgres
 from infraestrutura.postgres.repositorio_usuarios import RepositorioUsuariosPostgres
 from servicos.servico_autenticacao import ContextoAutenticado, ServicoAutenticacao
 from servicos.servico_conta import ServicoConta
+from servicos.servico_etiquetas import ServicoEtiquetas
+from servicos.servico_tarefas import ServicoTarefas
 
 COOKIE_SESSAO = "lume_sessao"
 COOKIE_CSRF = "lume_csrf"
@@ -88,3 +97,61 @@ async def exigir_protecao_csrf(
     csrf_cookie = requisicao.cookies.get(COOKIE_CSRF)
     servico.validar_csrf(contexto.sessao, csrf_cabecalho, csrf_cookie)
     return contexto
+
+
+async def exigir_workspace_liberado(
+    contexto: Annotated[ContextoAutenticado, Depends(exigir_usuario_autenticado)],
+) -> ContextoAutenticado:
+    if not contexto.usuario.primeiro_acesso_concluido:
+        raise ErroDeDominio(
+            codigo="PRIMEIRO_ACESSO_PENDENTE",
+            mensagem="Conclua o primeiro acesso antes de utilizar o workspace.",
+            status_http=403,
+        )
+    return contexto
+
+
+async def exigir_workspace_com_csrf(
+    contexto: Annotated[ContextoAutenticado, Depends(exigir_protecao_csrf)],
+) -> ContextoAutenticado:
+    if not contexto.usuario.primeiro_acesso_concluido:
+        raise ErroDeDominio(
+            codigo="PRIMEIRO_ACESSO_PENDENTE",
+            mensagem="Conclua o primeiro acesso antes de utilizar o workspace.",
+            status_http=403,
+        )
+    return contexto
+
+
+def obter_servico_etiquetas(requisicao: Request) -> ServicoEtiquetas:
+    fabrica = _obter_fabrica_postgres(requisicao)
+    return ServicoEtiquetas(RepositorioEtiquetasPostgres(fabrica))
+
+
+def obter_servico_tarefas(requisicao: Request) -> ServicoTarefas:
+    fabrica = _obter_fabrica_postgres(requisicao)
+    gerenciador_mongo = cast(
+        GerenciadorMongo | None,
+        getattr(requisicao.app.state, "gerenciador_mongo", None),
+    )
+    repo_detalhes = (
+        RepositorioDetalhesTarefasMongo(gerenciador_mongo.obter_banco())
+        if gerenciador_mongo is not None
+        else None
+    )
+    repo_eventos = (
+        RepositorioEventosCicloMongo(gerenciador_mongo.obter_banco())
+        if gerenciador_mongo is not None
+        else None
+    )
+    armazenamento_desfazer = cast(
+        ArmazenamentoDesfazerCascata,
+        requisicao.app.state.armazenamento_desfazer,
+    )
+    return ServicoTarefas(
+        repositorio_tarefas=RepositorioTarefasPostgres(fabrica),
+        repositorio_etiquetas=RepositorioEtiquetasPostgres(fabrica),
+        repositorio_detalhes=repo_detalhes,
+        repositorio_eventos=repo_eventos,
+        armazenamento_desfazer=armazenamento_desfazer,
+    )

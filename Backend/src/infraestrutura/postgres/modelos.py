@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import Any
 from uuid import UUID, uuid4
 
 from sqlalchemy import (
@@ -13,6 +14,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as UUID_PG
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -120,8 +122,17 @@ class TarefaModelo(BaseRelacional):
             "turno IN ('manha', 'tarde', 'noite', 'livre')",
             name="turno_valido",
         ),
+        CheckConstraint(
+            "recorrencia_tipo IN ('nenhuma', 'diaria', 'semanal', 'mensal')",
+            name="recorrencia_tipo_valida",
+        ),
+        CheckConstraint(
+            "vezes_reaberta >= 0",
+            name="vezes_reaberta_nao_negativa",
+        ),
         Index("ix_tarefas_usuario_pai", "usuario_id", "tarefa_pai_id"),
         Index("ix_tarefas_usuario_prazo", "usuario_id", "prazo"),
+        Index("ix_tarefas_usuario_serie", "usuario_id", "serie_recorrencia_id"),
     )
 
     id: Mapped[UUID] = mapped_column(UUID_PG(as_uuid=True), primary_key=True, default=uuid4)
@@ -163,6 +174,26 @@ class TarefaModelo(BaseRelacional):
         server_default=text("1"),
     )
     ordem_manual: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,
+        server_default=text("0"),
+    )
+    recorrencia_tipo: Mapped[str] = mapped_column(
+        String(16),
+        nullable=False,
+        default="nenhuma",
+        server_default=text("'nenhuma'"),
+    )
+    recorrencia_config: Mapped[dict[str, Any] | None] = mapped_column(
+        JSONB,
+        nullable=True,
+    )
+    serie_recorrencia_id: Mapped[UUID | None] = mapped_column(
+        UUID_PG(as_uuid=True),
+        nullable=True,
+    )
+    vezes_reaberta: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
         default=0,
