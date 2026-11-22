@@ -1,23 +1,105 @@
+@import './fontes.css';
 @import 'tailwindcss';
 
+@theme {
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+  --color-ceu-topo: var(--ceu-topo);
+  --color-ceu-meio: var(--ceu-meio);
+  --color-ceu-base: var(--ceu-base);
+  --color-superficie: var(--superficie);
+  --color-superficie-solida: var(--superficie-solida);
+  --color-superficie-alt: var(--superficie-alt);
+  --color-borda: var(--borda);
+  --color-texto: var(--texto);
+  --color-texto-sec: var(--texto-sec);
+  --color-primaria: var(--primaria);
+  --color-primaria-texto: var(--primaria-texto);
+  --color-secundaria: var(--secundaria);
+  --color-sucesso: var(--sucesso);
+  --color-erro: var(--erro);
+  --color-prio-baixa: var(--prio-baixa);
+  --color-prio-media: var(--prio-media);
+  --color-prio-alta: var(--prio-alta);
+  --color-prio-urgente: var(--prio-urgente);
+}
+
 :root {
-  --cor-fundo-alvorada: #f6f4ef;
-  --cor-superficie: #ffffff;
-  --cor-texto-principal: #172430;
-  --cor-texto-suave: #4a5d6e;
-  --cor-primaria: #256b4e;
-  --cor-borda: rgba(23, 36, 48, 0.12);
+  --ceu-topo: #b5dff8;
+  --ceu-meio: #e2f2f8;
+  --ceu-base: #f7f1e1;
+  --superficie: rgba(255, 253, 248, 0.93);
+  --superficie-solida: #fffdf8;
+  --superficie-alt: #f1ede0;
+  --borda: rgba(23, 36, 48, 0.16);
+  --texto: #172430;
+  --texto-sec: #4a5d6e;
+  --primaria: #256b4e;
+  --primaria-texto: #ffffff;
+  --secundaria: #b55e0b;
+  --sucesso: #2f6f4e;
+  --erro: #b8293d;
+  --prio-baixa: #2f6f4e;
+  --prio-media: #1d5c87;
+  --prio-alta: #a6540a;
+  --prio-urgente: #b8293d;
+
+  /* Aliases legados preservados para compatibilidade */
+  --cor-fundo-alvorada: var(--ceu-topo);
+  --cor-superficie: var(--superficie-solida);
+  --cor-texto-principal: var(--texto);
+  --cor-texto-suave: var(--texto-sec);
+  --cor-primaria: var(--primaria);
+  --cor-borda: var(--borda);
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: var(--cor-fundo-alvorada);
-  color: var(--cor-texto-principal);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  background: linear-gradient(
+    180deg,
+    var(--ceu-topo) 0%,
+    var(--ceu-meio) 55%,
+    var(--ceu-base) 100%
+  );
+  color: var(--texto);
+  font-family: var(--font-sans);
+  transition:
+    background-color 420ms ease,
+    color 320ms ease;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--primaria);
+  outline-offset: 2px;
+}
+
+.fonte-display {
+  font-family: var(--font-display);
+}
+
+.numero-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.superficie-bento {
+  background-color: var(--superficie);
+  border: 1px solid var(--borda);
+  backdrop-filter: blur(12px);
+  transition:
+    background-color 420ms ease,
+    border-color 320ms ease,
+    color 320ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -1,4 +1,6 @@
 import type { EstadoDependencia, EstadoSaudeApi } from '../servicos/tipos-saude';
+import { Botao } from './Botao';
+import { CartaoBento } from './CartaoBento';
 
 interface PropriedadesCartaoStatusApi {
   carregando: boolean;
@@ -20,98 +22,86 @@ export function CartaoStatusApi({
   aoTentarNovamente,
 }: PropriedadesCartaoStatusApi) {
   return (
-    <section
-      aria-label="Status inicial da API"
-      className="w-full max-w-2xl rounded-3xl border border-[var(--cor-borda)] bg-[var(--cor-superficie)] p-6 shadow-sm"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--cor-borda)] pb-4">
+    <CartaoBento aria-label="Status inicial da API" className="w-full">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--borda)] pb-4">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--cor-texto-principal)]">
+          <h2 className="fonte-display text-lg font-bold text-[var(--texto)]">
             Conexão com o backend
           </h2>
-          <p className="text-sm text-[var(--cor-texto-suave)]">
-            Proxy local Vite para <code className="font-mono">/api/saude</code>
+          <p className="text-sm text-[var(--texto-sec)]">
+            Proxy local Vite para <code className="numero-tabular">/api/saude</code>
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={aoTentarNovamente}
-          disabled={carregando}
-          className="cursor-pointer rounded-full border border-[var(--cor-borda)] px-4 py-2 text-sm font-semibold text-[var(--cor-texto-principal)] transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Botao variante="secundario" tamanho="sm" onClick={aoTentarNovamente} disabled={carregando}>
           {carregando ? 'Verificando...' : 'Atualizar'}
-        </button>
+        </Botao>
       </div>
 
       <div className="mt-4">
         {carregando && !dados && !erro && (
-          <p className="text-sm text-[var(--cor-texto-suave)]">Verificando conexão com a API...</p>
+          <p className="text-sm text-[var(--texto-sec)]">Verificando conexão com a API...</p>
         )}
 
         {erro && (
           <div
             role="alert"
-            className="flex flex-col gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-900"
+            className="flex flex-col gap-3 rounded-2xl border border-[var(--erro)] bg-[var(--superficie-alt)] p-4 text-sm text-[var(--texto)]"
           >
-            <p className="font-medium">Falha ao consultar a API: {erro}</p>
+            <p className="font-medium text-[var(--erro)]">Falha ao consultar a API: {erro}</p>
             <div>
-              <button
-                type="button"
-                onClick={aoTentarNovamente}
-                className="cursor-pointer rounded-full bg-red-800 px-4 py-1.5 text-xs font-semibold text-white transition hover:bg-red-900"
-              >
+              <Botao variante="perigo" tamanho="sm" onClick={aoTentarNovamente}>
                 Tentar novamente
-              </button>
+              </Botao>
             </div>
           </div>
         )}
 
         {dados && (
           <dl className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl bg-black/[0.03] p-3">
-              <dt className="text-xs font-medium text-[var(--cor-texto-suave)]">Serviço</dt>
-              <dd className="mt-1 font-mono text-sm font-semibold text-[var(--cor-texto-principal)]">
+            <div className="rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-3">
+              <dt className="text-xs font-medium text-[var(--texto-sec)]">Serviço</dt>
+              <dd className="numero-tabular mt-1 text-sm font-semibold text-[var(--texto)]">
                 {dados.servico} (v{dados.versao})
               </dd>
             </div>
 
-            <div className="rounded-2xl bg-black/[0.03] p-3">
-              <dt className="text-xs font-medium text-[var(--cor-texto-suave)]">Estado geral</dt>
-              <dd className="mt-1 text-sm font-semibold text-[var(--cor-primaria)]">
+            <div className="rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-3">
+              <dt className="text-xs font-medium text-[var(--texto-sec)]">Estado geral</dt>
+              <dd className="mt-1 text-sm font-semibold text-[var(--primaria)]">
                 {dados.status === 'ok' ? 'Operacional (ok)' : 'Degradado'}
               </dd>
             </div>
 
-            <div className="rounded-2xl bg-black/[0.03] p-3">
-              <dt className="text-xs font-medium text-[var(--cor-texto-suave)]">
+            <div className="rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-3">
+              <dt className="text-xs font-medium text-[var(--texto-sec)]">
                 Banco relacional (PostgreSQL)
               </dt>
-              <dd className="mt-1 text-sm font-medium text-[var(--cor-texto-principal)]">
+              <dd className="mt-1 text-sm font-medium text-[var(--texto)]">
                 {ROTULOS_DEPENDENCIA[dados.bancoRelacional]}
               </dd>
             </div>
 
-            <div className="rounded-2xl bg-black/[0.03] p-3">
-              <dt className="text-xs font-medium text-[var(--cor-texto-suave)]">
+            <div className="rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-3">
+              <dt className="text-xs font-medium text-[var(--texto-sec)]">
                 Banco documental (MongoDB)
               </dt>
-              <dd className="mt-1 text-sm font-medium text-[var(--cor-texto-principal)]">
+              <dd className="mt-1 text-sm font-medium text-[var(--texto)]">
                 {ROTULOS_DEPENDENCIA[dados.bancoDocumental]}
               </dd>
             </div>
 
-            <div className="rounded-2xl bg-black/[0.03] p-3 sm:col-span-2">
-              <dt className="text-xs font-medium text-[var(--cor-texto-suave)]">
+            <div className="rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-3 sm:col-span-2">
+              <dt className="text-xs font-medium text-[var(--texto-sec)]">
                 Registro UTC da consulta
               </dt>
-              <dd className="mt-1 font-mono text-xs text-[var(--cor-texto-suave)]">
+              <dd className="numero-tabular mt-1 text-xs text-[var(--texto-sec)]">
                 {dados.timestamp}
               </dd>
             </div>
           </dl>
         )}
       </div>
-    </section>
+    </CartaoBento>
   );
 }
