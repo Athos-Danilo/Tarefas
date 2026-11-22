@@ -4,6 +4,7 @@ from fastapi import Depends, Request
 
 from configuracao.configuracoes import Configuracoes
 from contratos.autenticacao import ArmazenamentoAvatar, ProvedorGoogleOAuth
+from contratos.clima import CacheClima, ProvedorClima
 from contratos.persistencia import FabricaSessaoRelacional
 from contratos.tarefas import ArmazenamentoDesfazerCascata
 from dominio.erros import ErroDeDominio
@@ -20,6 +21,7 @@ from infraestrutura.postgres.repositorio_sessoes import RepositorioSessoesPostgr
 from infraestrutura.postgres.repositorio_tarefas import RepositorioTarefasPostgres
 from infraestrutura.postgres.repositorio_usuarios import RepositorioUsuariosPostgres
 from servicos.servico_autenticacao import ContextoAutenticado, ServicoAutenticacao
+from servicos.servico_clima import ServicoClima
 from servicos.servico_conta import ServicoConta
 from servicos.servico_etiquetas import ServicoEtiquetas
 from servicos.servico_grupos import ServicoGrupos
@@ -180,4 +182,26 @@ def obter_servico_grupos(requisicao: Request) -> ServicoGrupos:
         repositorio_grupos=RepositorioGruposPostgres(fabrica),
         repositorio_eventos=repo_eventos,
         repositorio_detalhes=repo_detalhes,
+    )
+
+
+def obter_servico_clima(requisicao: Request) -> ServicoClima:
+    config = obter_configuracoes(requisicao)
+    provedor = cast(ProvedorClima, requisicao.app.state.provedor_clima)
+    cache = cast(CacheClima, requisicao.app.state.cache_clima)
+    gerenciador_mongo = cast(
+        GerenciadorMongo | None,
+        getattr(requisicao.app.state, "gerenciador_mongo", None),
+    )
+    repo_preferencias = (
+        RepositorioPreferenciasMongo(gerenciador_mongo.obter_banco())
+        if gerenciador_mongo is not None
+        else None
+    )
+    return ServicoClima(
+        provedor_clima=provedor,
+        cache_clima=cache,
+        repositorio_preferencias=repo_preferencias,
+        ttl_cache_segundos=config.clima_cache_ttl_segundos,
+        ttl_stale_segundos=config.clima_cache_stale_segundos,
     )

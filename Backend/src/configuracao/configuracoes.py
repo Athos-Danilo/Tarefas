@@ -26,6 +26,11 @@ class Configuracoes(BaseSettings):
     segredo_sessao: str = "segredo-desenvolvimento-local-alterar-em-producao-32b"
     cookie_seguro: bool = False
     diretorio_uploads: str = "uploads"
+    open_meteo_forecast_url: str = "https://api.open-meteo.com/v1/forecast"
+    open_meteo_geocoding_url: str = "https://geocoding-api.open-meteo.com/v1/search"
+    open_meteo_timeout_segundos: float = 5.0
+    clima_cache_ttl_segundos: int = 1200
+    clima_cache_stale_segundos: int = 7200
 
     @property
     def lista_origens_cors(self) -> list[str]:
