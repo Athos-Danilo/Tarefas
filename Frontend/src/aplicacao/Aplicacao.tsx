@@ -8,12 +8,14 @@ import { CenarioDoHorizonte } from '../cenario/CenarioDoHorizonte';
 import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
 import { PaginaPrimeiroAcesso } from '../dominios/conta/PaginaPrimeiroAcesso';
 import { PaginaPerfil } from '../dominios/conta/PaginaPerfil';
-import { PaginaJornadaInicial } from '../dominios/jornada/PaginaJornadaInicial';
+import { PaginaJornada } from '../dominios/jornada/PaginaJornada';
 import { PaginaLanding } from '../dominios/landing/PaginaLanding';
 import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
+import { criarServicoJornada } from '../servicos/cliente-jornada';
 import { criarClienteSaude } from '../servicos/cliente-saude';
 import type { ServicoAutenticacaoFrontend } from '../servicos/tipos-conta';
+import type { ServicoJornadaFrontend } from '../servicos/tipos-jornada';
 import type { BuscadorDeSaude } from '../servicos/tipos-saude';
 import { CascaWorkspace } from './CascaWorkspace';
 import { RotaAutenticada, RotaPrimeiroAcesso } from './GuardasRota';
@@ -22,6 +24,7 @@ import { ProvedorAutenticacao } from './ProvedorAutenticacao';
 interface PropriedadesAplicacao {
   buscadorDeSaude?: BuscadorDeSaude;
   servicoAutenticacao?: ServicoAutenticacaoFrontend;
+  servicoJornada?: ServicoJornadaFrontend;
   rotaInicial?: string;
 }
 
@@ -41,6 +44,7 @@ function RoteadorAplicacao({
 export function Aplicacao({
   buscadorDeSaude,
   servicoAutenticacao,
+  servicoJornada,
   rotaInicial,
 }: PropriedadesAplicacao) {
   const [queryClient] = useState(
@@ -53,9 +57,10 @@ export function Aplicacao({
         },
       }),
   );
-  const [progressoDemo, setProgressoDemo] = useState(0.25);
+  const [progressoCenario, setProgressoCenario] = useState(0.25);
 
   const buscador = useMemo(() => buscadorDeSaude ?? criarClienteSaude(), [buscadorDeSaude]);
+  const jornada = useMemo(() => servicoJornada ?? criarServicoJornada(), [servicoJornada]);
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
@@ -70,7 +75,7 @@ export function Aplicacao({
             <CenarioDoHorizonte
               qualidadePreferida={qualidade3D}
               suporteWebGL={suporteWebGL}
-              progressoTarefas={progressoDemo}
+              progressoTarefas={progressoCenario}
               cromatico={cromatico}
               astros={astros}
               faseLunar={faseLunar}
@@ -97,7 +102,7 @@ export function Aplicacao({
                       aoRecarregarSaude={() => {
                         void recarregar();
                       }}
-                      aoMudarProgressoDemo={setProgressoDemo}
+                      aoMudarProgressoDemo={setProgressoCenario}
                     />
                   }
                 />
@@ -126,13 +131,15 @@ export function Aplicacao({
                     <Route
                       path="/jornada"
                       element={
-                        <PaginaJornadaInicial
+                        <PaginaJornada
                           minuto={minuto}
                           momentoDoDia={momentoDoDia}
                           nomeMomento={cromatico.nomeMomento}
                           faseLunar={faseLunar}
                           reduzirMovimento={reduzirMovimento}
                           suporteWebGL={suporteWebGL}
+                          servico={jornada}
+                          aoMudarProgressoJornada={setProgressoCenario}
                         />
                       }
                     />
