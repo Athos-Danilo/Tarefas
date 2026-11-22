@@ -1,156 +1,154 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MotionConfig } from 'motion/react';
-import { useMemo } from 'react';
-import { obterSaudacaoDoMomento } from '../astronomia/ciclo-solar';
+import { useMemo, useState, type ReactNode } from 'react';
+import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router';
 import { useMotorTemporal } from '../astronomia/motor-temporal';
-import { BarraArcoDoDia } from '../cenario/BarraArcoDoDia';
 import { CenarioDoHorizonte } from '../cenario/CenarioDoHorizonte';
 import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
-import { BadgePrioridade } from '../componentes/BadgePrioridade';
-import { Botao } from '../componentes/Botao';
-import { CartaoBento } from '../componentes/CartaoBento';
-import { CartaoStatusApi } from '../componentes/CartaoStatusApi';
-import { DicaAcessivel } from '../componentes/DicaAcessivel';
-import { ModalAcessivel } from '../componentes/ModalAcessivel';
-import { SeloMarcaLume } from '../componentes/SeloMarcaLume';
-import { RevelacaoSuave } from '../componentes/animacoes/RevelacaoSuave';
-import { TextoEscrito } from '../componentes/animacoes/TextoEscrito';
+import { PaginaPrimeiroAcesso } from '../dominios/conta/PaginaPrimeiroAcesso';
+import { PaginaPerfil } from '../dominios/conta/PaginaPerfil';
+import { PaginaJornadaInicial } from '../dominios/jornada/PaginaJornadaInicial';
+import { PaginaLanding } from '../dominios/landing/PaginaLanding';
 import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
 import { criarClienteSaude } from '../servicos/cliente-saude';
+import type { ServicoAutenticacaoFrontend } from '../servicos/tipos-conta';
 import type { BuscadorDeSaude } from '../servicos/tipos-saude';
+import { CascaWorkspace } from './CascaWorkspace';
+import { RotaAutenticada, RotaPrimeiroAcesso } from './GuardasRota';
+import { ProvedorAutenticacao } from './ProvedorAutenticacao';
 
 interface PropriedadesAplicacao {
   buscadorDeSaude?: BuscadorDeSaude;
+  servicoAutenticacao?: ServicoAutenticacaoFrontend;
+  rotaInicial?: string;
 }
 
-export function Aplicacao({ buscadorDeSaude }: PropriedadesAplicacao) {
+function RoteadorAplicacao({
+  rotaInicial,
+  children,
+}: {
+  rotaInicial?: string;
+  children: ReactNode;
+}) {
+  if (rotaInicial !== undefined) {
+    return <MemoryRouter initialEntries={[rotaInicial]}>{children}</MemoryRouter>;
+  }
+  return <BrowserRouter>{children}</BrowserRouter>;
+}
+
+export function Aplicacao({
+  buscadorDeSaude,
+  servicoAutenticacao,
+  rotaInicial,
+}: PropriedadesAplicacao) {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+          },
+        },
+      }),
+  );
+  const [progressoDemo, setProgressoDemo] = useState(0.25);
+
   const buscador = useMemo(() => buscadorDeSaude ?? criarClienteSaude(), [buscadorDeSaude]);
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
   const qualidade3D = useMotorTemporal((s) => s.qualidade3D);
   const suporteWebGL = useMemo(() => detectarSuporteWebGL(), []);
-  const saudacao = obterSaudacaoDoMomento(momentoDoDia);
 
   return (
-    <MotionConfig reducedMotion="user">
-      <Tooltip.Provider>
-        <CenarioDoHorizonte
-          qualidadePreferida={qualidade3D}
-          suporteWebGL={suporteWebGL}
-          progressoTarefas={0.65}
-          cromatico={cromatico}
-          astros={astros}
-          faseLunar={faseLunar}
-          estadoClimatico={estadoClimatico}
-          reduzirMovimento={reduzirMovimento}
-        />
-
-        <main className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6">
-          <RevelacaoSuave reduzirMovimento={reduzirMovimento}>
-            <CartaoBento
-              as="header"
-              destacado
-              className="flex flex-wrap items-center justify-between gap-4"
-            >
-              <div className="space-y-2">
-                <SeloMarcaLume faixaFavicon={astros.faixaFavicon} tamanho="hero" />
-                <h1 className="fonte-display text-2xl font-bold tracking-tight text-[var(--texto)] sm:text-3xl">
-                  {saudacao},{' '}
-                  <em className="font-semibold italic text-[var(--primaria)]">
-                    <TextoEscrito
-                      texto="Horizonte Vivo em movimento"
-                      reduzirMovimento={reduzirMovimento}
-                    />
-                  </em>
-                </h1>
-              </div>
-
-              <ModalAcessivel
-                titulo="Diretrizes visuais da Fase 13"
-                descricao="Sistema cromático contínuo 24h, Lua real no Hemisfério Sul e Modo Desempenho 2D."
-                gatilho={
-                  <Botao variante="secundario" tamanho="sm" reduzirMovimento={reduzirMovimento}>
-                    Sobre o sistema visual
-                  </Botao>
-                }
-              >
-                <div className="space-y-3 text-sm text-[var(--texto-sec)]">
-                  <p>
-                    As cores da interface alternam entre polaridade clara (05:45 às 17:29) e noturna
-                    (17:30 às 05:44) preservando contraste mínimo WCAG AA em todos os 1.440 minutos.
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    <BadgePrioridade prioridade="baixa" />
-                    <BadgePrioridade prioridade="media" />
-                    <BadgePrioridade prioridade="alta" />
-                    <BadgePrioridade prioridade="urgente" />
-                  </div>
-                </div>
-              </ModalAcessivel>
-            </CartaoBento>
-          </RevelacaoSuave>
-
-          <RevelacaoSuave atrasoSeg={0.05} reduzirMovimento={reduzirMovimento}>
-            <BarraArcoDoDia
-              minuto={minuto}
-              momentoDoDia={momentoDoDia}
-              nomeMomento={cromatico.nomeMomento}
-              faseLunar={faseLunar}
-              reduzirMovimento={reduzirMovimento}
+    <QueryClientProvider client={queryClient}>
+      <ProvedorAutenticacao servicoAutenticacao={servicoAutenticacao}>
+        <MotionConfig reducedMotion="user">
+          <Tooltip.Provider>
+            <CenarioDoHorizonte
+              qualidadePreferida={qualidade3D}
               suporteWebGL={suporteWebGL}
+              progressoTarefas={progressoDemo}
+              cromatico={cromatico}
+              astros={astros}
+              faseLunar={faseLunar}
+              estadoClimatico={estadoClimatico}
+              reduzirMovimento={reduzirMovimento}
             />
-          </RevelacaoSuave>
 
-          <div className="grid gap-6 lg:grid-cols-12">
-            <div className="lg:col-span-5">
-              <CartaoBento aria-label="Semantica de prioridades" className="h-full space-y-3">
-                <h2 className="fonte-display text-lg font-bold text-[var(--texto)]">
-                  Prioridades acessíveis
-                </h2>
-                <p className="text-sm text-[var(--texto-sec)]">
-                  Cada nível une forma geométrica, rótulo em português e contraste validado ao longo
-                  das 24 horas.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <DicaAcessivel conteudo="Rotina tranquila sem urgência imediata">
-                    <span>
-                      <BadgePrioridade prioridade="baixa" />
-                    </span>
-                  </DicaAcessivel>
-                  <DicaAcessivel conteudo="Entrega planejada para o turno atual">
-                    <span>
-                      <BadgePrioridade prioridade="media" />
-                    </span>
-                  </DicaAcessivel>
-                  <DicaAcessivel conteudo="Prioridade elevada na sua jornada">
-                    <span>
-                      <BadgePrioridade prioridade="alta" />
-                    </span>
-                  </DicaAcessivel>
-                  <DicaAcessivel conteudo="Dispara alerta na tarefa-mãe enquanto aberta">
-                    <span>
-                      <BadgePrioridade prioridade="urgente" />
-                    </span>
-                  </DicaAcessivel>
-                </div>
-              </CartaoBento>
-            </div>
+            <RoteadorAplicacao rotaInicial={rotaInicial}>
+              <Routes>
+                <Route
+                  path="/"
+                  element={
+                    <PaginaLanding
+                      minuto={minuto}
+                      momentoDoDia={momentoDoDia}
+                      cromatico={cromatico}
+                      astros={astros}
+                      faseLunar={faseLunar}
+                      reduzirMovimento={reduzirMovimento}
+                      suporteWebGL={suporteWebGL}
+                      carregandoSaude={carregando}
+                      dadosSaude={dados}
+                      erroSaude={erro}
+                      aoRecarregarSaude={() => {
+                        void recarregar();
+                      }}
+                      aoMudarProgressoDemo={setProgressoDemo}
+                    />
+                  }
+                />
 
-            <div className="lg:col-span-7">
-              <CartaoStatusApi
-                carregando={carregando}
-                dados={dados}
-                erro={erro}
-                aoTentarNovamente={() => {
-                  void recarregar();
-                }}
-              />
-            </div>
-          </div>
-        </main>
-      </Tooltip.Provider>
-    </MotionConfig>
+                <Route element={<RotaPrimeiroAcesso />}>
+                  <Route
+                    path="/primeiro-acesso"
+                    element={
+                      <PaginaPrimeiroAcesso
+                        faixaFavicon={astros.faixaFavicon}
+                        reduzirMovimento={reduzirMovimento}
+                      />
+                    }
+                  />
+                </Route>
+
+                <Route element={<RotaAutenticada />}>
+                  <Route
+                    element={
+                      <CascaWorkspace
+                        faixaFavicon={astros.faixaFavicon}
+                        reduzirMovimento={reduzirMovimento}
+                      />
+                    }
+                  >
+                    <Route
+                      path="/jornada"
+                      element={
+                        <PaginaJornadaInicial
+                          minuto={minuto}
+                          momentoDoDia={momentoDoDia}
+                          nomeMomento={cromatico.nomeMomento}
+                          faseLunar={faseLunar}
+                          reduzirMovimento={reduzirMovimento}
+                          suporteWebGL={suporteWebGL}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/perfil"
+                      element={<PaginaPerfil reduzirMovimento={reduzirMovimento} />}
+                    />
+                  </Route>
+                </Route>
+
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </RoteadorAplicacao>
+          </Tooltip.Provider>
+        </MotionConfig>
+      </ProvedorAutenticacao>
+    </QueryClientProvider>
   );
 }
