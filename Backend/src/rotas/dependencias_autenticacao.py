@@ -15,12 +15,14 @@ from infraestrutura.mongo.repositorio_detalhes_tarefas_mongo import (
 from infraestrutura.mongo.repositorio_eventos_ciclo_mongo import RepositorioEventosCicloMongo
 from infraestrutura.mongo.repositorio_preferencias_mongo import RepositorioPreferenciasMongo
 from infraestrutura.postgres.repositorio_etiquetas import RepositorioEtiquetasPostgres
+from infraestrutura.postgres.repositorio_grupos import RepositorioGruposPostgres
 from infraestrutura.postgres.repositorio_sessoes import RepositorioSessoesPostgres
 from infraestrutura.postgres.repositorio_tarefas import RepositorioTarefasPostgres
 from infraestrutura.postgres.repositorio_usuarios import RepositorioUsuariosPostgres
 from servicos.servico_autenticacao import ContextoAutenticado, ServicoAutenticacao
 from servicos.servico_conta import ServicoConta
 from servicos.servico_etiquetas import ServicoEtiquetas
+from servicos.servico_grupos import ServicoGrupos
 from servicos.servico_tarefas import ServicoTarefas
 
 COOKIE_SESSAO = "lume_sessao"
@@ -154,4 +156,28 @@ def obter_servico_tarefas(requisicao: Request) -> ServicoTarefas:
         repositorio_detalhes=repo_detalhes,
         repositorio_eventos=repo_eventos,
         armazenamento_desfazer=armazenamento_desfazer,
+        repositorio_grupos=RepositorioGruposPostgres(fabrica),
+    )
+
+
+def obter_servico_grupos(requisicao: Request) -> ServicoGrupos:
+    fabrica = _obter_fabrica_postgres(requisicao)
+    gerenciador_mongo = cast(
+        GerenciadorMongo | None,
+        getattr(requisicao.app.state, "gerenciador_mongo", None),
+    )
+    repo_eventos = (
+        RepositorioEventosCicloMongo(gerenciador_mongo.obter_banco())
+        if gerenciador_mongo is not None
+        else None
+    )
+    repo_detalhes = (
+        RepositorioDetalhesTarefasMongo(gerenciador_mongo.obter_banco())
+        if gerenciador_mongo is not None
+        else None
+    )
+    return ServicoGrupos(
+        repositorio_grupos=RepositorioGruposPostgres(fabrica),
+        repositorio_eventos=repo_eventos,
+        repositorio_detalhes=repo_detalhes,
     )

@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Protocol, TypedDict
+from typing import Any, Literal, Protocol, TypedDict
 from uuid import UUID
 
 from dominio.modelos_tarefa import (
@@ -37,6 +37,17 @@ class LembreteResumo:
 
 
 @dataclass(frozen=True)
+class ResponsavelTarefaResumo:
+    """Resumo de usuario ou vaga responsavel por uma subtarefa."""
+
+    tipo: Literal["usuario", "vaga"]
+    usuario_id: UUID | None
+    vaga_id: UUID | None
+    nome_exibicao: str
+    avatar_url: str | None
+
+
+@dataclass(frozen=True)
 class TarefaRegistro:
     """Visao hidratada de uma tarefa persistida com etiquetas e contagem de lembretes."""
 
@@ -59,6 +70,9 @@ class TarefaRegistro:
     etiquetas: tuple[EtiquetaRegistro, ...] = ()
     lembretes_pendentes: int = 0
     compartilhada: bool = False
+    responsavel_usuario_id: UUID | None = None
+    vaga_responsavel_id: UUID | None = None
+    responsavel: ResponsavelTarefaResumo | None = None
 
     def para_no_tarefa(self) -> NoTarefa:
         """Converte o registro persistido para o no puro do motor de dominio."""
@@ -173,6 +187,8 @@ class RepositorioTarefas(Protocol):
         serie_recorrencia_id: UUID | None,
         etiqueta_ids: tuple[UUID, ...],
         ancestrais_a_reabrir: tuple[UUID, ...],
+        compartilhada: bool = False,
+        responsavel_usuario_id: UUID | None = None,
     ) -> TarefaRegistro: ...
 
     async def atualizar_tarefa_atomica(
@@ -234,15 +250,28 @@ class RepositorioDetalhesTarefas(Protocol):
 
     async def salvar(self, documento: DetalhesTarefaDocumento) -> None: ...
 
+    async def transferir_dono_por_tarefas(
+        self,
+        dono_anterior_id: str,
+        novo_dono_id: str,
+        tarefa_ids: list[str],
+    ) -> None: ...
+
     async def remover_por_tarefas(self, usuario_id: str, tarefa_ids: list[str]) -> None: ...
 
     async def remover_layouts_raizes(self, usuario_id: str, raiz_ids: list[str]) -> None: ...
 
 
 class RepositorioEventosCiclo(Protocol):
-    """Porta MongoDB para registro do diario eventos_ciclo."""
+    """Porta MongoDB para registro e leitura do diario eventos_ciclo."""
 
     async def registrar(self, evento: EventoCicloRegistro) -> None: ...
+
+    async def listar_por_raiz(
+        self,
+        tarefa_raiz_id: str,
+        limite: int = 20,
+    ) -> list[dict[str, Any]]: ...
 
 
 class ArmazenamentoDesfazerCascata(Protocol):

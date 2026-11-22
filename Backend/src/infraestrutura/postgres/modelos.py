@@ -130,9 +130,15 @@ class TarefaModelo(BaseRelacional):
             "vezes_reaberta >= 0",
             name="vezes_reaberta_nao_negativa",
         ),
+        CheckConstraint(
+            "NOT (responsavel_usuario_id IS NOT NULL AND vaga_responsavel_id IS NOT NULL)",
+            name="no_maximo_um_responsavel",
+        ),
         Index("ix_tarefas_usuario_pai", "usuario_id", "tarefa_pai_id"),
         Index("ix_tarefas_usuario_prazo", "usuario_id", "prazo"),
         Index("ix_tarefas_usuario_serie", "usuario_id", "serie_recorrencia_id"),
+        Index("ix_tarefas_responsavel_usuario", "responsavel_usuario_id"),
+        Index("ix_tarefas_vaga_responsavel", "vaga_responsavel_id"),
     )
 
     id: Mapped[UUID] = mapped_column(UUID_PG(as_uuid=True), primary_key=True, default=uuid4)
@@ -198,6 +204,22 @@ class TarefaModelo(BaseRelacional):
         nullable=False,
         default=0,
         server_default=text("0"),
+    )
+    compartilhada: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=text("false"),
+    )
+    responsavel_usuario_id: Mapped[UUID | None] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("usuarios.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    vaga_responsavel_id: Mapped[UUID | None] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("vagas_tarefa.id", ondelete="SET NULL"),
+        nullable=True,
     )
     concluida_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     criado_em: Mapped[datetime] = mapped_column(
@@ -387,3 +409,107 @@ class LembreteTarefaModelo(BaseRelacional):
         default=_agora_utc,
         server_default=text("NOW()"),
     )
+
+
+class MembroTarefaModelo(BaseRelacional):
+    """Tabela de integrantes vinculados a uma tarefa em conjunto."""
+
+    __tablename__ = "membros_tarefa"
+    __table_args__ = (
+        CheckConstraint("papel IN ('lider', 'colaborador')", name="papel_membro_valido"),
+        UniqueConstraint(
+            "tarefa_raiz_id",
+            "usuario_id",
+            name="uq_membros_tarefa_raiz_usuario",
+        ),
+        Index(
+            "uq_membros_tarefa_lider_unico",
+            "tarefa_raiz_id",
+            unique=True,
+            postgresql_where=text("papel = 'lider'"),
+        ),
+        Index("ix_membros_tarefa_usuario", "usuario_id"),
+    )
+
+    id: Mapped[UUID] = mapped_column(UUID_PG(as_uuid=True), primary_key=True, default=uuid4)
+    tarefa_raiz_id: Mapped[UUID] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("tarefas.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    usuario_id: Mapped[UUID] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    papel: Mapped[str] = mapped_column(String(20), nullable=False)
+    entrou_em: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_agora_utc,
+        server_default=text("NOW()"),
+    )
+
+
+class VagaTarefaModelo(BaseRelacional):
+    """Tabela de vagas nomeadas pre-criadas pelo lider em Tarefas em Conjunto."""
+
+    __tablename__ = "vagas_tarefa"
+    __table_args__ = (
+        Index("ix_vagas_tarefa_raiz", "tarefa_raiz_id"),
+        Index("ix_vagas_tarefa_raiz_email", "tarefa_raiz_id", "email_opcional"),
+    )
+
+    id: Mapped[UUID] = mapped_column(UUID_PG(as_uuid=True), primary_key=True, default=uuid4)
+    tarefa_raiz_id: Mapped[UUID] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("tarefas.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    nome_exibicao: Mapped[str] = mapped_column(String(60), nullable=False)
+    email_opcional: Mapped[str | None] = mapped_column(String(320), nullable=True)
+    ocupada_por_usuario_id: Mapped[UUID | None] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("usuarios.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    criada_em: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_agora_utc,
+        server_default=text("NOW()"),
+    )
+
+
+class ConviteTarefaModelo(BaseRelacional):
+    """Tabela de tokens de link de convite para entrada em Tarefas em Conjunto."""
+
+    __tablename__ = "convites_tarefa"
+    __table_args__ = (Index("ix_convites_tarefa_raiz_ativo", "tarefa_raiz_id", "ativo"),)
+
+    id: Mapped[UUID] = mapped_column(UUID_PG(as_uuid=True), primary_key=True, default=uuid4)
+    tarefa_raiz_id: Mapped[UUID] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("tarefas.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    codigo_token: Mapped[str] = mapped_column(String(128), nullable=False, unique=True)
+    criado_por_usuario_id: Mapped[UUID] = mapped_column(
+        UUID_PG(as_uuid=True),
+        ForeignKey("usuarios.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    ativo: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default=text("true"),
+    )
+    expira_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    criado_em: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=_agora_utc,
+        server_default=text("NOW()"),
+    )
+    revogado_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

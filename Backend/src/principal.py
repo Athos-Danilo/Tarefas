@@ -25,6 +25,7 @@ from rotas.rotas_autenticacao import roteador_autenticacao
 from rotas.rotas_conta import roteador_conta
 from rotas.rotas_etiquetas import roteador_etiquetas
 from rotas.rotas_exportacao import roteador_exportacao
+from rotas.rotas_grupos import roteador_grupos
 from rotas.rotas_saude import roteador_saude
 from rotas.rotas_tarefas import roteador_tarefas
 
@@ -134,6 +135,7 @@ def criar_aplicacao(
     aplicacao.include_router(roteador_conta)
     aplicacao.include_router(roteador_etiquetas)
     aplicacao.include_router(roteador_tarefas)
+    aplicacao.include_router(roteador_grupos)
     aplicacao.include_router(roteador_exportacao)
     return aplicacao
 

@@ -1,4 +1,5 @@
 import logging
+from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -7,6 +8,7 @@ from uuid import UUID, uuid4
 
 from pymongo.errors import PyMongoError
 
+from contratos.grupos import RepositorioGrupos
 from contratos.tarefas import (
     ArmazenamentoDesfazerCascata,
     DetalhesTarefaDocumento,
@@ -28,6 +30,7 @@ from dominio.arvore_tarefas import (
     validar_criacao_no,
 )
 from dominio.erros import ErroDeDominio
+from dominio.grupos import NoParaDesempenho, verificar_permissao_operacao_no
 from dominio.modelos_tarefa import (
     MAX_TAREFAS_ATIVAS_USUARIO,
     ConfiguracaoRecorrencia,
@@ -98,6 +101,19 @@ def _nos_alterados(
         if anterior is None or _no_mudou(anterior, no):
             modificados.append(no)
     return modificados
+
+
+def _para_nos_desempenho(registros: Iterable[TarefaRegistro]) -> list[NoParaDesempenho]:
+    return [
+        NoParaDesempenho(
+            id=item.id,
+            tarefa_pai_id=item.tarefa_pai_id,
+            status=item.status,
+            responsavel_usuario_id=item.responsavel_usuario_id,
+            vaga_responsavel_id=item.vaga_responsavel_id,
+        )
+        for item in registros
+    ]
 
 
 def _formatar_data_iso(instante: datetime) -> str:
@@ -199,17 +215,49 @@ class ServicoTarefas:
         repositorio_detalhes: RepositorioDetalhesTarefas | None,
         repositorio_eventos: RepositorioEventosCiclo | None,
         armazenamento_desfazer: ArmazenamentoDesfazerCascata,
+        repositorio_grupos: RepositorioGrupos | None = None,
     ) -> None:
         self._tarefas = repositorio_tarefas
         self._etiquetas = repositorio_etiquetas
         self._detalhes = repositorio_detalhes
         self._eventos = repositorio_eventos
         self._desfazer = armazenamento_desfazer
+        self._grupos = repositorio_grupos
+
+    async def _resolver_autorizacao_mutacao(
+        self,
+        usuario_id: UUID,
+        tarefa_id: UUID,
+        *,
+        exige_lideranca: bool = False,
+    ) -> tuple[UUID, UUID, list[TarefaRegistro]]:
+        if self._grupos is None:
+            return usuario_id, tarefa_id, []
+        ctx = await self._grupos.obter_contexto_por_tarefa(usuario_id, tarefa_id)
+        if ctx is None:
+            raise ErroDeDominio(
+                codigo="TAREFA_NAO_ENCONTRADA",
+                mensagem="Tarefa nao encontrada.",
+                status_http=404,
+            )
+        if not ctx.compartilhada:
+            return ctx.dono_arvore_id, ctx.tarefa_raiz_id, []
+
+        assert ctx.meu_papel is not None
+        verificar_permissao_operacao_no(
+            _para_nos_desempenho(ctx.nos_arvore),
+            papel=ctx.meu_papel,
+            usuario_id=usuario_id,
+            alvo_id=tarefa_id,
+            exige_lideranca=exige_lideranca,
+        )
+        return ctx.dono_arvore_id, ctx.tarefa_raiz_id, list(ctx.nos_arvore)
 
     async def _registrar_evento_seguro(
         self,
         *,
         usuario_id: UUID,
+        autor_usuario_id: UUID | None = None,
         tarefa_id: UUID | None,
         tarefa_raiz_id: UUID | None,
         tipo_evento: str,
@@ -221,7 +269,7 @@ class ServicoTarefas:
         agora = datetime.now(UTC)
         evento = EventoCicloRegistro(
             usuario_id=str(usuario_id),
-            autor_usuario_id=str(usuario_id),
+            autor_usuario_id=str(autor_usuario_id or usuario_id),
             tarefa_id=str(tarefa_id) if tarefa_id else None,
             tarefa_raiz_id=str(tarefa_raiz_id) if tarefa_raiz_id else None,
             tipo_evento=tipo_evento,
@@ -295,7 +343,6 @@ class ServicoTarefas:
         registros: list[TarefaRegistro],
         metricas: dict[UUID, MetricasNoTarefa],
         visiveis: set[UUID],
-        raiz_pai: UUID | None = None,
     ) -> tuple[NoTarefaExpandido, ...]:
         por_pai: dict[UUID | None, list[TarefaRegistro]] = {}
         ids_visiveis = {r.id for r in registros if r.id in visiveis}
@@ -313,8 +360,7 @@ class ServicoTarefas:
                 subtarefas=filhas,
             )
 
-        chave_inicial = raiz_pai if raiz_pai in ids_visiveis else None
-        return tuple(_construir(item) for item in por_pai.get(chave_inicial, []))
+        return tuple(_construir(item) for item in por_pai.get(None, []))
 
     async def listar_tarefas(
         self,
@@ -390,6 +436,32 @@ class ServicoTarefas:
         recorrencia: ConfiguracaoRecorrencia | None = None,
         etiqueta_ids: list[UUID] | None = None,
     ) -> ResultadoCriarTarefaServico:
+        dono_escopo = usuario_id
+        compartilhada = False
+        responsavel_uid: UUID | None = None
+
+        if tarefa_pai_id is not None and self._grupos is not None:
+            ctx = await self._grupos.obter_contexto_por_tarefa(usuario_id, tarefa_pai_id)
+            if ctx is None:
+                raise ErroDeDominio(
+                    codigo="TAREFA_NAO_ENCONTRADA",
+                    mensagem="Tarefa-pai informada nao foi encontrada.",
+                    status_http=404,
+                )
+            if ctx.compartilhada:
+                assert ctx.meu_papel is not None
+                verificar_permissao_operacao_no(
+                    _para_nos_desempenho(ctx.nos_arvore),
+                    papel=ctx.meu_papel,
+                    usuario_id=usuario_id,
+                    alvo_id=tarefa_pai_id,
+                    exige_lideranca=False,
+                )
+                dono_escopo = ctx.dono_arvore_id
+                compartilhada = True
+                if ctx.meu_papel == "colaborador":
+                    responsavel_uid = usuario_id
+
         todos = await self._tarefas.listar_todas_do_usuario(usuario_id)
         ativas = sum(1 for item in todos if item.status != "concluida")
         nos_dominio = [item.para_no_tarefa() for item in todos]
@@ -410,7 +482,7 @@ class ServicoTarefas:
         )
 
         criada = await self._tarefas.criar_tarefa_atomica(
-            usuario_id=usuario_id,
+            usuario_id=dono_escopo,
             tarefa_pai_id=tarefa_pai_id,
             titulo=titulo_limpo,
             prioridade=prioridade,
@@ -422,6 +494,8 @@ class ServicoTarefas:
             serie_recorrencia_id=serie_id,
             etiqueta_ids=etiquetas_validadas,
             ancestrais_a_reabrir=ancestrais_a_reabrir,
+            compartilhada=compartilhada,
+            responsavel_usuario_id=responsavel_uid,
         )
 
         todos_pos = await self._tarefas.listar_todas_do_usuario(usuario_id)
@@ -447,7 +521,8 @@ class ServicoTarefas:
 
         raiz_id = _encontrar_raiz_id(mapa_pos, criada.id)
         await self._registrar_evento_seguro(
-            usuario_id=usuario_id,
+            usuario_id=dono_escopo,
+            autor_usuario_id=usuario_id,
             tarefa_id=criada.id,
             tarefa_raiz_id=raiz_id,
             tipo_evento="tarefa_criada",
@@ -493,7 +568,7 @@ class ServicoTarefas:
             )
 
         alvo = next(item for item in subarvore if item.id == tarefa_id)
-        detalhes = await self._obter_detalhes_seguro(usuario_id, tarefa_id)
+        detalhes = await self._obter_detalhes_seguro(alvo.usuario_id, tarefa_id)
         lembretes = await self._tarefas.listar_lembretes_da_tarefa(usuario_id, tarefa_id)
         return DetalhesCompletosTarefaServico(
             tarefa=_montar(alvo),
@@ -515,6 +590,7 @@ class ServicoTarefas:
         recorrencia: ConfiguracaoRecorrencia | None = None,
         etiqueta_ids: list[UUID] | None = None,
     ) -> NoTarefaExpandido:
+        dono_escopo, _, _ = await self._resolver_autorizacao_mutacao(usuario_id, tarefa_id)
         atual = await self._tarefas.obter_por_id(usuario_id, tarefa_id)
         if atual is None:
             raise ErroDeDominio(
@@ -571,7 +647,7 @@ class ServicoTarefas:
                 status_direto = status
 
         await self._tarefas.atualizar_tarefa_atomica(
-            usuario_id=usuario_id,
+            usuario_id=dono_escopo,
             tarefa_id=tarefa_id,
             titulo=novo_titulo,
             prioridade=nova_prioridade,
@@ -591,8 +667,9 @@ class ServicoTarefas:
         *,
         confirmar_cascata: bool = False,
     ) -> ResultadoConcluirServico:
-        todos = await self._tarefas.listar_todas_do_usuario(usuario_id)
-        mapa_reg = {item.id: item for item in todos}
+        dono_escopo, _, nos_grupo = await self._resolver_autorizacao_mutacao(usuario_id, tarefa_id)
+        base = nos_grupo or await self._tarefas.listar_todas_do_usuario(usuario_id)
+        mapa_reg = {item.id: item for item in base}
         if tarefa_id not in mapa_reg:
             raise ErroDeDominio(
                 codigo="TAREFA_NAO_ENCONTRADA",
@@ -600,7 +677,7 @@ class ServicoTarefas:
                 status_http=404,
             )
 
-        originais = {item.id: item.para_no_tarefa() for item in todos}
+        originais = {item.id: item.para_no_tarefa() for item in base}
         agora = datetime.now(UTC)
         resultado = concluir_tarefa(
             list(originais.values()),
@@ -626,7 +703,7 @@ class ServicoTarefas:
         proxima_criada: TarefaRegistro | None = None
         if modificados or nova_ocorrencia is not None:
             proxima_criada = await self._tarefas.aplicar_mudancas_arvore_atomica(
-                usuario_id=usuario_id,
+                usuario_id=dono_escopo,
                 nos_modificados=modificados,
                 ids_concluidos_cancelar_lembretes=todos_concluidos,
                 nova_ocorrencia=nova_ocorrencia,
@@ -642,7 +719,8 @@ class ServicoTarefas:
         raiz_id = _encontrar_raiz_id(mapa_reg, tarefa_id)
         tipo_evento = "cascata_concluida" if len(todos_concluidos) > 1 else "tarefa_concluida"
         await self._registrar_evento_seguro(
-            usuario_id=usuario_id,
+            usuario_id=dono_escopo,
+            autor_usuario_id=usuario_id,
             tarefa_id=tarefa_id,
             tarefa_raiz_id=raiz_id,
             tipo_evento=tipo_evento,
@@ -673,8 +751,12 @@ class ServicoTarefas:
                 status_http=409,
             )
 
-        todos = await self._tarefas.listar_todas_do_usuario(usuario_id)
-        originais = {item.id: item.para_no_tarefa() for item in todos}
+        dono_escopo, _, nos_grupo = await self._resolver_autorizacao_mutacao(
+            usuario_id,
+            registro.tarefa_raiz_acao_id,
+        )
+        base = nos_grupo or await self._tarefas.listar_todas_do_usuario(usuario_id)
+        originais = {item.id: item.para_no_tarefa() for item in base}
         resultado = desfazer_conclusao_cascata(
             list(originais.values()),
             registro,
@@ -683,7 +765,7 @@ class ServicoTarefas:
         modificados = _nos_alterados(originais, resultado.nos_atualizados)
         if modificados:
             await self._tarefas.aplicar_mudancas_arvore_atomica(
-                usuario_id=usuario_id,
+                usuario_id=dono_escopo,
                 nos_modificados=modificados,
             )
         self._desfazer.marcar_consumido(usuario_id, token_desfazer)
@@ -699,8 +781,9 @@ class ServicoTarefas:
         *,
         status_destino: StatusTarefa = "em_andamento",
     ) -> ResultadoReabrirServico:
-        todos = await self._tarefas.listar_todas_do_usuario(usuario_id)
-        mapa_reg = {item.id: item for item in todos}
+        dono_escopo, _, nos_grupo = await self._resolver_autorizacao_mutacao(usuario_id, tarefa_id)
+        base = nos_grupo or await self._tarefas.listar_todas_do_usuario(usuario_id)
+        mapa_reg = {item.id: item for item in base}
         if tarefa_id not in mapa_reg:
             raise ErroDeDominio(
                 codigo="TAREFA_NAO_ENCONTRADA",
@@ -708,7 +791,7 @@ class ServicoTarefas:
                 status_http=404,
             )
 
-        originais = {item.id: item.para_no_tarefa() for item in todos}
+        originais = {item.id: item.para_no_tarefa() for item in base}
         resultado = reabrir_tarefa(
             list(originais.values()),
             tarefa_id,
@@ -717,13 +800,14 @@ class ServicoTarefas:
         modificados = _nos_alterados(originais, resultado.nos_atualizados)
         if modificados:
             await self._tarefas.aplicar_mudancas_arvore_atomica(
-                usuario_id=usuario_id,
+                usuario_id=dono_escopo,
                 nos_modificados=modificados,
             )
 
         raiz_id = _encontrar_raiz_id(mapa_reg, tarefa_id)
         await self._registrar_evento_seguro(
-            usuario_id=usuario_id,
+            usuario_id=dono_escopo,
+            autor_usuario_id=usuario_id,
             tarefa_id=tarefa_id,
             tarefa_raiz_id=raiz_id,
             tipo_evento="tarefa_reaberta",
@@ -744,15 +828,20 @@ class ServicoTarefas:
         novo_pai_id: UUID | None,
         nova_ordem: int | None = None,
     ) -> ResultadoMoverServico:
-        todos = await self._tarefas.listar_todas_do_usuario(usuario_id)
-        if not any(item.id == tarefa_id for item in todos):
+        dono_escopo, _, nos_grupo = await self._resolver_autorizacao_mutacao(
+            usuario_id,
+            tarefa_id,
+            exige_lideranca=True,
+        )
+        base = nos_grupo or await self._tarefas.listar_todas_do_usuario(usuario_id)
+        if not any(item.id == tarefa_id for item in base):
             raise ErroDeDominio(
                 codigo="TAREFA_NAO_ENCONTRADA",
                 mensagem="Tarefa nao encontrada.",
                 status_http=404,
             )
 
-        originais = {item.id: item.para_no_tarefa() for item in todos}
+        originais = {item.id: item.para_no_tarefa() for item in base}
         resultado = mover_tarefa(
             list(originais.values()),
             tarefa_id,
@@ -762,12 +851,12 @@ class ServicoTarefas:
         modificados = _nos_alterados(originais, resultado.nos_atualizados)
         if modificados:
             await self._tarefas.aplicar_mudancas_arvore_atomica(
-                usuario_id=usuario_id,
+                usuario_id=dono_escopo,
                 nos_modificados=modificados,
             )
         if nova_ordem is not None:
             await self._tarefas.reordenar_irmas_atomica(
-                usuario_id=usuario_id,
+                usuario_id=dono_escopo,
                 tarefa_pai_id=novo_pai_id,
                 itens_ordenacao=[(tarefa_id, nova_ordem)],
             )
@@ -786,8 +875,16 @@ class ServicoTarefas:
         tarefa_pai_id: UUID | None,
         ordenacao: list[tuple[UUID, int]],
     ) -> int:
+        dono_escopo = usuario_id
+        alvo_ref = tarefa_pai_id or (ordenacao[0][0] if ordenacao else None)
+        if alvo_ref is not None:
+            dono_escopo, _, _ = await self._resolver_autorizacao_mutacao(
+                usuario_id,
+                alvo_ref,
+                exige_lideranca=True,
+            )
         return await self._tarefas.reordenar_irmas_atomica(
-            usuario_id=usuario_id,
+            usuario_id=dono_escopo,
             tarefa_pai_id=tarefa_pai_id,
             itens_ordenacao=ordenacao,
         )
@@ -799,8 +896,13 @@ class ServicoTarefas:
         *,
         estrategia: EstrategiaExclusao | None = None,
     ) -> ResultadoExclusaoServico:
-        todos = await self._tarefas.listar_todas_do_usuario(usuario_id)
-        mapa_reg = {item.id: item for item in todos}
+        dono_escopo, _, nos_grupo = await self._resolver_autorizacao_mutacao(
+            usuario_id,
+            tarefa_id,
+            exige_lideranca=True,
+        )
+        base = nos_grupo or await self._tarefas.listar_todas_do_usuario(usuario_id)
+        mapa_reg = {item.id: item for item in base}
         if tarefa_id not in mapa_reg:
             raise ErroDeDominio(
                 codigo="TAREFA_NAO_ENCONTRADA",
@@ -808,7 +910,7 @@ class ServicoTarefas:
                 status_http=404,
             )
 
-        originais = {item.id: item.para_no_tarefa() for item in todos}
+        originais = {item.id: item.para_no_tarefa() for item in base}
         resultado = planejar_exclusao_tarefa(
             list(originais.values()),
             tarefa_id,
@@ -817,7 +919,7 @@ class ServicoTarefas:
         )
         nos_atualizados = _nos_alterados(originais, resultado.nos_restantes)
         await self._tarefas.excluir_tarefas_atomica(
-            usuario_id=usuario_id,
+            usuario_id=dono_escopo,
             nos_atualizados=nos_atualizados,
             ids_remover=resultado.ids_removidos,
         )
@@ -828,9 +930,9 @@ class ServicoTarefas:
                 str(rid) for rid in resultado.ids_removidos if mapa_reg[rid].tarefa_pai_id is None
             ]
             try:
-                await self._detalhes.remover_por_tarefas(str(usuario_id), ids_str)
+                await self._detalhes.remover_por_tarefas(str(dono_escopo), ids_str)
                 if raizes_str:
-                    await self._detalhes.remover_layouts_raizes(str(usuario_id), raizes_str)
+                    await self._detalhes.remover_layouts_raizes(str(dono_escopo), raizes_str)
             except (PyMongoError, OSError, TimeoutError) as falha:
                 logger.warning("Falha nao critica ao limpar documentos no MongoDB: %s", falha)
 
@@ -852,7 +954,7 @@ class ServicoTarefas:
                 mensagem="Tarefa nao encontrada.",
                 status_http=404,
             )
-        return await self._obter_detalhes_seguro(usuario_id, tarefa_id)
+        return await self._obter_detalhes_seguro(tarefa.usuario_id, tarefa_id)
 
     async def salvar_detalhes(
         self,
@@ -862,6 +964,7 @@ class ServicoTarefas:
         metadados_visuais: dict[str, Any] | None,
         notas_em_blocos: list[dict[str, Any]],
     ) -> DetalhesTarefaDocumento:
+        await self._resolver_autorizacao_mutacao(usuario_id, tarefa_id)
         tarefa = await self._tarefas.obter_por_id(usuario_id, tarefa_id)
         if tarefa is None:
             raise ErroDeDominio(
@@ -875,7 +978,7 @@ class ServicoTarefas:
         )
         documento = DetalhesTarefaDocumento(
             tarefa_id=str(tarefa_id),
-            usuario_id=str(usuario_id),
+            usuario_id=str(tarefa.usuario_id),
             metadados_visuais=validado["metadados_visuais"],
             notas_em_blocos=validado["notas_em_blocos"],
             atualizado_em=_formatar_data_iso(datetime.now(UTC)),
@@ -914,10 +1017,12 @@ class ServicoTarefas:
         else:
             registros = await self._tarefas.listar_todas_do_usuario(usuario_id)
 
-        detalhes = await self._obter_varios_detalhes_seguro(
-            usuario_id,
-            [item.id for item in registros],
-        )
+        ids_por_dono: dict[UUID, list[UUID]] = defaultdict(list)
+        for item in registros:
+            ids_por_dono[item.usuario_id].append(item.id)
+        detalhes: dict[UUID, DetalhesTarefaDocumento] = {}
+        for dono_uid, tids in ids_por_dono.items():
+            detalhes.update(await self._obter_varios_detalhes_seguro(dono_uid, tids))
 
         if formato == "md":
             conteudo_md = renderizar_arvore_markdown(registros, detalhes)

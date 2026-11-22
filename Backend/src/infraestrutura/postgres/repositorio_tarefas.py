@@ -4,11 +4,17 @@ from datetime import UTC, datetime
 from typing import Any, cast
 from uuid import UUID, uuid4
 
-from sqlalchemy import delete, func, select, text, update
+from sqlalchemy import bindparam, delete, func, or_, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from contratos.persistencia import FabricaSessaoRelacional
-from contratos.tarefas import EtiquetaRegistro, LembreteResumo, TarefaRegistro
+from contratos.tarefas import (
+    EtiquetaRegistro,
+    LembreteResumo,
+    ResponsavelTarefaResumo,
+    TarefaRegistro,
+)
+from dominio.autenticacao import resolver_url_avatar
 from dominio.erros import ErroDeDominio
 from dominio.modelos_tarefa import (
     ConfiguracaoRecorrencia,
@@ -22,8 +28,11 @@ from dominio.modelos_tarefa import (
 from infraestrutura.postgres.modelos import (
     EtiquetaModelo,
     LembreteTarefaModelo,
+    MembroTarefaModelo,
     TarefaEtiquetaModelo,
     TarefaModelo,
+    UsuarioModelo,
+    VagaTarefaModelo,
 )
 
 
@@ -66,6 +75,7 @@ def _para_registro_tarefa(
     modelo: TarefaModelo,
     etiquetas: tuple[EtiquetaRegistro, ...],
     lembretes_pendentes: int,
+    responsavel: ResponsavelTarefaResumo | None,
 ) -> TarefaRegistro:
     return TarefaRegistro(
         id=modelo.id,
@@ -86,15 +96,19 @@ def _para_registro_tarefa(
         atualizado_em=modelo.atualizado_em,
         etiquetas=etiquetas,
         lembretes_pendentes=lembretes_pendentes,
-        compartilhada=False,
+        compartilhada=modelo.compartilhada,
+        responsavel_usuario_id=modelo.responsavel_usuario_id,
+        vaga_responsavel_id=modelo.vaga_responsavel_id,
+        responsavel=responsavel,
     )
 
 
-async def _hidratar_tarefas(
+async def hidratar_tarefas_lista(
     sessao: AsyncSession,
     usuario_id: UUID,
     modelos: Sequence[TarefaModelo],
 ) -> list[TarefaRegistro]:
+    """Hidrata etiquetas, lembretes pendentes do usuario e responsavel em lote."""
     if not modelos:
         return []
     ids = [m.id for m in modelos]
@@ -103,10 +117,7 @@ async def _hidratar_tarefas(
         await sessao.execute(
             select(TarefaEtiquetaModelo.tarefa_id, EtiquetaModelo)
             .join(EtiquetaModelo, EtiquetaModelo.id == TarefaEtiquetaModelo.etiqueta_id)
-            .where(
-                TarefaEtiquetaModelo.tarefa_id.in_(ids),
-                EtiquetaModelo.usuario_id == usuario_id,
-            )
+            .where(TarefaEtiquetaModelo.tarefa_id.in_(ids))
             .order_by(EtiquetaModelo.nome_normalizado.asc())
         )
     ).all()
@@ -135,14 +146,112 @@ async def _hidratar_tarefas(
     ).all()
     contagem_lembretes: dict[UUID, int] = {tid: int(qtd) for tid, qtd in linhas_lembretes}
 
-    return [
-        _para_registro_tarefa(
-            m,
-            tuple(etiquetas_por_tarefa.get(m.id, [])),
-            contagem_lembretes.get(m.id, 0),
+    resp_uids = list({m.responsavel_usuario_id for m in modelos if m.responsavel_usuario_id})
+    usuarios_resp: dict[UUID, UsuarioModelo] = {}
+    if resp_uids:
+        for usr in (
+            (await sessao.execute(select(UsuarioModelo).where(UsuarioModelo.id.in_(resp_uids))))
+            .scalars()
+            .all()
+        ):
+            usuarios_resp[usr.id] = usr
+
+    resp_vids = list({m.vaga_responsavel_id for m in modelos if m.vaga_responsavel_id})
+    vagas_resp: dict[UUID, VagaTarefaModelo] = {}
+    if resp_vids:
+        for vaga in (
+            (
+                await sessao.execute(
+                    select(VagaTarefaModelo).where(VagaTarefaModelo.id.in_(resp_vids))
+                )
+            )
+            .scalars()
+            .all()
+        ):
+            vagas_resp[vaga.id] = vaga
+
+    saida: list[TarefaRegistro] = []
+    for m in modelos:
+        resumo_resp: ResponsavelTarefaResumo | None = None
+        if m.responsavel_usuario_id and m.responsavel_usuario_id in usuarios_resp:
+            u = usuarios_resp[m.responsavel_usuario_id]
+            resumo_resp = ResponsavelTarefaResumo(
+                tipo="usuario",
+                usuario_id=u.id,
+                vaga_id=None,
+                nome_exibicao=u.nome_exibicao,
+                avatar_url=resolver_url_avatar(
+                    avatar_tipo=u.avatar_tipo,
+                    avatar_id=u.avatar_id,
+                    foto_google_url=u.foto_google_url,
+                    avatar_arquivo=u.avatar_arquivo,
+                    versao_cache=int(u.atualizado_em.timestamp()),
+                ),
+            )
+        elif m.vaga_responsavel_id and m.vaga_responsavel_id in vagas_resp:
+            v = vagas_resp[m.vaga_responsavel_id]
+            resumo_resp = ResponsavelTarefaResumo(
+                tipo="vaga",
+                usuario_id=None,
+                vaga_id=v.id,
+                nome_exibicao=v.nome_exibicao,
+                avatar_url=None,
+            )
+
+        saida.append(
+            _para_registro_tarefa(
+                m,
+                tuple(etiquetas_por_tarefa.get(m.id, [])),
+                contagem_lembretes.get(m.id, 0),
+                resumo_resp,
+            )
         )
-        for m in modelos
-    ]
+    return saida
+
+
+async def _resolver_raiz_autorizada(
+    sessao: AsyncSession,
+    usuario_id: UUID,
+    tarefa_id: UUID,
+) -> tuple[UUID, UUID, bool] | None:
+    cte = text(
+        """
+        WITH RECURSIVE ancestrais AS (
+            SELECT id, tarefa_pai_id, usuario_id, compartilhada
+            FROM tarefas
+            WHERE id = :tarefa_id
+            UNION ALL
+            SELECT p.id, p.tarefa_pai_id, p.usuario_id, p.compartilhada
+            FROM tarefas p
+            INNER JOIN ancestrais a ON a.tarefa_pai_id = p.id
+        )
+        SELECT id, usuario_id, compartilhada
+        FROM ancestrais
+        WHERE tarefa_pai_id IS NULL
+        LIMIT 1
+        """
+    )
+    linha = (await sessao.execute(cte, {"tarefa_id": tarefa_id})).first()
+    if linha is None:
+        return None
+    raiz_id = cast(UUID, linha[0])
+    dono_id = cast(UUID, linha[1])
+    compartilhada = bool(linha[2])
+    if dono_id == usuario_id:
+        return raiz_id, dono_id, compartilhada
+    if not compartilhada:
+        return None
+    membro = (
+        await sessao.execute(
+            select(MembroTarefaModelo.id).where(
+                MembroTarefaModelo.tarefa_raiz_id == raiz_id,
+                MembroTarefaModelo.usuario_id == usuario_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if membro is None:
+        return None
+    return raiz_id, dono_id, True
 
 
 async def _proxima_ordem_manual(
@@ -167,18 +276,55 @@ async def _proxima_ordem_manual(
 
 
 class RepositorioTarefasPostgres:
-    """Adaptador transacional PostgreSQL com CTE recursiva e isolamento por usuario."""
+    """Adaptador transacional PostgreSQL com CTE recursiva e acesso compartilhado."""
 
     def __init__(self, fabrica: FabricaSessaoRelacional) -> None:
         self._fabrica = fabrica
 
     async def listar_todas_do_usuario(self, usuario_id: UUID) -> list[TarefaRegistro]:
         async with self._fabrica.obter_sessao() as sessao:
+            raizes_membro = list(
+                (
+                    await sessao.execute(
+                        select(MembroTarefaModelo.tarefa_raiz_id).where(
+                            MembroTarefaModelo.usuario_id == usuario_id
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+
+            ids_compartilhados: list[UUID] = []
+            if raizes_membro:
+                cte_comp = text(
+                    """
+                    WITH RECURSIVE compartilhadas AS (
+                        SELECT id
+                        FROM tarefas
+                        WHERE id IN :raizes
+                        UNION ALL
+                        SELECT t.id
+                        FROM tarefas t
+                        INNER JOIN compartilhadas c ON t.tarefa_pai_id = c.id
+                    )
+                    SELECT id FROM compartilhadas
+                    """
+                ).bindparams(bindparam("raizes", expanding=True))
+                ids_compartilhados = list(
+                    (await sessao.execute(cte_comp, {"raizes": raizes_membro})).scalars().all()
+                )
+
+            filtro = (
+                or_(TarefaModelo.usuario_id == usuario_id, TarefaModelo.id.in_(ids_compartilhados))
+                if ids_compartilhados
+                else TarefaModelo.usuario_id == usuario_id
+            )
             modelos = (
                 (
                     await sessao.execute(
                         select(TarefaModelo)
-                        .where(TarefaModelo.usuario_id == usuario_id)
+                        .where(filtro)
                         .order_by(
                             TarefaModelo.profundidade.asc(),
                             TarefaModelo.ordem_manual.asc(),
@@ -189,7 +335,7 @@ class RepositorioTarefasPostgres:
                 .scalars()
                 .all()
             )
-            return await _hidratar_tarefas(sessao, usuario_id, modelos)
+            return await hidratar_tarefas_lista(sessao, usuario_id, modelos)
 
     async def obter_por_id(
         self,
@@ -197,17 +343,13 @@ class RepositorioTarefasPostgres:
         tarefa_id: UUID,
     ) -> TarefaRegistro | None:
         async with self._fabrica.obter_sessao() as sessao:
-            modelo = (
-                await sessao.execute(
-                    select(TarefaModelo).where(
-                        TarefaModelo.id == tarefa_id,
-                        TarefaModelo.usuario_id == usuario_id,
-                    )
-                )
-            ).scalar_one_or_none()
+            autorizado = await _resolver_raiz_autorizada(sessao, usuario_id, tarefa_id)
+            if autorizado is None:
+                return None
+            modelo = await sessao.get(TarefaModelo, tarefa_id)
             if modelo is None:
                 return None
-            hidratadas = await _hidratar_tarefas(sessao, usuario_id, [modelo])
+            hidratadas = await hidratar_tarefas_lista(sessao, usuario_id, [modelo])
             return hidratadas[0]
 
     async def obter_subarvore_cte(
@@ -216,23 +358,28 @@ class RepositorioTarefasPostgres:
         tarefa_id: UUID,
     ) -> list[TarefaRegistro]:
         async with self._fabrica.obter_sessao() as sessao:
+            autorizado = await _resolver_raiz_autorizada(sessao, usuario_id, tarefa_id)
+            if autorizado is None:
+                return []
+            _, dono_id, _ = autorizado
+
             cte = text(
                 """
                 WITH RECURSIVE subarvore AS (
                     SELECT id, tarefa_pai_id
                     FROM tarefas
-                    WHERE id = :raiz_id AND usuario_id = :usuario_id
+                    WHERE id = :raiz_id AND usuario_id = :dono_id
                     UNION ALL
                     SELECT t.id, t.tarefa_pai_id
                     FROM tarefas t
                     INNER JOIN subarvore s ON t.tarefa_pai_id = s.id
-                    WHERE t.usuario_id = :usuario_id
+                    WHERE t.usuario_id = :dono_id
                 )
                 SELECT id FROM subarvore
                 """
             )
             ids: list[UUID] = list(
-                (await sessao.execute(cte, {"raiz_id": tarefa_id, "usuario_id": usuario_id}))
+                (await sessao.execute(cte, {"raiz_id": tarefa_id, "dono_id": dono_id}))
                 .scalars()
                 .all()
             )
@@ -243,7 +390,7 @@ class RepositorioTarefasPostgres:
                     await sessao.execute(
                         select(TarefaModelo)
                         .where(
-                            TarefaModelo.usuario_id == usuario_id,
+                            TarefaModelo.usuario_id == dono_id,
                             TarefaModelo.id.in_(ids),
                         )
                         .order_by(
@@ -256,7 +403,7 @@ class RepositorioTarefasPostgres:
                 .scalars()
                 .all()
             )
-            return await _hidratar_tarefas(sessao, usuario_id, modelos)
+            return await hidratar_tarefas_lista(sessao, usuario_id, modelos)
 
     async def listar_lembretes_da_tarefa(
         self,
@@ -303,6 +450,8 @@ class RepositorioTarefasPostgres:
         serie_recorrencia_id: UUID | None,
         etiqueta_ids: tuple[UUID, ...],
         ancestrais_a_reabrir: tuple[UUID, ...],
+        compartilhada: bool = False,
+        responsavel_usuario_id: UUID | None = None,
     ) -> TarefaRegistro:
         async with self._fabrica.obter_sessao() as sessao:
             agora = datetime.now(UTC)
@@ -322,6 +471,8 @@ class RepositorioTarefasPostgres:
                 recorrencia_tipo=rec_tipo,
                 recorrencia_config=rec_cfg,
                 serie_recorrencia_id=serie_recorrencia_id,
+                compartilhada=compartilhada,
+                responsavel_usuario_id=responsavel_usuario_id,
                 concluida_em=agora if status == "concluida" else None,
                 criado_em=agora,
                 atualizado_em=agora,
@@ -349,7 +500,7 @@ class RepositorioTarefasPostgres:
 
             await sessao.commit()
             await sessao.refresh(nova)
-            return (await _hidratar_tarefas(sessao, usuario_id, [nova]))[0]
+            return (await hidratar_tarefas_lista(sessao, usuario_id, [nova]))[0]
 
     async def atualizar_tarefa_atomica(
         self,
@@ -407,7 +558,7 @@ class RepositorioTarefasPostgres:
 
             await sessao.commit()
             await sessao.refresh(modelo)
-            return (await _hidratar_tarefas(sessao, usuario_id, [modelo]))[0]
+            return (await hidratar_tarefas_lista(sessao, usuario_id, [modelo]))[0]
 
     async def aplicar_mudancas_arvore_atomica(
         self,
@@ -487,7 +638,7 @@ class RepositorioTarefasPostgres:
             if modelo_ocorrencia is None:
                 return None
             await sessao.refresh(modelo_ocorrencia)
-            return (await _hidratar_tarefas(sessao, usuario_id, [modelo_ocorrencia]))[0]
+            return (await hidratar_tarefas_lista(sessao, usuario_id, [modelo_ocorrencia]))[0]
 
     async def reordenar_irmas_atomica(
         self,

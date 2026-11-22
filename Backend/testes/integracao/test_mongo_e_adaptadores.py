@@ -37,6 +37,7 @@ async def test_mongo_garante_indices_nas_quatro_colecoes(
         assert "uq_detalhes_tarefa_id" in indices_detalhes
         assert "uq_layout_usuario_raiz" in indices_layouts
         assert "ix_eventos_usuario_criado_em" in indices_eventos
+        assert "ix_eventos_raiz_criado_em" in indices_eventos
         assert "uq_preferencias_usuario_id" in indices_preferencias
     finally:
         await gerenciador.fechar()

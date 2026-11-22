@@ -324,7 +324,19 @@ def montar_tarefa_resposta(no: NoTarefaExpandido) -> TarefaResposta:
         serie_recorrencia_id=reg.serie_recorrencia_id,
         vezes_reaberta=reg.vezes_reaberta,
         compartilhada=reg.compartilhada,
-        responsavel=None,
+        responsavel=(
+            {
+                "tipo": reg.responsavel.tipo,
+                "usuario_id": str(reg.responsavel.usuario_id)
+                if reg.responsavel.usuario_id
+                else None,
+                "vaga_id": str(reg.responsavel.vaga_id) if reg.responsavel.vaga_id else None,
+                "nome_exibicao": reg.responsavel.nome_exibicao,
+                "avatar_url": reg.responsavel.avatar_url,
+            }
+            if reg.responsavel is not None
+            else None
+        ),
         lembretes_pendentes=reg.lembretes_pendentes,
         criado_em=formatar_instante_iso_utc(reg.criado_em),
         atualizado_em=formatar_instante_iso_utc(reg.atualizado_em),

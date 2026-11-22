@@ -70,9 +70,22 @@ class RepositorioDetalhesTarefasMongo:
 
     async def salvar(self, documento: DetalhesTarefaDocumento) -> None:
         await self._detalhes.replace_one(
-            {"usuario_id": documento["usuario_id"], "tarefa_id": documento["tarefa_id"]},
+            {"tarefa_id": documento["tarefa_id"]},
             dict(documento),
             upsert=True,
+        )
+
+    async def transferir_dono_por_tarefas(
+        self,
+        dono_anterior_id: str,
+        novo_dono_id: str,
+        tarefa_ids: list[str],
+    ) -> None:
+        if not tarefa_ids:
+            return
+        await self._detalhes.update_many(
+            {"usuario_id": dono_anterior_id, "tarefa_id": {"$in": tarefa_ids}},
+            {"$set": {"usuario_id": novo_dono_id}},
         )
 
     async def remover_por_tarefas(self, usuario_id: str, tarefa_ids: list[str]) -> None:

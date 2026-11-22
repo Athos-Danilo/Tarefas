@@ -29,6 +29,9 @@ TABELAS_ESPERADAS = {
     "sessoes_foco",
     "inscricoes_push",
     "lembretes_tarefas",
+    "membros_tarefa",
+    "vagas_tarefa",
+    "convites_tarefa",
 }
 
 
