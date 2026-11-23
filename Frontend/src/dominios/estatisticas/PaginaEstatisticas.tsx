@@ -25,7 +25,13 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { useMotorTemporal } from '../../astronomia/motor-temporal';
+import { obterMomentoDoDia } from '../../astronomia/ciclo-solar';
+import {
+  obterEstadoClimaticoEfetivo,
+  obterMinutoAtivo,
+  useMotorTemporal,
+} from '../../astronomia/motor-temporal';
+import { useEstadoAudio } from '../../audio/estado-audio';
 import { Botao } from '../../componentes/Botao';
 import { CartaoBento } from '../../componentes/CartaoBento';
 import type {
@@ -157,6 +163,7 @@ export function PaginaEstatisticas({
     }
     definirQualidade3D(prefs.qualidade3d);
     definirMovimentoReduzido(prefs.reduzirMovimento);
+    useEstadoAudio.getState().aplicarPreferenciasAudio(prefs.audio);
   }, [consultaPreferencias.data, definirMovimentoReduzido, definirQualidade3D]);
 
   const mutacaoPreferencias = useMutation({
@@ -169,6 +176,7 @@ export function PaginaEstatisticas({
       setMensagemPrefs('Preferências salvas no seu cenário.');
       definirQualidade3D(salvas.qualidade3d);
       definirMovimentoReduzido(salvas.reduzirMovimento);
+      useEstadoAudio.getState().aplicarPreferenciasAudio(salvas.audio);
       if (salvas.modoTemporal === 'simulador') {
         const min = horaSimuladaParaMinuto(salvas.horaSimulada);
         if (min !== null) {
@@ -886,6 +894,38 @@ export function PaginaEstatisticas({
                 }
               />
             </label>
+
+            <div className="flex justify-end">
+              <Botao
+                variante="secundario"
+                tamanho="sm"
+                reduzirMovimento={reduzirMovimento}
+                onClick={() => {
+                  const motor = useMotorTemporal.getState();
+                  const audioEstado = useEstadoAudio.getState();
+                  audioEstado.aplicarPreferenciasAudio({
+                    habilitado: true,
+                    volumeGeral: volumeGeralAtivo,
+                    volumeEfeitos: volumeEfeitosAtivo,
+                    volumeAmbiente: volumeAmbienteAtivo,
+                  });
+                  audioEstado.sincronizarAmbiente({
+                    momentoDoDia: obterMomentoDoDia(obterMinutoAtivo(motor)),
+                    estadoClimatico: obterEstadoClimaticoEfetivo(motor),
+                    modoFocoAtivo: false,
+                    abaVisivel:
+                      typeof document === 'undefined'
+                        ? true
+                        : document.visibilityState !== 'hidden',
+                    reduzirMovimento,
+                  });
+                  audioEstado.tocarEfeito('cascata_concluida');
+                }}
+              >
+                <Volume2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Testar som</span>
+              </Botao>
+            </div>
           </div>
 
           <label className="flex flex-col gap-1 border-t border-[var(--borda)] pt-3 text-xs font-semibold text-[var(--texto-sec)]">

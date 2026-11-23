@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import {
   BarChart3,
   CalendarDays,
@@ -6,16 +7,22 @@ import {
   Network,
   Timer,
   UserCircle2,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import type { FaixaFavicon } from '../astronomia/tipos';
+import { useEstadoAudio } from '../audio/estado-audio';
 import { Botao } from '../componentes/Botao';
 import { CartaoBento } from '../componentes/CartaoBento';
 import { SeloMarcaLume } from '../componentes/SeloMarcaLume';
 import { OrquestradorTutorialGuiado } from '../dominios/tutorial/OrquestradorTutorialGuiado';
 import { useAutenticacao } from '../hooks/usar-autenticacao';
-import type { ServicoEstatisticasFrontend } from '../servicos/tipos-estatisticas';
+import type {
+  PreferenciasCenarioFrontend,
+  ServicoEstatisticasFrontend,
+} from '../servicos/tipos-estatisticas';
 
 export interface PropriedadesCascaWorkspace {
   faixaFavicon: FaixaFavicon;
@@ -32,6 +39,9 @@ export function CascaWorkspace({
   const [saindo, setSaindo] = useState(false);
   const localizacao = useLocation();
   const navegar = useNavigate();
+  const queryClient = useQueryClient();
+  const audioHabilitado = useEstadoAudio((s) => s.habilitado);
+  const definirAudioHabilitado = useEstadoAudio((s) => s.definirHabilitado);
 
   if (!estadoSessao.autenticado) {
     return null;
@@ -39,6 +49,25 @@ export function CascaWorkspace({
 
   const { usuario } = estadoSessao;
   const avatarSrc = usuario.avatarUrl ?? '/assets-3d/avatares/sol-nascente.png';
+
+  const lidarAlternarAudio = async () => {
+    const proximo = !audioHabilitado;
+    definirAudioHabilitado(proximo);
+    queryClient.setQueryData<PreferenciasCenarioFrontend | null>(
+      ['preferencias-cenario'],
+      (atual) => (atual ? { ...atual, audio: { ...atual.audio, habilitado: proximo } } : atual),
+    );
+    if (servicoEstatisticas) {
+      try {
+        const salvas = await servicoEstatisticas.atualizarPreferencias({
+          audio: { habilitado: proximo },
+        });
+        queryClient.setQueryData(['preferencias-cenario'], salvas);
+      } catch {
+        // Mantem alternancia local caso a rede esteja offline.
+      }
+    }
+  };
 
   const lidarSair = async () => {
     setSaindo(true);
@@ -117,20 +146,43 @@ export function CascaWorkspace({
             </nav>
           </div>
 
-          <Botao
-            variante="secundario"
-            tamanho="sm"
-            reduzirMovimento={reduzirMovimento}
-            disabled={saindo}
-            onClick={() => {
-              void lidarSair();
-            }}
-            aria-label="Sair da conta"
-            className="w-full"
-          >
-            <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
-            <span className="hidden lg:inline">{saindo ? 'Saindo...' : 'Sair'}</span>
-          </Botao>
+          <div className="flex flex-col gap-2">
+            <Botao
+              variante={audioHabilitado ? 'primario' : 'secundario'}
+              tamanho="sm"
+              reduzirMovimento={reduzirMovimento}
+              aria-pressed={audioHabilitado}
+              aria-label={audioHabilitado ? 'Som ativo' : 'Som desligado'}
+              onClick={() => {
+                void lidarAlternarAudio();
+              }}
+              className="w-full"
+            >
+              {audioHabilitado ? (
+                <Volume2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+              ) : (
+                <VolumeX className="h-4 w-4 shrink-0" aria-hidden="true" />
+              )}
+              <span className="hidden lg:inline">
+                {audioHabilitado ? 'Som ativo' : 'Som desligado'}
+              </span>
+            </Botao>
+
+            <Botao
+              variante="secundario"
+              tamanho="sm"
+              reduzirMovimento={reduzirMovimento}
+              disabled={saindo}
+              onClick={() => {
+                void lidarSair();
+              }}
+              aria-label="Sair da conta"
+              className="w-full"
+            >
+              <LogOut className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span className="hidden lg:inline">{saindo ? 'Saindo...' : 'Sair'}</span>
+            </Botao>
+          </div>
         </CartaoBento>
       </aside>
 
@@ -158,6 +210,26 @@ export function CascaWorkspace({
             </Link>
           );
         })}
+        <button
+          type="button"
+          aria-pressed={audioHabilitado}
+          aria-label={audioHabilitado ? 'Som ativo' : 'Som desligado'}
+          onClick={() => {
+            void lidarAlternarAudio();
+          }}
+          className={`flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl px-2.5 text-xs font-semibold ${
+            audioHabilitado
+              ? 'bg-[var(--primaria)] text-[var(--primaria-texto)]'
+              : 'text-[var(--texto)]'
+          }`}
+        >
+          {audioHabilitado ? (
+            <Volume2 className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <VolumeX className="h-4 w-4" aria-hidden="true" />
+          )}
+        </button>
+
         <button
           type="button"
           onClick={() => {

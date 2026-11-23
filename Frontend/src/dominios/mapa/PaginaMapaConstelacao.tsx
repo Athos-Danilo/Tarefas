@@ -12,6 +12,7 @@ import {
   type Viewport,
 } from '@xyflow/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEstadoAudio } from '../../audio/estado-audio';
 import {
   ArrowDown,
   ArrowLeft,
@@ -301,8 +302,11 @@ export function PaginaMapaConstelacao({
       }
       await servicoJornada.concluirTarefa(tarefa.id, tarefa.subtarefas.length > 0);
     },
-    onSuccess: async () => {
+    onSuccess: async (_resultado, tarefa) => {
       setMensagemErro(null);
+      useEstadoAudio
+        .getState()
+        .tocarEfeito(tarefa.status === 'concluida' ? 'tarefa_reaberta' : 'no_iluminado');
       await recarregarMapaEMembros();
       if (tarefaDetalhesId) {
         await queryClient.invalidateQueries({ queryKey: ['tarefa-detalhes', tarefaDetalhesId] });

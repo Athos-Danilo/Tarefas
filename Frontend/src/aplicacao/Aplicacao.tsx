@@ -4,6 +4,7 @@ import { MotionConfig } from 'motion/react';
 import { useMemo, useState, type ReactNode } from 'react';
 import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router';
 import { useMotorTemporal } from '../astronomia/motor-temporal';
+import { OrquestradorAudioLume } from '../audio/OrquestradorAudioLume';
 import { CenarioDoHorizonte } from '../cenario/CenarioDoHorizonte';
 import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
 import { PaginaCalendarioMensal } from '../dominios/calendario/PaginaCalendarioMensal';
@@ -121,6 +122,13 @@ export function Aplicacao({
               astros={astros}
               faseLunar={faseLunar}
               estadoClimatico={estadoClimatico}
+              reduzirMovimento={reduzirMovimento}
+            />
+
+            <OrquestradorAudioLume
+              momentoDoDia={momentoDoDia}
+              estadoClimatico={estadoClimatico}
+              modoFocoAtivo={modoFocoContemplativo}
               reduzirMovimento={reduzirMovimento}
             />
 

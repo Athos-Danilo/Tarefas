@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import type { DadosFaseLunar } from '../../astronomia/fase-lunar';
 import type { MomentoDoDia } from '../../astronomia/tipos';
+import { useEstadoAudio } from '../../audio/estado-audio';
 import { Botao } from '../../componentes/Botao';
 import { CartaoBento } from '../../componentes/CartaoBento';
 import { ErroApi } from '../../servicos/cliente-http';
@@ -165,6 +166,7 @@ export function PaginaModoFoco({
     mutationFn: (entrada: EntradaIniciarSessaoFoco) => servicoFoco.iniciarSessao(entrada),
     onSuccess: async (novaSessao) => {
       setMensagemErro(null);
+      useEstadoAudio.getState().tocarEfeito('foco_iniciado');
       setEstadoRelogio({
         sessaoId: novaSessao.id,
         restantesSeg: novaSessao.duracaoPlanejadaSeg,
@@ -181,6 +183,7 @@ export function PaginaModoFoco({
       servicoFoco.concluirSessao(param.sessaoId, param.duracaoRealSeg),
     onSuccess: async () => {
       setMensagemErro(null);
+      useEstadoAudio.getState().tocarEfeito('foco_concluido');
       setEstadoRelogio(null);
       queryClient.setQueryData<SessaoFoco | null>(['foco-ativa'], null);
       await queryClient.invalidateQueries({ queryKey: ['foco-historico'] });
@@ -193,6 +196,7 @@ export function PaginaModoFoco({
       servicoFoco.interromperSessao(param.sessaoId, param.duracaoRealSeg),
     onSuccess: async () => {
       setMensagemErro(null);
+      useEstadoAudio.getState().tocarEfeito('foco_interrompido');
       setEstadoRelogio(null);
       queryClient.setQueryData<SessaoFoco | null>(['foco-ativa'], null);
       await queryClient.invalidateQueries({ queryKey: ['foco-historico'] });

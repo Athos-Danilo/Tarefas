@@ -28,6 +28,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import type { DadosFaseLunar } from '../../astronomia/fase-lunar';
+import { useEstadoAudio } from '../../audio/estado-audio';
 import type { MomentoDoDia } from '../../astronomia/tipos';
 import { BarraArcoDoDia } from '../../cenario/BarraArcoDoDia';
 import { Botao } from '../../componentes/Botao';
@@ -296,6 +297,9 @@ export function PaginaJornada({
       setConfirmacaoCascata(null);
       setTokenDesfazer(resultado.tokenDesfazer);
       setProximaOcorrencia(resultado.proximaOcorrencia);
+      useEstadoAudio
+        .getState()
+        .tocarEfeito(resultado.nosConcluidos.length > 1 ? 'cascata_concluida' : 'tarefa_concluida');
       await invalidarTarefas();
     },
     onError: (erro, variaveis) => {
@@ -328,6 +332,7 @@ export function PaginaJornada({
     mutationFn: (tarefaId: string) => servico.reabrirTarefa(tarefaId, 'em_andamento'),
     onSuccess: async () => {
       setErroAcao(null);
+      useEstadoAudio.getState().tocarEfeito('tarefa_reaberta');
       await invalidarTarefas();
     },
     onError: (erro) => {

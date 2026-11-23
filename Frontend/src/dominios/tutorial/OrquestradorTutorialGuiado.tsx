@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
+import { useEstadoAudio } from '../../audio/estado-audio';
 import { useAutenticacao } from '../../hooks/usar-autenticacao';
 import type {
   EntradaAtualizarPreferencias,
@@ -58,6 +59,14 @@ export function OrquestradorTutorialGuiado({
   });
 
   const prefs = consultaPrefs.data;
+  const aplicarPreferenciasAudio = useEstadoAudio((s) => s.aplicarPreferenciasAudio);
+
+  useEffect(() => {
+    if (prefs?.audio) {
+      aplicarPreferenciasAudio(prefs.audio);
+    }
+  }, [aplicarPreferenciasAudio, prefs]);
+
   const statusPersistido = prefs?.tutorial.status;
   const etapaPersistida = prefs?.tutorial.etapaAtual ?? 0;
 
