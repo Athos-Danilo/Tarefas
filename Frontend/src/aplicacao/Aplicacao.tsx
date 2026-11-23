@@ -6,6 +6,7 @@ import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-rout
 import { useMotorTemporal } from '../astronomia/motor-temporal';
 import { CenarioDoHorizonte } from '../cenario/CenarioDoHorizonte';
 import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
+import { PaginaCalendarioMensal } from '../dominios/calendario/PaginaCalendarioMensal';
 import { PaginaPrimeiroAcesso } from '../dominios/conta/PaginaPrimeiroAcesso';
 import { PaginaPerfil } from '../dominios/conta/PaginaPerfil';
 import { PaginaConviteGrupo } from '../dominios/grupos/PaginaConviteGrupo';
@@ -15,11 +16,13 @@ import { PaginaMapaConstelacao } from '../dominios/mapa/PaginaMapaConstelacao';
 import { PaginaModoFoco } from '../dominios/foco/PaginaModoFoco';
 import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
+import { criarServicoCalendario } from '../servicos/cliente-calendario';
 import { criarServicoConstelacoes } from '../servicos/cliente-constelacoes';
 import { criarServicoFoco } from '../servicos/cliente-foco';
 import { criarServicoGrupos } from '../servicos/cliente-grupos';
 import { criarServicoJornada } from '../servicos/cliente-jornada';
 import { criarClienteSaude } from '../servicos/cliente-saude';
+import type { ServicoCalendarioFrontend } from '../servicos/tipos-calendario';
 import type { ServicoConstelacoesFrontend } from '../servicos/tipos-constelacoes';
 import type { ServicoAutenticacaoFrontend } from '../servicos/tipos-conta';
 import type { ServicoFocoFrontend } from '../servicos/tipos-foco';
@@ -37,6 +40,7 @@ interface PropriedadesAplicacao {
   servicoGrupos?: ServicoGruposFrontend;
   servicoConstelacoes?: ServicoConstelacoesFrontend;
   servicoFoco?: ServicoFocoFrontend;
+  servicoCalendario?: ServicoCalendarioFrontend;
   rotaInicial?: string;
 }
 
@@ -60,6 +64,7 @@ export function Aplicacao({
   servicoGrupos,
   servicoConstelacoes,
   servicoFoco,
+  servicoCalendario,
   rotaInicial,
 }: PropriedadesAplicacao) {
   const [queryClient] = useState(
@@ -83,6 +88,10 @@ export function Aplicacao({
     [servicoConstelacoes],
   );
   const foco = useMemo(() => servicoFoco ?? criarServicoFoco(), [servicoFoco]);
+  const calendario = useMemo(
+    () => servicoCalendario ?? criarServicoCalendario(),
+    [servicoCalendario],
+  );
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
@@ -191,6 +200,17 @@ export function Aplicacao({
                           servicoJornada={jornada}
                           servicoFoco={foco}
                           aoMudarModoContemplativo={setModoFocoContemplativo}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/calendario"
+                      element={
+                        <PaginaCalendarioMensal
+                          reduzirMovimento={reduzirMovimento}
+                          servicoJornada={jornada}
+                          servicoGrupos={grupos}
+                          servicoCalendario={calendario}
                         />
                       }
                     />

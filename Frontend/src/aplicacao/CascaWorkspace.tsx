@@ -1,4 +1,4 @@
-import { Compass, LogOut, Network, Timer, UserCircle2 } from 'lucide-react';
+import { CalendarDays, Compass, LogOut, Network, Timer, UserCircle2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router';
 import type { FaixaFavicon } from '../astronomia/tipos';
@@ -40,6 +40,7 @@ export function CascaWorkspace({ faixaFavicon, reduzirMovimento }: PropriedadesC
     { rota: '/jornada', rotulo: 'Jornada', Icone: Compass },
     { rota: '/mapa', rotulo: 'Mapa', Icone: Network },
     { rota: '/foco', rotulo: 'Foco', Icone: Timer },
+    { rota: '/calendario', rotulo: 'Calendário', Icone: CalendarDays },
     { rota: '/perfil', rotulo: 'Perfil', Icone: UserCircle2 },
   ];
 

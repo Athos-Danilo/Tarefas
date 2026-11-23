@@ -25,6 +25,7 @@ from infraestrutura.postgres.verificador_postgres import VerificadorPostgres
 from infraestrutura.verificadores_iniciais import VerificadorAindaNaoConfigurado
 from rotas.esquemas_saude import DetalheErro, EnvelopeErro
 from rotas.rotas_autenticacao import roteador_autenticacao
+from rotas.rotas_calendario import roteador_calendario
 from rotas.rotas_clima import roteador_clima
 from rotas.rotas_constelacoes import roteador_constelacoes
 from rotas.rotas_conta import roteador_conta
@@ -148,6 +149,7 @@ def criar_aplicacao(
     aplicacao.include_router(roteador_grupos)
     aplicacao.include_router(roteador_constelacoes)
     aplicacao.include_router(roteador_foco)
+    aplicacao.include_router(roteador_calendario)
     aplicacao.include_router(roteador_exportacao)
     aplicacao.include_router(roteador_clima)
     return aplicacao
