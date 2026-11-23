@@ -21,6 +21,7 @@ export function ProvedorAutenticacao({
 }: PropriedadesProvedorAutenticacao) {
   const queryClient = useQueryClient();
   const [tutorialSolicitadoRevisao, setTutorialSolicitadoRevisao] = useState(false);
+  const [versaoRevisaoTutorial, setVersaoRevisaoTutorial] = useState(0);
 
   const servico = useMemo(
     () => servicoAutenticacao ?? criarServicoAutenticacao(),
@@ -52,6 +53,11 @@ export function ProvedorAutenticacao({
 
   const solicitarRevisaoTutorial = useCallback(() => {
     setTutorialSolicitadoRevisao(true);
+    setVersaoRevisaoTutorial((atual) => atual + 1);
+  }, []);
+
+  const consumirRevisaoTutorial = useCallback(() => {
+    setTutorialSolicitadoRevisao(false);
   }, []);
 
   const valor = useMemo(
@@ -62,7 +68,9 @@ export function ProvedorAutenticacao({
       recarregarSessao,
       definirSessao,
       tutorialSolicitadoRevisao,
+      versaoRevisaoTutorial,
       solicitarRevisaoTutorial,
+      consumirRevisaoTutorial,
     }),
     [
       data,
@@ -71,7 +79,9 @@ export function ProvedorAutenticacao({
       recarregarSessao,
       definirSessao,
       tutorialSolicitadoRevisao,
+      versaoRevisaoTutorial,
       solicitarRevisaoTutorial,
+      consumirRevisaoTutorial,
     ],
   );
 

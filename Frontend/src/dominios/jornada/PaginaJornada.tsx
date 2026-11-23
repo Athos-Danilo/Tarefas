@@ -142,7 +142,7 @@ export function PaginaJornada({
   servicoGrupos,
   aoMudarProgressoJornada,
 }: PropriedadesPaginaJornada) {
-  const { estadoSessao, tutorialSolicitadoRevisao } = useAutenticacao();
+  const { estadoSessao } = useAutenticacao();
   const queryClient = useQueryClient();
 
   const [filtros, setFiltros] = useState<FiltrosListagemTarefas>({ incluirConcluidas: true });
@@ -550,22 +550,15 @@ export function PaginaJornada({
         </CartaoBento>
       ) : null}
 
-      {tutorialSolicitadoRevisao ? (
-        <CartaoBento role="status" className="border-l-4 border-l-[var(--primaria)]">
-          <p className="text-sm font-medium text-[var(--texto)]">
-            Revisão do Modo Tutorial solicitada. O tour interativo completo em 6 passos será
-            acoplado na Fase 22.
-          </p>
-        </CartaoBento>
-      ) : null}
-
-      <MiniCardClimaOptIn
-        minuto={minuto}
-        nomeMomento={nomeMomento}
-        faseLunar={faseLunar}
-        servico={servico}
-        reduzirMovimento={reduzirMovimento}
-      />
+      <div data-tutorial-alvo="horizonte-clima">
+        <MiniCardClimaOptIn
+          minuto={minuto}
+          nomeMomento={nomeMomento}
+          faseLunar={faseLunar}
+          servico={servico}
+          reduzirMovimento={reduzirMovimento}
+        />
+      </div>
 
       {exibirSimuladorArco ? (
         <BarraArcoDoDia
@@ -625,139 +618,145 @@ export function PaginaJornada({
         </CartaoBento>
       ) : null}
 
-      <FormularioNovaTarefa
-        key={paiParaCriar ? paiParaCriar.id : 'raiz'}
-        paiSelecionado={paiParaCriar}
-        aoCancelarPai={() => setPaiParaCriar(null)}
-        etiquetas={etiquetas}
-        enviando={mutacaoCriar.isPending}
-        aoCriar={async (entrada) => {
-          await mutacaoCriar.mutateAsync(entrada);
-        }}
-        reduzirMovimento={reduzirMovimento}
-      />
+      <div data-tutorial-alvo="arvore-recorrencia">
+        <FormularioNovaTarefa
+          key={paiParaCriar ? paiParaCriar.id : 'raiz'}
+          paiSelecionado={paiParaCriar}
+          aoCancelarPai={() => setPaiParaCriar(null)}
+          etiquetas={etiquetas}
+          enviando={mutacaoCriar.isPending}
+          aoCriar={async (entrada) => {
+            await mutacaoCriar.mutateAsync(entrada);
+          }}
+          reduzirMovimento={reduzirMovimento}
+        />
+      </div>
 
-      <BarraFiltrosEEtiquetas
-        filtros={filtros}
-        aoMudarFiltros={setFiltros}
-        etiquetas={etiquetas}
-        limiteEtiquetas={limiteEtiquetas}
-        aoCriarEtiqueta={async (entrada) => {
-          await servico.criarEtiqueta(entrada);
-          await queryClient.invalidateQueries({ queryKey: ['etiquetas'] });
-        }}
-        aoAtualizarEtiqueta={async (id, entrada) => {
-          await servico.atualizarEtiqueta(id, entrada);
-          await queryClient.invalidateQueries({ queryKey: ['etiquetas'] });
-          await invalidarTarefas();
-        }}
-        aoExcluirEtiqueta={async (id) => {
-          await servico.excluirEtiqueta(id);
-          await queryClient.invalidateQueries({ queryKey: ['etiquetas'] });
-          await invalidarTarefas();
-        }}
-        reduzirMovimento={reduzirMovimento}
-      />
+      <div data-tutorial-alvo="notas-lembretes">
+        <BarraFiltrosEEtiquetas
+          filtros={filtros}
+          aoMudarFiltros={setFiltros}
+          etiquetas={etiquetas}
+          limiteEtiquetas={limiteEtiquetas}
+          aoCriarEtiqueta={async (entrada) => {
+            await servico.criarEtiqueta(entrada);
+            await queryClient.invalidateQueries({ queryKey: ['etiquetas'] });
+          }}
+          aoAtualizarEtiqueta={async (id, entrada) => {
+            await servico.atualizarEtiqueta(id, entrada);
+            await queryClient.invalidateQueries({ queryKey: ['etiquetas'] });
+            await invalidarTarefas();
+          }}
+          aoExcluirEtiqueta={async (id) => {
+            await servico.excluirEtiqueta(id);
+            await queryClient.invalidateQueries({ queryKey: ['etiquetas'] });
+            await invalidarTarefas();
+          }}
+          reduzirMovimento={reduzirMovimento}
+        />
+      </div>
 
-      {consultaTarefas.isLoading ? (
-        <CartaoBento>
-          <p className="text-sm text-[var(--texto-sec)]">Carregando sua Jornada do Dia...</p>
-        </CartaoBento>
-      ) : consultaTarefas.isError ? (
-        <CartaoBento role="alert" className="space-y-2 border-l-4 border-l-[var(--erro)]">
-          <p className="text-sm font-semibold text-[var(--erro)]">
-            Não foi possível carregar suas tarefas no momento.
-          </p>
-          <Botao
-            type="button"
-            variante="secundario"
-            tamanho="sm"
-            reduzirMovimento={reduzirMovimento}
-            onClick={() => {
-              void consultaTarefas.refetch();
-            }}
-          >
-            Tentar novamente
-          </Botao>
-        </CartaoBento>
-      ) : raizes.length === 0 ? (
-        <CartaoBento>
-          <h2 className="fonte-display text-lg font-bold text-[var(--texto)]">
-            Sua Jornada do Dia está livre
-          </h2>
-          <p className="mt-1 text-sm text-[var(--texto-sec)]">
-            Nenhuma tarefa encontrada para os filtros atuais. Crie sua primeira meta acima para
-            vê-la florescer no cenário.
-          </p>
-        </CartaoBento>
-      ) : (
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={lidarDragEnd}>
-          <div className="space-y-5">
-            {ORDEM_TURNOS.map((turno) => {
-              const tarefasTurno = raizesPorTurno[turno];
-              if (tarefasTurno.length === 0) {
-                return null;
-              }
-              return (
-                <CartaoBento key={turno} as="section" className="space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="fonte-display text-lg font-bold text-[var(--texto)]">
-                      Turno: {ROTULOS_TURNO[turno]}
-                    </h2>
-                    <span className="font-mono text-xs font-semibold text-[var(--texto-sec)]">
-                      {tarefasTurno.length}{' '}
-                      {tarefasTurno.length === 1 ? 'tarefa-raiz' : 'tarefas-raiz'}
-                    </span>
-                  </div>
-
-                  <SortableContext
-                    items={tarefasTurno.map((item) => item.id)}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    <div className="space-y-3">
-                      {tarefasTurno.map((tarefa, indice) => (
-                        <ItemTarefaArvore
-                          key={tarefa.id}
-                          tarefa={tarefa}
-                          raizArvore={tarefa}
-                          irmas={tarefasTurno}
-                          indice={indice}
-                          papelNoGrupo={
-                            tarefa.compartilhada
-                              ? (mapaPaineisPorRaiz.get(tarefa.id)?.meuPapel ?? null)
-                              : null
-                          }
-                          usuarioAtualId={usuario.id}
-                          aoConcluir={(id) =>
-                            mutacaoConcluir.mutate({ tarefaId: id, confirmarCascata: false })
-                          }
-                          aoReabrir={(id) => mutacaoReabrir.mutate(id)}
-                          aoSelecionarPaiParaCriar={(pai) =>
-                            setPaiParaCriar({
-                              id: pai.id,
-                              titulo: pai.titulo,
-                              profundidade: pai.profundidade,
-                              turno: pai.turno,
-                            })
-                          }
-                          aoAbrirEdicao={(id) => setTarefaEmEdicaoId(id)}
-                          aoExcluir={(id) => mutacaoExcluir.mutate({ tarefaId: id })}
-                          aoReordenarIrmas={(tarefaPaiId, ordenacao) =>
-                            mutacaoReordenar.mutate({ tarefaPaiId, ordenacao })
-                          }
-                          aoCompartilharGrupo={(raizId) => mutacaoCompartilhar.mutate(raizId)}
-                          aoAbrirPainelGrupo={(raizId) => setPainelGrupoAbertoId(raizId)}
-                          ocupado={ocupadoGeral}
-                        />
-                      ))}
+      <div data-tutorial-alvo="tarefas-conjunto">
+        {consultaTarefas.isLoading ? (
+          <CartaoBento>
+            <p className="text-sm text-[var(--texto-sec)]">Carregando sua Jornada do Dia...</p>
+          </CartaoBento>
+        ) : consultaTarefas.isError ? (
+          <CartaoBento role="alert" className="space-y-2 border-l-4 border-l-[var(--erro)]">
+            <p className="text-sm font-semibold text-[var(--erro)]">
+              Não foi possível carregar suas tarefas no momento.
+            </p>
+            <Botao
+              type="button"
+              variante="secundario"
+              tamanho="sm"
+              reduzirMovimento={reduzirMovimento}
+              onClick={() => {
+                void consultaTarefas.refetch();
+              }}
+            >
+              Tentar novamente
+            </Botao>
+          </CartaoBento>
+        ) : raizes.length === 0 ? (
+          <CartaoBento>
+            <h2 className="fonte-display text-lg font-bold text-[var(--texto)]">
+              Sua Jornada do Dia está livre
+            </h2>
+            <p className="mt-1 text-sm text-[var(--texto-sec)]">
+              Nenhuma tarefa encontrada para os filtros atuais. Crie sua primeira meta acima para
+              vê-la florescer no cenário.
+            </p>
+          </CartaoBento>
+        ) : (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={lidarDragEnd}>
+            <div className="space-y-5">
+              {ORDEM_TURNOS.map((turno) => {
+                const tarefasTurno = raizesPorTurno[turno];
+                if (tarefasTurno.length === 0) {
+                  return null;
+                }
+                return (
+                  <CartaoBento key={turno} as="section" className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <h2 className="fonte-display text-lg font-bold text-[var(--texto)]">
+                        Turno: {ROTULOS_TURNO[turno]}
+                      </h2>
+                      <span className="font-mono text-xs font-semibold text-[var(--texto-sec)]">
+                        {tarefasTurno.length}{' '}
+                        {tarefasTurno.length === 1 ? 'tarefa-raiz' : 'tarefas-raiz'}
+                      </span>
                     </div>
-                  </SortableContext>
-                </CartaoBento>
-              );
-            })}
-          </div>
-        </DndContext>
-      )}
+
+                    <SortableContext
+                      items={tarefasTurno.map((item) => item.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-3">
+                        {tarefasTurno.map((tarefa, indice) => (
+                          <ItemTarefaArvore
+                            key={tarefa.id}
+                            tarefa={tarefa}
+                            raizArvore={tarefa}
+                            irmas={tarefasTurno}
+                            indice={indice}
+                            papelNoGrupo={
+                              tarefa.compartilhada
+                                ? (mapaPaineisPorRaiz.get(tarefa.id)?.meuPapel ?? null)
+                                : null
+                            }
+                            usuarioAtualId={usuario.id}
+                            aoConcluir={(id) =>
+                              mutacaoConcluir.mutate({ tarefaId: id, confirmarCascata: false })
+                            }
+                            aoReabrir={(id) => mutacaoReabrir.mutate(id)}
+                            aoSelecionarPaiParaCriar={(pai) =>
+                              setPaiParaCriar({
+                                id: pai.id,
+                                titulo: pai.titulo,
+                                profundidade: pai.profundidade,
+                                turno: pai.turno,
+                              })
+                            }
+                            aoAbrirEdicao={(id) => setTarefaEmEdicaoId(id)}
+                            aoExcluir={(id) => mutacaoExcluir.mutate({ tarefaId: id })}
+                            aoReordenarIrmas={(tarefaPaiId, ordenacao) =>
+                              mutacaoReordenar.mutate({ tarefaPaiId, ordenacao })
+                            }
+                            aoCompartilharGrupo={(raizId) => mutacaoCompartilhar.mutate(raizId)}
+                            aoAbrirPainelGrupo={(raizId) => setPainelGrupoAbertoId(raizId)}
+                            ocupado={ocupadoGeral}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </CartaoBento>
+                );
+              })}
+            </div>
+          </DndContext>
+        )}
+      </div>
 
       <Dialog.Root
         open={Boolean(confirmacaoCascata)}

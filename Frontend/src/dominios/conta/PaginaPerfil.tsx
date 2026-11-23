@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { BookOpen, LogOut, ShieldAlert } from 'lucide-react';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Botao } from '../../componentes/Botao';
 import { CartaoBento } from '../../componentes/CartaoBento';
 import { useAutenticacao } from '../../hooks/usar-autenticacao';
@@ -241,9 +241,15 @@ export function PaginaPerfil({ reduzirMovimento }: PropriedadesPaginaPerfil) {
           </Botao>
         </div>
         {avisoTutorial ? (
-          <p role="status" className="text-xs font-semibold text-[var(--primaria)]">
-            {avisoTutorial}
-          </p>
+          <div
+            role="status"
+            className="flex flex-wrap items-center gap-3 text-xs font-semibold text-[var(--primaria)]"
+          >
+            <span>{avisoTutorial}</span>
+            <Link to="/jornada" className="underline">
+              Abrir Jornada e iniciar tour
+            </Link>
+          </div>
         ) : null}
       </CartaoBento>
 

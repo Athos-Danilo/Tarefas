@@ -13,14 +13,21 @@ import type { FaixaFavicon } from '../astronomia/tipos';
 import { Botao } from '../componentes/Botao';
 import { CartaoBento } from '../componentes/CartaoBento';
 import { SeloMarcaLume } from '../componentes/SeloMarcaLume';
+import { OrquestradorTutorialGuiado } from '../dominios/tutorial/OrquestradorTutorialGuiado';
 import { useAutenticacao } from '../hooks/usar-autenticacao';
+import type { ServicoEstatisticasFrontend } from '../servicos/tipos-estatisticas';
 
 export interface PropriedadesCascaWorkspace {
   faixaFavicon: FaixaFavicon;
   reduzirMovimento: boolean;
+  servicoEstatisticas?: ServicoEstatisticasFrontend;
 }
 
-export function CascaWorkspace({ faixaFavicon, reduzirMovimento }: PropriedadesCascaWorkspace) {
+export function CascaWorkspace({
+  faixaFavicon,
+  reduzirMovimento,
+  servicoEstatisticas,
+}: PropriedadesCascaWorkspace) {
   const { estadoSessao, servico, definirSessao } = useAutenticacao();
   const [saindo, setSaindo] = useState(false);
   const localizacao = useLocation();
@@ -84,7 +91,11 @@ export function CascaWorkspace({ faixaFavicon, reduzirMovimento }: PropriedadesC
               </div>
             </div>
 
-            <nav aria-label="Visões do Lume" className="flex flex-col gap-2">
+            <nav
+              aria-label="Visões do Lume"
+              data-tutorial-alvo="visoes-lume"
+              className="flex flex-col gap-2"
+            >
               {links.map(({ rota, rotulo, Icone }) => {
                 const ativo = localizacao.pathname === rota;
                 return (
@@ -129,7 +140,8 @@ export function CascaWorkspace({ faixaFavicon, reduzirMovimento }: PropriedadesC
 
       <nav
         aria-label="Navegação inferior móvel"
-        className="superficie-bento fixed right-3 bottom-3 left-3 z-30 flex items-center justify-around rounded-2xl p-2 shadow-xl md:hidden"
+        data-tutorial-alvo="visoes-lume"
+        className="superficie-bento fixed right-3 bottom-3 left-3 z-30 flex items-center justify-around gap-1 overflow-x-auto rounded-2xl p-2 shadow-xl md:hidden"
       >
         {links.map(({ rota, rotulo, Icone }) => {
           const ativo = localizacao.pathname === rota;
@@ -158,6 +170,13 @@ export function CascaWorkspace({ faixaFavicon, reduzirMovimento }: PropriedadesC
           <span>Sair</span>
         </button>
       </nav>
+
+      {servicoEstatisticas ? (
+        <OrquestradorTutorialGuiado
+          servicoEstatisticas={servicoEstatisticas}
+          reduzirMovimento={reduzirMovimento}
+        />
+      ) : null}
     </div>
   );
 }

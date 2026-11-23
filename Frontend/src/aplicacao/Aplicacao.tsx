@@ -166,6 +166,7 @@ export function Aplicacao({
                       <CascaWorkspace
                         faixaFavicon={astros.faixaFavicon}
                         reduzirMovimento={reduzirMovimento}
+                        servicoEstatisticas={estatisticas}
                       />
                     }
                   >

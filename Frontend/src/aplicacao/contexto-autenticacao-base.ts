@@ -8,7 +8,9 @@ export interface ValorContextoAutenticacao {
   recarregarSessao: () => Promise<void>;
   definirSessao: (novaSessao: EstadoSessao) => void;
   tutorialSolicitadoRevisao: boolean;
+  versaoRevisaoTutorial: number;
   solicitarRevisaoTutorial: () => void;
+  consumirRevisaoTutorial: () => void;
 }
 
 export const ContextoAutenticacao = createContext<ValorContextoAutenticacao | null>(null);
