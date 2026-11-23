@@ -226,6 +226,7 @@ async def concluir_tarefa_rota(
         contexto.usuario.id,
         tarefa_id,
         confirmar_cascata=corpo.confirmar_cascata,
+        ator_nome=contexto.usuario.nome_exibicao,
     )
     prox = resultado.proxima_ocorrencia
     return RespostaConcluirTarefa(

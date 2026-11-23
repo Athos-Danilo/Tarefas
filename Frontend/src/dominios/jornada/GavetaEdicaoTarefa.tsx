@@ -7,6 +7,7 @@ import type {
   EntradaAtribuirResponsavel,
   PainelDesempenhoGrupo,
 } from '../../servicos/tipos-grupos';
+import type { EntradaCriarLembrete } from '../../servicos/tipos-push';
 import type {
   BlocoNota,
   ConfiguracaoRecorrencia,
@@ -47,6 +48,7 @@ export interface PropriedadesGavetaEdicaoTarefa {
   salvandoDetalhes: boolean;
   movendo: boolean;
   atribuindoResponsavel: boolean;
+  salvandoLembrete?: boolean;
   aoFechar: () => void;
   aoAtualizarTarefa: (tarefaId: string, entrada: EntradaAtualizarTarefa) => Promise<void>;
   aoMoverTarefa: (tarefaId: string, novoPaiId: string | null) => Promise<void>;
@@ -55,6 +57,8 @@ export interface PropriedadesGavetaEdicaoTarefa {
     tarefaId: string,
     entrada: { metadadosVisuais: MetadadosVisuaisTarefa; notasEmBlocos: BlocoNota[] },
   ) => Promise<void>;
+  aoCriarLembrete?: (tarefaId: string, entrada: EntradaCriarLembrete) => Promise<void>;
+  aoCancelarLembrete?: (lembreteId: string, tarefaId: string) => Promise<void>;
   reduzirMovimento: boolean;
 }
 
@@ -67,6 +71,7 @@ interface ConteudoGavetaProps {
   salvandoDetalhes: boolean;
   movendo: boolean;
   atribuindoResponsavel: boolean;
+  salvandoLembrete: boolean;
   aoAtualizarTarefa: (tarefaId: string, entrada: EntradaAtualizarTarefa) => Promise<void>;
   aoMoverTarefa: (tarefaId: string, novoPaiId: string | null) => Promise<void>;
   aoAtribuirResponsavel: (tarefaId: string, entrada: EntradaAtribuirResponsavel) => Promise<void>;
@@ -74,6 +79,8 @@ interface ConteudoGavetaProps {
     tarefaId: string,
     entrada: { metadadosVisuais: MetadadosVisuaisTarefa; notasEmBlocos: BlocoNota[] },
   ) => Promise<void>;
+  aoCriarLembrete?: (tarefaId: string, entrada: EntradaCriarLembrete) => Promise<void>;
+  aoCancelarLembrete?: (lembreteId: string, tarefaId: string) => Promise<void>;
   reduzirMovimento: boolean;
 }
 
@@ -125,10 +132,13 @@ function ConteudoGavetaEdicao({
   salvandoDetalhes,
   movendo,
   atribuindoResponsavel,
+  salvandoLembrete,
   aoAtualizarTarefa,
   aoMoverTarefa,
   aoAtribuirResponsavel,
   aoSalvarDetalhes,
+  aoCriarLembrete,
+  aoCancelarLembrete,
   reduzirMovimento,
 }: ConteudoGavetaProps) {
   const { tarefa, detalhes, lembretes } = detalhe;
@@ -266,6 +276,40 @@ function ConteudoGavetaEdicao({
     antecedenciaLembrete && prazoParaLembrete
       ? calcularHorarioLembrete(prazoParaLembrete, Number(antecedenciaLembrete))
       : null;
+
+  const lembretesVisiveis = lembretes.filter((lem) => lem.status !== 'cancelado');
+  const lembretesPendentes = lembretesVisiveis.filter((lem) => lem.status === 'pendente');
+
+  const lidarAgendarLembrete = async () => {
+    if (!aoCriarLembrete || !horarioPrevisto || !antecedenciaLembrete) {
+      return;
+    }
+    setErroEdicao(null);
+    setMensagemStatus(null);
+    try {
+      await aoCriarLembrete(tarefa.id, {
+        dispararEm: horarioPrevisto.toISOString(),
+        antecedenciaMin: Number(antecedenciaLembrete),
+      });
+      setMensagemStatus('Lembrete Web Push agendado.');
+    } catch (erro) {
+      setErroEdicao(erro instanceof Error ? erro.message : 'Não foi possível agendar o lembrete.');
+    }
+  };
+
+  const lidarCancelarLembrete = async (lembreteId: string) => {
+    if (!aoCancelarLembrete) {
+      return;
+    }
+    setErroEdicao(null);
+    setMensagemStatus(null);
+    try {
+      await aoCancelarLembrete(lembreteId, tarefa.id);
+      setMensagemStatus('Lembrete cancelado.');
+    } catch (erro) {
+      setErroEdicao(erro instanceof Error ? erro.message : 'Não foi possível cancelar o lembrete.');
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -594,18 +638,42 @@ function ConteudoGavetaEdicao({
       </section>
 
       <section className="space-y-3 rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-4">
-        <div className="flex items-center gap-2">
-          <Bell className="h-4 w-4 text-[var(--secundaria)]" aria-hidden="true" />
-          <h3 className="fonte-display text-base font-bold text-[var(--texto)]">
-            Lembrete desta tarefa
-          </h3>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Bell className="h-4 w-4 text-[var(--secundaria)]" aria-hidden="true" />
+            <h3 className="fonte-display text-base font-bold text-[var(--texto)]">
+              Lembrete desta tarefa
+            </h3>
+          </div>
+          <span className="font-mono text-xs text-[var(--texto-sec)]">
+            {lembretesPendentes.length}/3 ativos
+          </span>
         </div>
 
-        {lembretes.length > 0 ? (
-          <ul className="space-y-1 text-xs text-[var(--texto)]">
-            {lembretes.map((lem) => (
-              <li key={lem.id}>
-                Lembrete ativo: {lem.antecedenciaMin} min antes (status: {lem.status})
+        {lembretesVisiveis.length > 0 ? (
+          <ul className="space-y-1.5 text-xs text-[var(--texto)]">
+            {lembretesVisiveis.map((lem) => (
+              <li
+                key={lem.id}
+                className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--borda)] bg-[var(--superficie-solida)] px-3 py-2"
+              >
+                <span>
+                  Lembrete ativo: {lem.antecedenciaMin} min antes (
+                  {formatarPrazoCurto(lem.dispararEm) ?? lem.dispararEm} · status: {lem.status})
+                </span>
+                {lem.status === 'pendente' && aoCancelarLembrete ? (
+                  <button
+                    type="button"
+                    aria-label="Cancelar lembrete"
+                    disabled={salvandoLembrete}
+                    onClick={() => {
+                      void lidarCancelarLembrete(lem.id);
+                    }}
+                    className="rounded-lg border border-[var(--borda)] px-2.5 py-1 text-[11px] font-semibold text-[var(--erro)] hover:border-[var(--erro)]"
+                  >
+                    Cancelar lembrete
+                  </button>
+                ) : null}
               </li>
             ))}
           </ul>
@@ -635,16 +703,37 @@ function ConteudoGavetaEdicao({
         </div>
 
         {horarioPrevisto ? (
-          <p className="font-mono text-xs font-semibold text-[var(--primaria)]">
-            Previsão do aviso: {formatarPrazoCurto(horarioPrevisto.toISOString())} (envio Web Push
-            conectado na Fase 24)
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-mono text-xs font-semibold text-[var(--primaria)]">
+              Previsão do aviso: {formatarPrazoCurto(horarioPrevisto.toISOString())}
+            </p>
+            {aoCriarLembrete ? (
+              <Botao
+                type="button"
+                variante="secundario"
+                tamanho="sm"
+                reduzirMovimento={reduzirMovimento}
+                disabled={salvandoLembrete || lembretesPendentes.length >= 3}
+                onClick={() => {
+                  void lidarAgendarLembrete();
+                }}
+              >
+                <Bell className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>{salvandoLembrete ? 'Agendando...' : 'Agendar lembrete'}</span>
+              </Botao>
+            ) : null}
+          </div>
         ) : (
           <p className="text-xs text-[var(--texto-sec)]">
-            Defina um prazo acima para calcular o horário exato do aviso Web Push (ativado na Fase
-            24).
+            Defina um prazo acima e selecione a antecedência para agendar um aviso Web Push.
           </p>
         )}
+
+        {lembretesPendentes.length >= 3 ? (
+          <p className="text-xs font-semibold text-[var(--texto-sec)]">
+            Limite de 3 lembretes ativos atingido para esta tarefa.
+          </p>
+        ) : null}
       </section>
 
       {erroEdicao ? (
@@ -684,11 +773,14 @@ export function GavetaEdicaoTarefa({
   salvandoDetalhes,
   movendo,
   atribuindoResponsavel,
+  salvandoLembrete = false,
   aoFechar,
   aoAtualizarTarefa,
   aoMoverTarefa,
   aoAtribuirResponsavel,
   aoSalvarDetalhes,
+  aoCriarLembrete,
+  aoCancelarLembrete,
   reduzirMovimento,
 }: PropriedadesGavetaEdicaoTarefa) {
   return (
@@ -734,10 +826,13 @@ export function GavetaEdicaoTarefa({
                 salvandoDetalhes={salvandoDetalhes}
                 movendo={movendo}
                 atribuindoResponsavel={atribuindoResponsavel}
+                salvandoLembrete={salvandoLembrete}
                 aoAtualizarTarefa={aoAtualizarTarefa}
                 aoMoverTarefa={aoMoverTarefa}
                 aoAtribuirResponsavel={aoAtribuirResponsavel}
                 aoSalvarDetalhes={aoSalvarDetalhes}
+                aoCriarLembrete={aoCriarLembrete}
+                aoCancelarLembrete={aoCancelarLembrete}
                 reduzirMovimento={reduzirMovimento}
               />
             )}

@@ -3,12 +3,15 @@ from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import UUID, uuid4
 
 from pymongo.errors import PyMongoError
 
 from contratos.grupos import RepositorioGrupos
+
+if TYPE_CHECKING:
+    from servicos.servico_push import ServicoPush
 from contratos.tarefas import (
     ArmazenamentoDesfazerCascata,
     DetalhesTarefaDocumento,
@@ -216,6 +219,7 @@ class ServicoTarefas:
         repositorio_eventos: RepositorioEventosCiclo | None,
         armazenamento_desfazer: ArmazenamentoDesfazerCascata,
         repositorio_grupos: RepositorioGrupos | None = None,
+        servico_push: "ServicoPush | None" = None,
     ) -> None:
         self._tarefas = repositorio_tarefas
         self._etiquetas = repositorio_etiquetas
@@ -223,6 +227,7 @@ class ServicoTarefas:
         self._eventos = repositorio_eventos
         self._desfazer = armazenamento_desfazer
         self._grupos = repositorio_grupos
+        self._push = servico_push
 
     async def _resolver_autorizacao_mutacao(
         self,
@@ -666,6 +671,7 @@ class ServicoTarefas:
         tarefa_id: UUID,
         *,
         confirmar_cascata: bool = False,
+        ator_nome: str | None = None,
     ) -> ResultadoConcluirServico:
         dono_escopo, _, nos_grupo = await self._resolver_autorizacao_mutacao(usuario_id, tarefa_id)
         base = nos_grupo or await self._tarefas.listar_todas_do_usuario(usuario_id)
@@ -727,6 +733,24 @@ class ServicoTarefas:
             resumo=f"Tarefa concluida: {alvo_reg.titulo}",
             detalhes={"total_concluidas": len(todos_concluidos)},
         )
+
+        if (
+            self._push is not None
+            and self._grupos is not None
+            and nos_grupo
+            and resultado.nos_concluidos
+        ):
+            membros = await self._grupos.listar_membros(raiz_id)
+            destinatarios = [m.usuario_id for m in membros if m.usuario_id != usuario_id]
+            if destinatarios:
+                await self._push.notificar_usuarios_evento_grupo(
+                    destinatarios_ids=destinatarios,
+                    tipo_evento="conclusao",
+                    tarefa_id=tarefa_id,
+                    tarefa_raiz_id=raiz_id,
+                    titulo_tarefa=alvo_reg.titulo,
+                    autor_nome=ator_nome or "Alguem da equipe",
+                )
 
         return ResultadoConcluirServico(
             tarefa_id=tarefa_id,

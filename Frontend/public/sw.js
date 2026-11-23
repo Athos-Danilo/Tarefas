@@ -1,4 +1,4 @@
-const NOME_CACHE = 'lume-shell-v1';
+const NOME_CACHE = 'lume-shell-v2';
 const RECURSOS_BASE = [
   '/',
   '/manifest.webmanifest',
@@ -49,12 +49,12 @@ self.addEventListener('fetch', (evento) => {
   );
 });
 
-// Estrutura base preparada para receber Web Push na Fase 24.
 self.addEventListener('push', (evento) => {
   let dados = {
     titulo: 'Lume - Horizonte Vivo',
     corpo: 'Voce tem um lembrete de tarefa no Lume.',
-    url: '/',
+    url: '/jornada',
+    tag: 'lume-notificacao',
   };
 
   if (evento.data) {
@@ -64,11 +64,15 @@ self.addEventListener('push', (evento) => {
         dados = {
           titulo: recebido.titulo,
           corpo: typeof recebido.corpo === 'string' ? recebido.corpo : dados.corpo,
-          url: typeof recebido.url === 'string' ? recebido.url : '/',
+          url: typeof recebido.url === 'string' ? recebido.url : '/jornada',
+          tag: typeof recebido.tag === 'string' ? recebido.tag : dados.tag,
         };
       }
     } catch {
-      dados.corpo = evento.data.text() || dados.corpo;
+      const texto = evento.data.text();
+      if (texto) {
+        dados.corpo = texto;
+      }
     }
   }
 
@@ -76,6 +80,8 @@ self.addEventListener('push', (evento) => {
     self.registration.showNotification(dados.titulo, {
       body: dados.corpo,
       icon: '/favicons/favicon-lume-manha.png',
+      badge: '/favicons/favicon-lume-manha.png',
+      tag: dados.tag,
       data: { url: dados.url },
     }),
   );
@@ -83,6 +89,31 @@ self.addEventListener('push', (evento) => {
 
 self.addEventListener('notificationclick', (evento) => {
   evento.notification.close();
-  const destino = (evento.notification.data && evento.notification.data.url) || '/';
-  evento.waitUntil(self.clients.openWindow(destino));
+  const destinoBruto = (evento.notification.data && evento.notification.data.url) || '/jornada';
+  const origem =
+    self.location && self.location.origin && self.location.origin !== 'null'
+      ? self.location.origin
+      : '';
+  const urlCompleta = origem ? new URL(destinoBruto, origem).href : destinoBruto;
+
+  evento.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (janelas) => {
+      const abertaMesmaOrigem = janelas.find(
+        (cliente) => !origem || (typeof cliente.url === 'string' && cliente.url.startsWith(origem)),
+      );
+      if (abertaMesmaOrigem) {
+        if (typeof abertaMesmaOrigem.focus === 'function') {
+          await abertaMesmaOrigem.focus();
+        }
+        if (
+          typeof abertaMesmaOrigem.navigate === 'function' &&
+          abertaMesmaOrigem.url !== urlCompleta
+        ) {
+          await abertaMesmaOrigem.navigate(urlCompleta);
+        }
+        return abertaMesmaOrigem;
+      }
+      return self.clients.openWindow(destinoBruto);
+    }),
+  );
 });

@@ -15,6 +15,7 @@ import { LuaFaseSvg } from '../../cenario/LuaFaseSvg';
 import { Botao } from '../../componentes/Botao';
 import { CartaoBento } from '../../componentes/CartaoBento';
 import { ErroApi } from '../../servicos/cliente-http';
+import { criarServicoPush } from '../../servicos/cliente-push';
 import type {
   DiaCalendarioResumo,
   ItemCalendarioTarefa,
@@ -31,6 +32,7 @@ import type {
   ServicoJornadaFrontend,
   TurnoTarefa,
 } from '../../servicos/tipos-jornada';
+import type { EntradaCriarLembrete, ServicoPushFrontend } from '../../servicos/tipos-push';
 import { GavetaEdicaoTarefa } from '../jornada/GavetaEdicaoTarefa';
 import { ORDEM_TURNOS, ROTULOS_PRIORIDADE, ROTULOS_TURNO } from '../jornada/logica-jornada';
 import {
@@ -49,6 +51,7 @@ export interface PropriedadesPaginaCalendarioMensal {
   servicoJornada: ServicoJornadaFrontend;
   servicoGrupos: ServicoGruposFrontend;
   servicoCalendario: ServicoCalendarioFrontend;
+  servicoPush?: ServicoPushFrontend;
   dataReferenciaInicial?: Date;
 }
 
@@ -78,11 +81,13 @@ export function PaginaCalendarioMensal({
   servicoJornada,
   servicoGrupos,
   servicoCalendario,
+  servicoPush,
   dataReferenciaInicial,
 }: PropriedadesPaginaCalendarioMensal) {
   const queryClient = useQueryClient();
   const gradeRef = useRef<HTMLDivElement | null>(null);
   const fusoHorario = useMemo(() => resolverFusoHorarioCliente(), []);
+  const pushEfetivo = useMemo(() => servicoPush ?? criarServicoPush(), [servicoPush]);
 
   const [janela, setJanela] = useState(() => {
     const ref = dataReferenciaInicial ?? new Date();
@@ -242,6 +247,30 @@ export function PaginaCalendarioMensal({
     }) => servicoJornada.salvarDetalhes(param.tarefaId, param.entrada),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['tarefa-detalhes', tarefaDetalhesId] });
+    },
+    onError: lidarErroMutacao,
+  });
+
+  const criarLembreteMutation = useMutation({
+    mutationFn: (param: { tarefaId: string; entrada: EntradaCriarLembrete }) =>
+      pushEfetivo.criarLembrete(param.tarefaId, param.entrada),
+    onSuccess: async (_criado, variaveis) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['tarefa-detalhes', variaveis.tarefaId] }),
+        recarregarTudo(),
+      ]);
+    },
+    onError: lidarErroMutacao,
+  });
+
+  const cancelarLembreteMutation = useMutation({
+    mutationFn: (param: { lembreteId: string; tarefaId: string }) =>
+      pushEfetivo.cancelarLembrete(param.lembreteId),
+    onSuccess: async (_res, variaveis) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['tarefa-detalhes', variaveis.tarefaId] }),
+        recarregarTudo(),
+      ]);
     },
     onError: lidarErroMutacao,
   });
@@ -549,6 +578,7 @@ export function PaginaCalendarioMensal({
         salvandoDetalhes={salvarDetalhesMutation.isPending}
         movendo={moverTarefaMutation.isPending}
         atribuindoResponsavel={atribuirResponsavelMutation.isPending}
+        salvandoLembrete={criarLembreteMutation.isPending || cancelarLembreteMutation.isPending}
         aoFechar={() => setTarefaDetalhesId(null)}
         aoAtualizarTarefa={(tarefaId, entrada) =>
           atualizarTarefaMutation.mutateAsync({ tarefaId, entrada }).then(() => undefined)
@@ -561,6 +591,12 @@ export function PaginaCalendarioMensal({
         }
         aoSalvarDetalhes={(tarefaId, entrada) =>
           salvarDetalhesMutation.mutateAsync({ tarefaId, entrada }).then(() => undefined)
+        }
+        aoCriarLembrete={(tarefaId, entrada) =>
+          criarLembreteMutation.mutateAsync({ tarefaId, entrada }).then(() => undefined)
+        }
+        aoCancelarLembrete={(lembreteId, tarefaId) =>
+          cancelarLembreteMutation.mutateAsync({ lembreteId, tarefaId }).then(() => undefined)
         }
         reduzirMovimento={reduzirMovimento}
       />

@@ -6,6 +6,7 @@ from configuracao.configuracoes import Configuracoes
 from contratos.autenticacao import ArmazenamentoAvatar, ProvedorGoogleOAuth
 from contratos.clima import CacheClima, ProvedorClima
 from contratos.persistencia import FabricaSessaoRelacional
+from contratos.push import ProvedorWebPush
 from contratos.tarefas import ArmazenamentoDesfazerCascata
 from dominio.erros import ErroDeDominio
 from infraestrutura.mongo.conexao import GerenciadorMongo
@@ -22,6 +23,7 @@ from infraestrutura.postgres.repositorio_calendario import RepositorioCalendario
 from infraestrutura.postgres.repositorio_etiquetas import RepositorioEtiquetasPostgres
 from infraestrutura.postgres.repositorio_foco import RepositorioSessoesFocoPostgres
 from infraestrutura.postgres.repositorio_grupos import RepositorioGruposPostgres
+from infraestrutura.postgres.repositorio_push import RepositorioPushPostgres
 from infraestrutura.postgres.repositorio_sessoes import RepositorioSessoesPostgres
 from infraestrutura.postgres.repositorio_tarefas import RepositorioTarefasPostgres
 from infraestrutura.postgres.repositorio_usuarios import RepositorioUsuariosPostgres
@@ -34,6 +36,7 @@ from servicos.servico_estatisticas import ServicoEstatisticas
 from servicos.servico_etiquetas import ServicoEtiquetas
 from servicos.servico_foco import ServicoFoco
 from servicos.servico_grupos import ServicoGrupos
+from servicos.servico_push import ServicoPush
 from servicos.servico_tarefas import ServicoTarefas
 
 COOKIE_SESSAO = "lume_sessao"
@@ -141,6 +144,23 @@ def obter_servico_etiquetas(requisicao: Request) -> ServicoEtiquetas:
     return ServicoEtiquetas(RepositorioEtiquetasPostgres(fabrica))
 
 
+def obter_servico_push(requisicao: Request) -> ServicoPush:
+    config = obter_configuracoes(requisicao)
+    fabrica = _obter_fabrica_postgres(requisicao)
+    provedor = cast(ProvedorWebPush, requisicao.app.state.provedor_web_push)
+    return ServicoPush(
+        configuracoes=config,
+        repositorio=RepositorioPushPostgres(fabrica),
+        provedor_web_push=provedor,
+    )
+
+
+def _obter_servico_push_opcional(requisicao: Request) -> ServicoPush | None:
+    if getattr(requisicao.app.state, "provedor_web_push", None) is None:
+        return None
+    return obter_servico_push(requisicao)
+
+
 def obter_servico_tarefas(requisicao: Request) -> ServicoTarefas:
     fabrica = _obter_fabrica_postgres(requisicao)
     gerenciador_mongo = cast(
@@ -168,6 +188,7 @@ def obter_servico_tarefas(requisicao: Request) -> ServicoTarefas:
         repositorio_eventos=repo_eventos,
         armazenamento_desfazer=armazenamento_desfazer,
         repositorio_grupos=RepositorioGruposPostgres(fabrica),
+        servico_push=_obter_servico_push_opcional(requisicao),
     )
 
 
@@ -191,6 +212,7 @@ def obter_servico_grupos(requisicao: Request) -> ServicoGrupos:
         repositorio_grupos=RepositorioGruposPostgres(fabrica),
         repositorio_eventos=repo_eventos,
         repositorio_detalhes=repo_detalhes,
+        servico_push=_obter_servico_push_opcional(requisicao),
     )
 
 

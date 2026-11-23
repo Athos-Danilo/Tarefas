@@ -6,15 +6,18 @@ import { Link, useNavigate } from 'react-router';
 import { Botao } from '../../componentes/Botao';
 import { CartaoBento } from '../../componentes/CartaoBento';
 import { useAutenticacao } from '../../hooks/usar-autenticacao';
+import type { ServicoPushFrontend } from '../../servicos/tipos-push';
 import { ModalExclusaoConta } from './ModalExclusaoConta';
+import { PainelPwaEWebPush } from './PainelPwaEWebPush';
 import { SeletorAvatar } from './SeletorAvatar';
 import { esquemaPerfil, type ValoresPerfilForm } from './catalogo-avatares';
 
 export interface PropriedadesPaginaPerfil {
   reduzirMovimento: boolean;
+  servicoPush?: ServicoPushFrontend;
 }
 
-export function PaginaPerfil({ reduzirMovimento }: PropriedadesPaginaPerfil) {
+export function PaginaPerfil({ reduzirMovimento, servicoPush }: PropriedadesPaginaPerfil) {
   const { estadoSessao, servico, definirSessao, solicitarRevisaoTutorial } = useAutenticacao();
   const [mensagemSucesso, setMensagemSucesso] = useState<string | null>(null);
   const [erroPerfil, setErroPerfil] = useState<string | null>(null);
@@ -252,6 +255,8 @@ export function PaginaPerfil({ reduzirMovimento }: PropriedadesPaginaPerfil) {
           </div>
         ) : null}
       </CartaoBento>
+
+      <PainelPwaEWebPush servicoPush={servicoPush} reduzirMovimento={reduzirMovimento} />
 
       <CartaoBento className="space-y-3 border-[var(--erro)]">
         <div className="flex items-center gap-2 text-[var(--erro)]">

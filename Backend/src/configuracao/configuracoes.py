@@ -31,6 +31,10 @@ class Configuracoes(BaseSettings):
     open_meteo_timeout_segundos: float = 5.0
     clima_cache_ttl_segundos: int = 1200
     clima_cache_stale_segundos: int = 7200
+    vapid_public_key: str | None = None
+    vapid_private_key: str | None = None
+    vapid_subject: str = "mailto:contato@lume.dev"
+    token_cron_lembretes: str | None = None
 
     @property
     def lista_origens_cors(self) -> list[str]:

@@ -24,6 +24,7 @@ import { criarServicoEstatisticas } from '../servicos/cliente-estatisticas';
 import { criarServicoFoco } from '../servicos/cliente-foco';
 import { criarServicoGrupos } from '../servicos/cliente-grupos';
 import { criarServicoJornada } from '../servicos/cliente-jornada';
+import { criarServicoPush } from '../servicos/cliente-push';
 import { criarClienteSaude } from '../servicos/cliente-saude';
 import type { ServicoCalendarioFrontend } from '../servicos/tipos-calendario';
 import type { ServicoConstelacoesFrontend } from '../servicos/tipos-constelacoes';
@@ -32,6 +33,7 @@ import type { ServicoEstatisticasFrontend } from '../servicos/tipos-estatisticas
 import type { ServicoFocoFrontend } from '../servicos/tipos-foco';
 import type { ServicoGruposFrontend } from '../servicos/tipos-grupos';
 import type { ServicoJornadaFrontend } from '../servicos/tipos-jornada';
+import type { ServicoPushFrontend } from '../servicos/tipos-push';
 import type { BuscadorDeSaude } from '../servicos/tipos-saude';
 import { CascaWorkspace } from './CascaWorkspace';
 import { RotaAutenticada, RotaPrimeiroAcesso } from './GuardasRota';
@@ -46,6 +48,7 @@ interface PropriedadesAplicacao {
   servicoFoco?: ServicoFocoFrontend;
   servicoCalendario?: ServicoCalendarioFrontend;
   servicoEstatisticas?: ServicoEstatisticasFrontend;
+  servicoPush?: ServicoPushFrontend;
   rotaInicial?: string;
 }
 
@@ -71,6 +74,7 @@ export function Aplicacao({
   servicoFoco,
   servicoCalendario,
   servicoEstatisticas,
+  servicoPush,
   rotaInicial,
 }: PropriedadesAplicacao) {
   const [queryClient] = useState(
@@ -102,6 +106,7 @@ export function Aplicacao({
     () => servicoEstatisticas ?? criarServicoEstatisticas(),
     [servicoEstatisticas],
   );
+  const push = useMemo(() => servicoPush ?? criarServicoPush(), [servicoPush]);
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
@@ -190,6 +195,7 @@ export function Aplicacao({
                           suporteWebGL={suporteWebGL}
                           servico={jornada}
                           servicoGrupos={grupos}
+                          servicoPush={push}
                           aoMudarProgressoJornada={setProgressoCenario}
                         />
                       }
@@ -229,6 +235,7 @@ export function Aplicacao({
                           servicoJornada={jornada}
                           servicoGrupos={grupos}
                           servicoCalendario={calendario}
+                          servicoPush={push}
                         />
                       }
                     />
@@ -244,7 +251,9 @@ export function Aplicacao({
                     />
                     <Route
                       path="/perfil"
-                      element={<PaginaPerfil reduzirMovimento={reduzirMovimento} />}
+                      element={
+                        <PaginaPerfil reduzirMovimento={reduzirMovimento} servicoPush={push} />
+                      }
                     />
                   </Route>
                 </Route>

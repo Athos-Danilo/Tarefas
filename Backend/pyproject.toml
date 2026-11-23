@@ -20,6 +20,7 @@ dependencies = [
   "google-auth[requests]>=2.35,<3.0",
   "pillow>=11.0,<13.0",
   "python-multipart>=0.0.18,<1.0",
+  "pywebpush>=2.0,<3.0",
 ]
 
 [project.optional-dependencies]
@@ -58,4 +59,8 @@ explicit_package_bases = true
 
 [[tool.mypy.overrides]]
 module = ["google.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["pywebpush.*", "py_vapid.*"]
 ignore_missing_imports = true

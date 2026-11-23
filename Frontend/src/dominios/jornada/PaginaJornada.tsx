@@ -36,6 +36,7 @@ import { CartaoBento } from '../../componentes/CartaoBento';
 import { useAutenticacao } from '../../hooks/usar-autenticacao';
 import { usePollingInteligente } from '../../hooks/usar-polling-inteligente';
 import { ErroApi } from '../../servicos/cliente-http';
+import { criarServicoPush } from '../../servicos/cliente-push';
 import type {
   EntradaAtribuirResponsavel,
   PainelDesempenhoGrupo,
@@ -48,6 +49,7 @@ import type {
   ServicoJornadaFrontend,
   TarefaArvore,
 } from '../../servicos/tipos-jornada';
+import type { EntradaCriarLembrete, ServicoPushFrontend } from '../../servicos/tipos-push';
 import {
   INTERVALO_POLLING_GRUPO_MS,
   lerConvitePendente,
@@ -76,6 +78,7 @@ export interface PropriedadesPaginaJornada {
   suporteWebGL: boolean;
   servico: ServicoJornadaFrontend;
   servicoGrupos: ServicoGruposFrontend;
+  servicoPush?: ServicoPushFrontend;
   aoMudarProgressoJornada?: (progresso: number) => void;
 }
 
@@ -141,10 +144,12 @@ export function PaginaJornada({
   suporteWebGL,
   servico,
   servicoGrupos,
+  servicoPush,
   aoMudarProgressoJornada,
 }: PropriedadesPaginaJornada) {
   const { estadoSessao } = useAutenticacao();
   const queryClient = useQueryClient();
+  const pushEfetivo = useMemo(() => servicoPush ?? criarServicoPush(), [servicoPush]);
 
   const [filtros, setFiltros] = useState<FiltrosListagemTarefas>({ incluirConcluidas: true });
   const [exibirSimuladorArco, setExibirSimuladorArco] = useState(false);
@@ -437,6 +442,28 @@ export function PaginaJornada({
       setErroAcao(
         erro instanceof Error ? erro.message : 'Não foi possível atribuir o responsável.',
       );
+    },
+  });
+
+  const mutacaoCriarLembrete = useMutation({
+    mutationFn: ({ tarefaId, entrada }: { tarefaId: string; entrada: EntradaCriarLembrete }) =>
+      pushEfetivo.criarLembrete(tarefaId, entrada),
+    onSuccess: async (_criado, variaveis) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['tarefa-detalhe', variaveis.tarefaId] }),
+        queryClient.invalidateQueries({ queryKey: ['tarefas'] }),
+      ]);
+    },
+  });
+
+  const mutacaoCancelarLembrete = useMutation({
+    mutationFn: ({ lembreteId }: { lembreteId: string; tarefaId: string }) =>
+      pushEfetivo.cancelarLembrete(lembreteId),
+    onSuccess: async (_res, variaveis) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['tarefa-detalhe', variaveis.tarefaId] }),
+        queryClient.invalidateQueries({ queryKey: ['tarefas'] }),
+      ]);
     },
   });
 
@@ -898,6 +925,7 @@ export function PaginaJornada({
         salvandoDetalhes={mutacaoSalvarDetalhes.isPending}
         movendo={mutacaoMover.isPending}
         atribuindoResponsavel={mutacaoAtribuir.isPending}
+        salvandoLembrete={mutacaoCriarLembrete.isPending || mutacaoCancelarLembrete.isPending}
         aoFechar={() => setTarefaEmEdicaoId(null)}
         aoAtualizarTarefa={async (id, entrada) => {
           await mutacaoAtualizar.mutateAsync({ id, entrada });
@@ -910,6 +938,12 @@ export function PaginaJornada({
         }}
         aoSalvarDetalhes={async (id, entrada) => {
           await mutacaoSalvarDetalhes.mutateAsync({ tarefaId: id, entrada });
+        }}
+        aoCriarLembrete={async (id, entrada) => {
+          await mutacaoCriarLembrete.mutateAsync({ tarefaId: id, entrada });
+        }}
+        aoCancelarLembrete={async (lembreteId, tarefaId) => {
+          await mutacaoCancelarLembrete.mutateAsync({ lembreteId, tarefaId });
         }}
         reduzirMovimento={reduzirMovimento}
       />

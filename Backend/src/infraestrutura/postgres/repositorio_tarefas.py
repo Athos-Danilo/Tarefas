@@ -418,6 +418,7 @@ class RepositorioTarefasPostgres:
                         .where(
                             LembreteTarefaModelo.usuario_id == usuario_id,
                             LembreteTarefaModelo.tarefa_id == tarefa_id,
+                            LembreteTarefaModelo.status != "cancelado",
                         )
                         .order_by(LembreteTarefaModelo.disparar_em.asc())
                     )
@@ -589,7 +590,6 @@ class RepositorioTarefasPostgres:
                 await sessao.execute(
                     update(LembreteTarefaModelo)
                     .where(
-                        LembreteTarefaModelo.usuario_id == usuario_id,
                         LembreteTarefaModelo.tarefa_id.in_(list(ids_concluidos_cancelar_lembretes)),
                         LembreteTarefaModelo.status == "pendente",
                     )

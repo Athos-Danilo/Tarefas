@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from pymongo.errors import PyMongoError
@@ -15,6 +15,9 @@ from contratos.grupos import (
     ResultadoSaidaGrupoRegistro,
     VagaGrupoRegistro,
 )
+
+if TYPE_CHECKING:
+    from servicos.servico_push import ServicoPush
 from contratos.tarefas import (
     EventoCicloRegistro,
     RepositorioDetalhesTarefas,
@@ -78,10 +81,12 @@ class ServicoGrupos:
         repositorio_grupos: RepositorioGrupos,
         repositorio_eventos: RepositorioEventosCiclo | None = None,
         repositorio_detalhes: RepositorioDetalhesTarefas | None = None,
+        servico_push: "ServicoPush | None" = None,
     ) -> None:
         self._grupos = repositorio_grupos
         self._eventos = repositorio_eventos
         self._detalhes = repositorio_detalhes
+        self._push = servico_push
 
     async def _exigir_contexto_grupo(
         self,
@@ -277,6 +282,19 @@ class ServicoGrupos:
             tipo_evento="grupo_atribuicao",
             resumo=f"{nome_usuario} atribuiu responsavel em {atualizada.titulo}.",
         )
+        if (
+            self._push is not None
+            and responsavel_usuario_id is not None
+            and responsavel_usuario_id != usuario_id
+        ):
+            await self._push.notificar_usuarios_evento_grupo(
+                destinatarios_ids=[responsavel_usuario_id],
+                tipo_evento="atribuicao",
+                tarefa_id=atualizada.id,
+                tarefa_raiz_id=ctx.tarefa_raiz_id,
+                titulo_tarefa=atualizada.titulo,
+                autor_nome=nome_usuario,
+            )
         return atualizada
 
     async def obter_desempenho(
