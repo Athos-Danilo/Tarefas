@@ -56,3 +56,8 @@ class RepositorioSessoesFoco(Protocol):
         usuario_id: UUID,
         limite: int,
     ) -> list[SessaoFocoRegistro]: ...
+
+    async def listar_todas_do_usuario(
+        self,
+        usuario_id: UUID,
+    ) -> list[SessaoFocoRegistro]: ...

@@ -164,3 +164,18 @@ class RepositorioSessoesFocoPostgres(RepositorioSessoesFoco):
                 )
             ).all()
             return [_para_registro(modelo, str(titulo)) for modelo, titulo in linhas]
+
+    async def listar_todas_do_usuario(
+        self,
+        usuario_id: UUID,
+    ) -> list[SessaoFocoRegistro]:
+        async with self._fabrica.obter_sessao() as sessao:
+            linhas = (
+                await sessao.execute(
+                    select(SessaoFocoModelo, TarefaModelo.titulo)
+                    .join(TarefaModelo, TarefaModelo.id == SessaoFocoModelo.tarefa_id)
+                    .where(SessaoFocoModelo.usuario_id == usuario_id)
+                    .order_by(SessaoFocoModelo.iniciada_em.desc())
+                )
+            ).all()
+            return [_para_registro(modelo, str(titulo)) for modelo, titulo in linhas]

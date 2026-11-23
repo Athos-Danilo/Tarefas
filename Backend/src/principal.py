@@ -29,6 +29,11 @@ from rotas.rotas_calendario import roteador_calendario
 from rotas.rotas_clima import roteador_clima
 from rotas.rotas_constelacoes import roteador_constelacoes
 from rotas.rotas_conta import roteador_conta
+from rotas.rotas_estatisticas import (
+    roteador_diario,
+    roteador_estatisticas,
+    roteador_preferencias,
+)
 from rotas.rotas_etiquetas import roteador_etiquetas
 from rotas.rotas_exportacao import roteador_exportacao
 from rotas.rotas_foco import roteador_foco
@@ -150,6 +155,9 @@ def criar_aplicacao(
     aplicacao.include_router(roteador_constelacoes)
     aplicacao.include_router(roteador_foco)
     aplicacao.include_router(roteador_calendario)
+    aplicacao.include_router(roteador_estatisticas)
+    aplicacao.include_router(roteador_diario)
+    aplicacao.include_router(roteador_preferencias)
     aplicacao.include_router(roteador_exportacao)
     aplicacao.include_router(roteador_clima)
     return aplicacao

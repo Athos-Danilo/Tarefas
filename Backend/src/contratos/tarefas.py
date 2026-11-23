@@ -273,6 +273,27 @@ class RepositorioEventosCiclo(Protocol):
         limite: int = 20,
     ) -> list[dict[str, Any]]: ...
 
+    async def listar_diario_paginado(
+        self,
+        *,
+        usuario_id: str,
+        raizes_compartilhadas: Sequence[str] = (),
+        limite: int = 20,
+        cursor: str | None = None,
+        tipo: str | None = None,
+        busca: str | None = None,
+    ) -> tuple[list[dict[str, Any]], str | None]: ...
+
+    async def listar_por_periodo(
+        self,
+        *,
+        usuario_id: str,
+        raizes_compartilhadas: Sequence[str] = (),
+        inicio: datetime | None = None,
+        fim: datetime | None = None,
+        limite: int = 5000,
+    ) -> list[dict[str, Any]]: ...
+
 
 class ArmazenamentoDesfazerCascata(Protocol):
     """Porta temporaria para tokens de desfazer conclusao em cascata."""

@@ -32,6 +32,10 @@ async def garantir_indices_mongo(banco: AsyncDatabase[dict[str, Any]]) -> None:
         name="ix_eventos_usuario_criado_em",
     )
     await banco[COLECAO_EVENTOS_CICLO].create_index(
+        [("autor_usuario_id", ASCENDING), ("criado_em", DESCENDING)],
+        name="ix_eventos_autor_criado_em",
+    )
+    await banco[COLECAO_EVENTOS_CICLO].create_index(
         [("tarefa_raiz_id", ASCENDING), ("criado_em", DESCENDING)],
         name="ix_eventos_raiz_criado_em",
     )

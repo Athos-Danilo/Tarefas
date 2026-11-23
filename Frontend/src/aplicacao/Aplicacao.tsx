@@ -9,6 +9,7 @@ import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
 import { PaginaCalendarioMensal } from '../dominios/calendario/PaginaCalendarioMensal';
 import { PaginaPrimeiroAcesso } from '../dominios/conta/PaginaPrimeiroAcesso';
 import { PaginaPerfil } from '../dominios/conta/PaginaPerfil';
+import { PaginaEstatisticas } from '../dominios/estatisticas/PaginaEstatisticas';
 import { PaginaConviteGrupo } from '../dominios/grupos/PaginaConviteGrupo';
 import { PaginaJornada } from '../dominios/jornada/PaginaJornada';
 import { PaginaLanding } from '../dominios/landing/PaginaLanding';
@@ -18,6 +19,7 @@ import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
 import { criarServicoCalendario } from '../servicos/cliente-calendario';
 import { criarServicoConstelacoes } from '../servicos/cliente-constelacoes';
+import { criarServicoEstatisticas } from '../servicos/cliente-estatisticas';
 import { criarServicoFoco } from '../servicos/cliente-foco';
 import { criarServicoGrupos } from '../servicos/cliente-grupos';
 import { criarServicoJornada } from '../servicos/cliente-jornada';
@@ -25,6 +27,7 @@ import { criarClienteSaude } from '../servicos/cliente-saude';
 import type { ServicoCalendarioFrontend } from '../servicos/tipos-calendario';
 import type { ServicoConstelacoesFrontend } from '../servicos/tipos-constelacoes';
 import type { ServicoAutenticacaoFrontend } from '../servicos/tipos-conta';
+import type { ServicoEstatisticasFrontend } from '../servicos/tipos-estatisticas';
 import type { ServicoFocoFrontend } from '../servicos/tipos-foco';
 import type { ServicoGruposFrontend } from '../servicos/tipos-grupos';
 import type { ServicoJornadaFrontend } from '../servicos/tipos-jornada';
@@ -41,6 +44,7 @@ interface PropriedadesAplicacao {
   servicoConstelacoes?: ServicoConstelacoesFrontend;
   servicoFoco?: ServicoFocoFrontend;
   servicoCalendario?: ServicoCalendarioFrontend;
+  servicoEstatisticas?: ServicoEstatisticasFrontend;
   rotaInicial?: string;
 }
 
@@ -65,6 +69,7 @@ export function Aplicacao({
   servicoConstelacoes,
   servicoFoco,
   servicoCalendario,
+  servicoEstatisticas,
   rotaInicial,
 }: PropriedadesAplicacao) {
   const [queryClient] = useState(
@@ -91,6 +96,10 @@ export function Aplicacao({
   const calendario = useMemo(
     () => servicoCalendario ?? criarServicoCalendario(),
     [servicoCalendario],
+  );
+  const estatisticas = useMemo(
+    () => servicoEstatisticas ?? criarServicoEstatisticas(),
+    [servicoEstatisticas],
   );
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
@@ -211,6 +220,16 @@ export function Aplicacao({
                           servicoJornada={jornada}
                           servicoGrupos={grupos}
                           servicoCalendario={calendario}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/estatisticas"
+                      element={
+                        <PaginaEstatisticas
+                          reduzirMovimento={reduzirMovimento}
+                          servicoJornada={jornada}
+                          servicoEstatisticas={estatisticas}
                         />
                       }
                     />

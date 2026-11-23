@@ -30,6 +30,7 @@ from servicos.servico_calendario import ServicoCalendario
 from servicos.servico_clima import ServicoClima
 from servicos.servico_constelacoes import ServicoConstelacoes
 from servicos.servico_conta import ServicoConta
+from servicos.servico_estatisticas import ServicoEstatisticas
 from servicos.servico_etiquetas import ServicoEtiquetas
 from servicos.servico_foco import ServicoFoco
 from servicos.servico_grupos import ServicoGrupos
@@ -254,3 +255,22 @@ def obter_servico_foco(requisicao: Request) -> ServicoFoco:
 def obter_servico_calendario(requisicao: Request) -> ServicoCalendario:
     fabrica = _obter_fabrica_postgres(requisicao)
     return ServicoCalendario(repositorio_calendario=RepositorioCalendarioPostgres(fabrica))
+
+
+def obter_servico_estatisticas(requisicao: Request) -> ServicoEstatisticas:
+    fabrica = _obter_fabrica_postgres(requisicao)
+    gerenciador_mongo = cast(
+        GerenciadorMongo | None,
+        getattr(requisicao.app.state, "gerenciador_mongo", None),
+    )
+    banco_mongo = gerenciador_mongo.obter_banco() if gerenciador_mongo is not None else None
+    return ServicoEstatisticas(
+        repositorio_tarefas=RepositorioTarefasPostgres(fabrica),
+        repositorio_foco=RepositorioSessoesFocoPostgres(fabrica),
+        repositorio_eventos=(
+            RepositorioEventosCicloMongo(banco_mongo) if banco_mongo is not None else None
+        ),
+        repositorio_preferencias=(
+            RepositorioPreferenciasMongo(banco_mongo) if banco_mongo is not None else None
+        ),
+    )
