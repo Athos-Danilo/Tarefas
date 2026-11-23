@@ -14,6 +14,9 @@ from infraestrutura.mongo.repositorio_detalhes_tarefas_mongo import (
     RepositorioDetalhesTarefasMongo,
 )
 from infraestrutura.mongo.repositorio_eventos_ciclo_mongo import RepositorioEventosCicloMongo
+from infraestrutura.mongo.repositorio_layouts_constelacao_mongo import (
+    RepositorioLayoutsConstelacaoMongo,
+)
 from infraestrutura.mongo.repositorio_preferencias_mongo import RepositorioPreferenciasMongo
 from infraestrutura.postgres.repositorio_etiquetas import RepositorioEtiquetasPostgres
 from infraestrutura.postgres.repositorio_grupos import RepositorioGruposPostgres
@@ -22,6 +25,7 @@ from infraestrutura.postgres.repositorio_tarefas import RepositorioTarefasPostgr
 from infraestrutura.postgres.repositorio_usuarios import RepositorioUsuariosPostgres
 from servicos.servico_autenticacao import ContextoAutenticado, ServicoAutenticacao
 from servicos.servico_clima import ServicoClima
+from servicos.servico_constelacoes import ServicoConstelacoes
 from servicos.servico_conta import ServicoConta
 from servicos.servico_etiquetas import ServicoEtiquetas
 from servicos.servico_grupos import ServicoGrupos
@@ -204,4 +208,22 @@ def obter_servico_clima(requisicao: Request) -> ServicoClima:
         repositorio_preferencias=repo_preferencias,
         ttl_cache_segundos=config.clima_cache_ttl_segundos,
         ttl_stale_segundos=config.clima_cache_stale_segundos,
+    )
+
+
+def obter_servico_constelacoes(requisicao: Request) -> ServicoConstelacoes:
+    fabrica = _obter_fabrica_postgres(requisicao)
+    gerenciador_mongo = cast(
+        GerenciadorMongo | None,
+        getattr(requisicao.app.state, "gerenciador_mongo", None),
+    )
+    repo_layouts = (
+        RepositorioLayoutsConstelacaoMongo(gerenciador_mongo.obter_banco())
+        if gerenciador_mongo is not None
+        else None
+    )
+    return ServicoConstelacoes(
+        repositorio_grupos=RepositorioGruposPostgres(fabrica),
+        repositorio_layouts=repo_layouts,
+        repositorio_tarefas=RepositorioTarefasPostgres(fabrica),
     )

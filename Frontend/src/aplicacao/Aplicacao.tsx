@@ -11,11 +11,14 @@ import { PaginaPerfil } from '../dominios/conta/PaginaPerfil';
 import { PaginaConviteGrupo } from '../dominios/grupos/PaginaConviteGrupo';
 import { PaginaJornada } from '../dominios/jornada/PaginaJornada';
 import { PaginaLanding } from '../dominios/landing/PaginaLanding';
+import { PaginaMapaConstelacao } from '../dominios/mapa/PaginaMapaConstelacao';
 import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
+import { criarServicoConstelacoes } from '../servicos/cliente-constelacoes';
 import { criarServicoGrupos } from '../servicos/cliente-grupos';
 import { criarServicoJornada } from '../servicos/cliente-jornada';
 import { criarClienteSaude } from '../servicos/cliente-saude';
+import type { ServicoConstelacoesFrontend } from '../servicos/tipos-constelacoes';
 import type { ServicoAutenticacaoFrontend } from '../servicos/tipos-conta';
 import type { ServicoGruposFrontend } from '../servicos/tipos-grupos';
 import type { ServicoJornadaFrontend } from '../servicos/tipos-jornada';
@@ -29,6 +32,7 @@ interface PropriedadesAplicacao {
   servicoAutenticacao?: ServicoAutenticacaoFrontend;
   servicoJornada?: ServicoJornadaFrontend;
   servicoGrupos?: ServicoGruposFrontend;
+  servicoConstelacoes?: ServicoConstelacoesFrontend;
   rotaInicial?: string;
 }
 
@@ -50,6 +54,7 @@ export function Aplicacao({
   servicoAutenticacao,
   servicoJornada,
   servicoGrupos,
+  servicoConstelacoes,
   rotaInicial,
 }: PropriedadesAplicacao) {
   const [queryClient] = useState(
@@ -67,6 +72,10 @@ export function Aplicacao({
   const buscador = useMemo(() => buscadorDeSaude ?? criarClienteSaude(), [buscadorDeSaude]);
   const jornada = useMemo(() => servicoJornada ?? criarServicoJornada(), [servicoJornada]);
   const grupos = useMemo(() => servicoGrupos ?? criarServicoGrupos(), [servicoGrupos]);
+  const constelacoes = useMemo(
+    () => servicoConstelacoes ?? criarServicoConstelacoes(),
+    [servicoConstelacoes],
+  );
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
@@ -146,6 +155,20 @@ export function Aplicacao({
                           suporteWebGL={suporteWebGL}
                           servico={jornada}
                           servicoGrupos={grupos}
+                          aoMudarProgressoJornada={setProgressoCenario}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/mapa"
+                      element={
+                        <PaginaMapaConstelacao
+                          momentoDoDia={momentoDoDia}
+                          faseLunar={faseLunar}
+                          reduzirMovimento={reduzirMovimento}
+                          servicoJornada={jornada}
+                          servicoGrupos={grupos}
+                          servicoConstelacoes={constelacoes}
                           aoMudarProgressoJornada={setProgressoCenario}
                         />
                       }
