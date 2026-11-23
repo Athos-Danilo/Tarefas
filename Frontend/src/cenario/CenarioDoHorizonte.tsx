@@ -50,6 +50,7 @@ export interface PropriedadesCenarioDoHorizonte {
   estadoClimatico: EstadoClimatico;
   reduzirMovimento: boolean;
   progressoTarefas?: number;
+  modoContemplativo?: boolean;
   larguraViewport?: number;
   ComponenteCena3D?: ComponentType<PropriedadesCena3D>;
 }
@@ -63,6 +64,7 @@ export function CenarioDoHorizonte({
   estadoClimatico,
   reduzirMovimento,
   progressoTarefas = 0.65,
+  modoContemplativo = false,
   larguraViewport,
   ComponenteCena3D,
 }: PropriedadesCenarioDoHorizonte) {
@@ -100,27 +102,43 @@ export function CenarioDoHorizonte({
     />
   );
 
+  const veuContemplativo = modoContemplativo ? (
+    <div
+      data-testid="veu-contemplativo-foco"
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 z-0 bg-slate-950/35 backdrop-blur-[2px]"
+    />
+  ) : null;
+
   if (resultadoModo.modo === 'fallback_2d') {
-    return fallback2D;
+    return (
+      <>
+        {fallback2D}
+        {veuContemplativo}
+      </>
+    );
   }
 
   const perfil = calcularPerfilDesempenho3D(larguraViewport ?? larguraJanela);
   const CenaAtiva = ComponenteCena3D ?? Cenario3DLazy;
 
   return (
-    <ErrorBoundary3D fallback={fallback2D}>
-      <Suspense fallback={fallback2D}>
-        <CenaAtiva
-          cromatico={cromatico}
-          astros={astros}
-          faseLunar={faseLunar}
-          estadoClimatico={estadoClimatico}
-          reduzirMovimento={reduzirMovimento}
-          progressoTarefas={progressoTarefas}
-          perfil={perfil}
-          aoPerderContextoWebGL={() => setContextoPerdido(true)}
-        />
-      </Suspense>
-    </ErrorBoundary3D>
+    <>
+      <ErrorBoundary3D fallback={fallback2D}>
+        <Suspense fallback={fallback2D}>
+          <CenaAtiva
+            cromatico={cromatico}
+            astros={astros}
+            faseLunar={faseLunar}
+            estadoClimatico={estadoClimatico}
+            reduzirMovimento={reduzirMovimento}
+            progressoTarefas={progressoTarefas}
+            perfil={perfil}
+            aoPerderContextoWebGL={() => setContextoPerdido(true)}
+          />
+        </Suspense>
+      </ErrorBoundary3D>
+      {veuContemplativo}
+    </>
   );
 }

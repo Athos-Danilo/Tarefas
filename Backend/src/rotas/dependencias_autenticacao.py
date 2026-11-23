@@ -19,6 +19,7 @@ from infraestrutura.mongo.repositorio_layouts_constelacao_mongo import (
 )
 from infraestrutura.mongo.repositorio_preferencias_mongo import RepositorioPreferenciasMongo
 from infraestrutura.postgres.repositorio_etiquetas import RepositorioEtiquetasPostgres
+from infraestrutura.postgres.repositorio_foco import RepositorioSessoesFocoPostgres
 from infraestrutura.postgres.repositorio_grupos import RepositorioGruposPostgres
 from infraestrutura.postgres.repositorio_sessoes import RepositorioSessoesPostgres
 from infraestrutura.postgres.repositorio_tarefas import RepositorioTarefasPostgres
@@ -28,6 +29,7 @@ from servicos.servico_clima import ServicoClima
 from servicos.servico_constelacoes import ServicoConstelacoes
 from servicos.servico_conta import ServicoConta
 from servicos.servico_etiquetas import ServicoEtiquetas
+from servicos.servico_foco import ServicoFoco
 from servicos.servico_grupos import ServicoGrupos
 from servicos.servico_tarefas import ServicoTarefas
 
@@ -226,4 +228,22 @@ def obter_servico_constelacoes(requisicao: Request) -> ServicoConstelacoes:
         repositorio_grupos=RepositorioGruposPostgres(fabrica),
         repositorio_layouts=repo_layouts,
         repositorio_tarefas=RepositorioTarefasPostgres(fabrica),
+    )
+
+
+def obter_servico_foco(requisicao: Request) -> ServicoFoco:
+    fabrica = _obter_fabrica_postgres(requisicao)
+    gerenciador_mongo = cast(
+        GerenciadorMongo | None,
+        getattr(requisicao.app.state, "gerenciador_mongo", None),
+    )
+    repo_eventos = (
+        RepositorioEventosCicloMongo(gerenciador_mongo.obter_banco())
+        if gerenciador_mongo is not None
+        else None
+    )
+    return ServicoFoco(
+        repositorio_foco=RepositorioSessoesFocoPostgres(fabrica),
+        repositorio_grupos=RepositorioGruposPostgres(fabrica),
+        repositorio_eventos=repo_eventos,
     )

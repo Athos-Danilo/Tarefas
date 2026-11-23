@@ -12,14 +12,17 @@ import { PaginaConviteGrupo } from '../dominios/grupos/PaginaConviteGrupo';
 import { PaginaJornada } from '../dominios/jornada/PaginaJornada';
 import { PaginaLanding } from '../dominios/landing/PaginaLanding';
 import { PaginaMapaConstelacao } from '../dominios/mapa/PaginaMapaConstelacao';
+import { PaginaModoFoco } from '../dominios/foco/PaginaModoFoco';
 import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
 import { criarServicoConstelacoes } from '../servicos/cliente-constelacoes';
+import { criarServicoFoco } from '../servicos/cliente-foco';
 import { criarServicoGrupos } from '../servicos/cliente-grupos';
 import { criarServicoJornada } from '../servicos/cliente-jornada';
 import { criarClienteSaude } from '../servicos/cliente-saude';
 import type { ServicoConstelacoesFrontend } from '../servicos/tipos-constelacoes';
 import type { ServicoAutenticacaoFrontend } from '../servicos/tipos-conta';
+import type { ServicoFocoFrontend } from '../servicos/tipos-foco';
 import type { ServicoGruposFrontend } from '../servicos/tipos-grupos';
 import type { ServicoJornadaFrontend } from '../servicos/tipos-jornada';
 import type { BuscadorDeSaude } from '../servicos/tipos-saude';
@@ -33,6 +36,7 @@ interface PropriedadesAplicacao {
   servicoJornada?: ServicoJornadaFrontend;
   servicoGrupos?: ServicoGruposFrontend;
   servicoConstelacoes?: ServicoConstelacoesFrontend;
+  servicoFoco?: ServicoFocoFrontend;
   rotaInicial?: string;
 }
 
@@ -55,6 +59,7 @@ export function Aplicacao({
   servicoJornada,
   servicoGrupos,
   servicoConstelacoes,
+  servicoFoco,
   rotaInicial,
 }: PropriedadesAplicacao) {
   const [queryClient] = useState(
@@ -68,6 +73,7 @@ export function Aplicacao({
       }),
   );
   const [progressoCenario, setProgressoCenario] = useState(0.25);
+  const [modoFocoContemplativo, setModoFocoContemplativo] = useState(false);
 
   const buscador = useMemo(() => buscadorDeSaude ?? criarClienteSaude(), [buscadorDeSaude]);
   const jornada = useMemo(() => servicoJornada ?? criarServicoJornada(), [servicoJornada]);
@@ -76,6 +82,7 @@ export function Aplicacao({
     () => servicoConstelacoes ?? criarServicoConstelacoes(),
     [servicoConstelacoes],
   );
+  const foco = useMemo(() => servicoFoco ?? criarServicoFoco(), [servicoFoco]);
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
@@ -91,6 +98,7 @@ export function Aplicacao({
               qualidadePreferida={qualidade3D}
               suporteWebGL={suporteWebGL}
               progressoTarefas={progressoCenario}
+              modoContemplativo={modoFocoContemplativo}
               cromatico={cromatico}
               astros={astros}
               faseLunar={faseLunar}
@@ -170,6 +178,19 @@ export function Aplicacao({
                           servicoGrupos={grupos}
                           servicoConstelacoes={constelacoes}
                           aoMudarProgressoJornada={setProgressoCenario}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/foco"
+                      element={
+                        <PaginaModoFoco
+                          momentoDoDia={momentoDoDia}
+                          faseLunar={faseLunar}
+                          reduzirMovimento={reduzirMovimento}
+                          servicoJornada={jornada}
+                          servicoFoco={foco}
+                          aoMudarModoContemplativo={setModoFocoContemplativo}
                         />
                       }
                     />
