@@ -53,7 +53,7 @@ interface ResponsavelApiCrua {
   avatar_url?: string | null;
 }
 
-interface TarefaApiCrua {
+export interface TarefaApiCrua {
   id: string;
   tarefa_pai_id: string | null;
   titulo: string;
@@ -243,7 +243,7 @@ function mapearResponsavel(
   };
 }
 
-function mapearTarefa(cru: TarefaApiCrua): TarefaArvore {
+export function mapearTarefa(cru: TarefaApiCrua): TarefaArvore {
   return {
     id: cru.id,
     tarefaPaiId: cru.tarefa_pai_id,

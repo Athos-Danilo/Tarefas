@@ -23,8 +23,9 @@ import {
   RotateCcw,
   Sparkles,
   Sun,
+  Users,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import type { DadosFaseLunar } from '../../astronomia/fase-lunar';
 import type { MomentoDoDia } from '../../astronomia/tipos';
@@ -32,7 +33,13 @@ import { BarraArcoDoDia } from '../../cenario/BarraArcoDoDia';
 import { Botao } from '../../componentes/Botao';
 import { CartaoBento } from '../../componentes/CartaoBento';
 import { useAutenticacao } from '../../hooks/usar-autenticacao';
+import { usePollingInteligente } from '../../hooks/usar-polling-inteligente';
 import { ErroApi } from '../../servicos/cliente-http';
+import type {
+  EntradaAtribuirResponsavel,
+  PainelDesempenhoGrupo,
+  ServicoGruposFrontend,
+} from '../../servicos/tipos-grupos';
 import type {
   FiltrosListagemTarefas,
   ItemOrdenacaoIrma,
@@ -40,6 +47,12 @@ import type {
   ServicoJornadaFrontend,
   TarefaArvore,
 } from '../../servicos/tipos-jornada';
+import {
+  INTERVALO_POLLING_GRUPO_MS,
+  lerConvitePendente,
+  limparConvitePendente,
+} from '../grupos/logica-grupos';
+import { PainelEquipeGrupo } from '../grupos/PainelEquipeGrupo';
 import { BarraFiltrosEEtiquetas } from './BarraFiltrosEEtiquetas';
 import { FormularioNovaTarefa, type PaiSelecionadoCriacao } from './FormularioNovaTarefa';
 import { GavetaEdicaoTarefa } from './GavetaEdicaoTarefa';
@@ -61,7 +74,25 @@ export interface PropriedadesPaginaJornada {
   reduzirMovimento: boolean;
   suporteWebGL: boolean;
   servico: ServicoJornadaFrontend;
+  servicoGrupos: ServicoGruposFrontend;
   aoMudarProgressoJornada?: (progresso: number) => void;
+}
+
+function contemTarefa(no: TarefaArvore, alvoId: string): boolean {
+  if (no.id === alvoId) {
+    return true;
+  }
+  return no.subtarefas.some((sub) => contemTarefa(sub, alvoId));
+}
+
+function encontrarRaizDaTarefa(
+  raizes: readonly TarefaArvore[],
+  alvoId: string | null,
+): TarefaArvore | null {
+  if (!alvoId) {
+    return null;
+  }
+  return raizes.find((raiz) => contemTarefa(raiz, alvoId)) ?? null;
 }
 
 function buscarIrmasComMesmoPai(
@@ -108,6 +139,7 @@ export function PaginaJornada({
   reduzirMovimento,
   suporteWebGL,
   servico,
+  servicoGrupos,
   aoMudarProgressoJornada,
 }: PropriedadesPaginaJornada) {
   const { estadoSessao, tutorialSolicitadoRevisao } = useAutenticacao();
@@ -117,6 +149,8 @@ export function PaginaJornada({
   const [exibirSimuladorArco, setExibirSimuladorArco] = useState(false);
   const [paiParaCriar, setPaiParaCriar] = useState<PaiSelecionadoCriacao | null>(null);
   const [tarefaEmEdicaoId, setTarefaEmEdicaoId] = useState<string | null>(null);
+  const [painelGrupoAbertoId, setPainelGrupoAbertoId] = useState<string | null>(null);
+  const [convitePendente, setConvitePendente] = useState<string | null>(() => lerConvitePendente());
   const [tokenDesfazer, setTokenDesfazer] = useState<string | null>(null);
   const [proximaOcorrencia, setProximaOcorrencia] = useState<ProximaOcorrenciaResumo | null>(null);
   const [erroAcao, setErroAcao] = useState<string | null>(null);
@@ -153,21 +187,83 @@ export function PaginaJornada({
   });
 
   const raizes = useMemo(() => consultaTarefas.data?.itens ?? [], [consultaTarefas.data]);
+  const raizesCompartilhadasIds = useMemo(
+    () => raizes.filter((item) => item.compartilhada).map((item) => item.id),
+    [raizes],
+  );
+
+  const consultaPaineisGrupos = useQuery({
+    queryKey: ['grupos-desempenho', raizesCompartilhadasIds],
+    queryFn: async () => {
+      const lista = await Promise.all(
+        raizesCompartilhadasIds.map(async (raizId) => {
+          try {
+            return await servicoGrupos.obterDesempenhoGrupo(raizId);
+          } catch {
+            return null;
+          }
+        }),
+      );
+      return lista.filter((item): item is PainelDesempenhoGrupo => item !== null);
+    },
+    enabled: estadoSessao.autenticado && raizesCompartilhadasIds.length > 0,
+  });
+
+  const consultaPainelAberto = useQuery({
+    queryKey: ['grupo-painel-aberto', painelGrupoAbertoId],
+    queryFn: () => servicoGrupos.obterDesempenhoGrupo(painelGrupoAbertoId as string),
+    enabled: Boolean(estadoSessao.autenticado && painelGrupoAbertoId),
+  });
+
+  const mapaPaineisPorRaiz = useMemo(() => {
+    const mapa = new Map<string, PainelDesempenhoGrupo>();
+    for (const item of consultaPaineisGrupos.data ?? []) {
+      mapa.set(item.tarefaRaizId, item);
+    }
+    if (consultaPainelAberto.data) {
+      mapa.set(consultaPainelAberto.data.tarefaRaizId, consultaPainelAberto.data);
+    }
+    return mapa;
+  }, [consultaPaineisGrupos.data, consultaPainelAberto.data]);
+
   const progressoGeral = useMemo(() => calcularProgressoGeralJornada(raizes), [raizes]);
   const raizesPorTurno = useMemo(() => agruparRaizesPorTurno(raizes), [raizes]);
   const etiquetas = useMemo(() => consultaEtiquetas.data?.itens ?? [], [consultaEtiquetas.data]);
   const limiteEtiquetas = consultaEtiquetas.data?.limiteMaximo ?? 30;
+  const raizEmEdicao = useMemo(
+    () => encontrarRaizDaTarefa(raizes, tarefaEmEdicaoId),
+    [raizes, tarefaEmEdicaoId],
+  );
+  const painelDaGaveta = raizEmEdicao?.compartilhada
+    ? (mapaPaineisPorRaiz.get(raizEmEdicao.id) ?? null)
+    : null;
 
   useEffect(() => {
     aoMudarProgressoJornada?.(progressoGeral);
   }, [progressoGeral, aoMudarProgressoJornada]);
 
-  const invalidarTarefas = async () => {
+  const invalidarTudoJornadaEGrupos = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['tarefas'] });
+    await queryClient.invalidateQueries({ queryKey: ['grupos-desempenho'] });
+    if (painelGrupoAbertoId) {
+      await queryClient.invalidateQueries({
+        queryKey: ['grupo-painel-aberto', painelGrupoAbertoId],
+      });
+    }
     if (tarefaEmEdicaoId) {
       await queryClient.invalidateQueries({ queryKey: ['tarefa-detalhe', tarefaEmEdicaoId] });
     }
-  };
+  }, [painelGrupoAbertoId, queryClient, tarefaEmEdicaoId]);
+
+  usePollingInteligente({
+    ativo:
+      estadoSessao.autenticado &&
+      (raizesCompartilhadasIds.length > 0 || Boolean(painelGrupoAbertoId)),
+    intervaloMs: INTERVALO_POLLING_GRUPO_MS,
+    aoAtualizar: invalidarTudoJornadaEGrupos,
+  });
+
+  const invalidarTarefas = invalidarTudoJornadaEGrupos;
 
   const mutacaoCriar = useMutation({
     mutationFn: (entrada: Parameters<typeof servico.criarTarefa>[0]) =>
@@ -307,6 +403,38 @@ export function PaginaJornada({
     },
   });
 
+  const mutacaoCompartilhar = useMutation({
+    mutationFn: (tarefaRaizId: string) => servicoGrupos.compartilharTarefa(tarefaRaizId),
+    onSuccess: async () => {
+      setErroAcao(null);
+      await invalidarTudoJornadaEGrupos();
+    },
+    onError: (erro) => {
+      setErroAcao(
+        erro instanceof Error ? erro.message : 'Não foi possível compartilhar a tarefa em grupo.',
+      );
+    },
+  });
+
+  const mutacaoAtribuir = useMutation({
+    mutationFn: ({
+      tarefaId,
+      entrada,
+    }: {
+      tarefaId: string;
+      entrada: EntradaAtribuirResponsavel;
+    }) => servicoGrupos.atribuirResponsavel(tarefaId, entrada),
+    onSuccess: async () => {
+      setErroAcao(null);
+      await invalidarTudoJornadaEGrupos();
+    },
+    onError: (erro) => {
+      setErroAcao(
+        erro instanceof Error ? erro.message : 'Não foi possível atribuir o responsável.',
+      );
+    },
+  });
+
   if (!estadoSessao.autenticado) {
     return null;
   }
@@ -318,7 +446,8 @@ export function PaginaJornada({
     mutacaoConcluir.isPending ||
     mutacaoReabrir.isPending ||
     mutacaoExcluir.isPending ||
-    mutacaoReordenar.isPending;
+    mutacaoReordenar.isPending ||
+    mutacaoCompartilhar.isPending;
 
   const lidarDragEnd = (evento: DragEndEvent) => {
     const { active, over } = evento;
@@ -389,6 +518,37 @@ export function PaginaJornada({
           </Link>
         </div>
       </CartaoBento>
+
+      {convitePendente ? (
+        <CartaoBento
+          role="status"
+          className="flex flex-wrap items-center justify-between gap-3 border-l-4 border-l-[var(--primaria)]"
+        >
+          <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--texto)]">
+            <Users className="h-4 w-4 text-[var(--primaria)]" aria-hidden="true" />
+            Você possui um convite de Tarefa em Conjunto aguardando confirmação.
+          </span>
+          <div className="flex items-center gap-2">
+            <Link
+              to={`/convite/${encodeURIComponent(convitePendente)}`}
+              className="inline-flex min-h-9 items-center gap-1 rounded-xl bg-[var(--primaria)] px-3 text-xs font-bold text-[var(--primaria-texto)]"
+            >
+              <span>Abrir convite</span>
+              <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                limparConvitePendente();
+                setConvitePendente(null);
+              }}
+              className="cursor-pointer text-xs font-semibold text-[var(--texto-sec)] underline"
+            >
+              Dispensar
+            </button>
+          </div>
+        </CartaoBento>
+      ) : null}
 
       {tutorialSolicitadoRevisao ? (
         <CartaoBento role="status" className="border-l-4 border-l-[var(--primaria)]">
@@ -559,8 +719,15 @@ export function PaginaJornada({
                         <ItemTarefaArvore
                           key={tarefa.id}
                           tarefa={tarefa}
+                          raizArvore={tarefa}
                           irmas={tarefasTurno}
                           indice={indice}
+                          papelNoGrupo={
+                            tarefa.compartilhada
+                              ? (mapaPaineisPorRaiz.get(tarefa.id)?.meuPapel ?? null)
+                              : null
+                          }
+                          usuarioAtualId={usuario.id}
                           aoConcluir={(id) =>
                             mutacaoConcluir.mutate({ tarefaId: id, confirmarCascata: false })
                           }
@@ -578,6 +745,8 @@ export function PaginaJornada({
                           aoReordenarIrmas={(tarefaPaiId, ordenacao) =>
                             mutacaoReordenar.mutate({ tarefaPaiId, ordenacao })
                           }
+                          aoCompartilharGrupo={(raizId) => mutacaoCompartilhar.mutate(raizId)}
+                          aoAbrirPainelGrupo={(raizId) => setPainelGrupoAbertoId(raizId)}
                           ocupado={ocupadoGeral}
                         />
                       ))}
@@ -720,9 +889,11 @@ export function PaginaJornada({
         carregando={consultaDetalhe.isLoading}
         arvoreCompleta={raizes}
         etiquetas={etiquetas}
+        painelGrupo={painelDaGaveta}
         salvandoTarefa={mutacaoAtualizar.isPending}
         salvandoDetalhes={mutacaoSalvarDetalhes.isPending}
         movendo={mutacaoMover.isPending}
+        atribuindoResponsavel={mutacaoAtribuir.isPending}
         aoFechar={() => setTarefaEmEdicaoId(null)}
         aoAtualizarTarefa={async (id, entrada) => {
           await mutacaoAtualizar.mutateAsync({ id, entrada });
@@ -730,8 +901,30 @@ export function PaginaJornada({
         aoMoverTarefa={async (id, novoPaiId) => {
           await mutacaoMover.mutateAsync({ tarefaId: id, novoPaiId });
         }}
+        aoAtribuirResponsavel={async (id, entrada) => {
+          await mutacaoAtribuir.mutateAsync({ tarefaId: id, entrada });
+        }}
         aoSalvarDetalhes={async (id, entrada) => {
           await mutacaoSalvarDetalhes.mutateAsync({ tarefaId: id, entrada });
+        }}
+        reduzirMovimento={reduzirMovimento}
+      />
+
+      <PainelEquipeGrupo
+        aberto={Boolean(painelGrupoAbertoId)}
+        painel={
+          consultaPainelAberto.data ??
+          (painelGrupoAbertoId ? (mapaPaineisPorRaiz.get(painelGrupoAbertoId) ?? null) : null)
+        }
+        carregando={consultaPainelAberto.isLoading}
+        erro={consultaPainelAberto.isError ? 'Não foi possível carregar o painel da equipe.' : null}
+        usuarioAtualId={usuario.id}
+        servicoGrupos={servicoGrupos}
+        aoFechar={() => setPainelGrupoAbertoId(null)}
+        aoAtualizarTudo={invalidarTudoJornadaEGrupos}
+        aoSairDoGrupo={async () => {
+          setPainelGrupoAbertoId(null);
+          await invalidarTudoJornadaEGrupos();
         }}
         reduzirMovimento={reduzirMovimento}
       />

@@ -15,41 +15,55 @@ import {
   Plus,
   Repeat,
   RotateCcw,
+  Share2,
   Trash2,
+  UserCheck,
+  Users,
 } from 'lucide-react';
 import { useState, type CSSProperties } from 'react';
 import { BadgePrioridade } from '../../componentes/BadgePrioridade';
+import type { PapelGrupo } from '../../servicos/tipos-grupos';
 import type { ItemOrdenacaoIrma, TarefaArvore } from '../../servicos/tipos-jornada';
+import { obterPermissoesNoGrupo } from '../grupos/logica-grupos';
 import {
   calcularNovaOrdenacaoIrmas,
   descreverRecorrencia,
   formatarPrazoCurto,
-  PROFUNDIDADE_MAXIMA,
 } from './logica-jornada';
 
 export interface PropriedadesItemTarefaArvore {
   tarefa: TarefaArvore;
+  raizArvore?: TarefaArvore;
   irmas: readonly TarefaArvore[];
   indice: number;
+  papelNoGrupo?: PapelGrupo | null;
+  usuarioAtualId?: string;
   aoConcluir: (tarefaId: string) => void;
   aoReabrir: (tarefaId: string) => void;
   aoSelecionarPaiParaCriar: (tarefa: TarefaArvore) => void;
   aoAbrirEdicao: (tarefaId: string) => void;
   aoExcluir: (tarefaId: string) => void;
   aoReordenarIrmas: (tarefaPaiId: string | null, ordenacao: ItemOrdenacaoIrma[]) => void;
+  aoCompartilharGrupo?: (tarefaRaizId: string) => void;
+  aoAbrirPainelGrupo?: (tarefaRaizId: string) => void;
   ocupado?: boolean;
 }
 
 export function ItemTarefaArvore({
   tarefa,
+  raizArvore,
   irmas,
   indice,
+  papelNoGrupo = null,
+  usuarioAtualId = '',
   aoConcluir,
   aoReabrir,
   aoSelecionarPaiParaCriar,
   aoAbrirEdicao,
   aoExcluir,
   aoReordenarIrmas,
+  aoCompartilharGrupo,
+  aoAbrirPainelGrupo,
   ocupado = false,
 }: PropriedadesItemTarefaArvore) {
   const [expandido, setExpandido] = useState(true);
@@ -65,11 +79,18 @@ export function ItemTarefaArvore({
     opacity: isDragging ? 0.65 : 1,
   };
 
+  const raizAtual = raizArvore ?? tarefa;
+  const permissoes = obterPermissoesNoGrupo({
+    raizArvore: raizAtual,
+    no: tarefa,
+    meuPapel: papelNoGrupo,
+    usuarioAtualId,
+  });
+
   const concluida = tarefa.status === 'concluida';
   const temFilhas = tarefa.subtarefas.length > 0;
   const textoRecorrencia = descreverRecorrencia(tarefa.recorrencia);
   const textoPrazo = formatarPrazoCurto(tarefa.prazo);
-  const limiteProfundidadeAtingido = tarefa.profundidade >= PROFUNDIDADE_MAXIMA;
   const mostrarBarraProgresso = temFilhas || tarefa.totalFolhas > 1;
 
   const moverNaLista = (deslocamento: -1 | 1) => {
@@ -120,10 +141,10 @@ export function ItemTarefaArvore({
 
             <button
               type="button"
-              disabled={ocupado}
+              disabled={ocupado || !permissoes.podeConcluirOuReabrir}
               aria-label={concluida ? `Reabrir ${tarefa.titulo}` : `Concluir ${tarefa.titulo}`}
               onClick={() => (concluida ? aoReabrir(tarefa.id) : aoConcluir(tarefa.id))}
-              className="mt-0.5 inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-[var(--primaria)] hover:bg-[var(--superficie-alt)]"
+              className="mt-0.5 inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-[var(--primaria)] hover:bg-[var(--superficie-alt)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               {concluida ? (
                 <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
@@ -147,6 +168,32 @@ export function ItemTarefaArvore({
                 </span>
 
                 <BadgePrioridade prioridade={tarefa.prioridade} />
+
+                {tarefa.tarefaPaiId === null && tarefa.compartilhada ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--primaria)] bg-[var(--superficie-alt)] px-2 py-0.5 text-[11px] font-bold text-[var(--primaria)]">
+                    <Users className="h-3 w-3" aria-hidden="true" />
+                    <span>
+                      Em conjunto
+                      {papelNoGrupo
+                        ? ` (${papelNoGrupo === 'lider' ? 'Líder' : 'Colaborador'})`
+                        : ''}
+                    </span>
+                  </span>
+                ) : null}
+
+                {tarefa.responsavel ? (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-[var(--borda)] bg-[var(--superficie-alt)] px-2 py-0.5 text-[11px] font-semibold text-[var(--texto)]">
+                    <UserCheck className="h-3 w-3 text-[var(--primaria)]" aria-hidden="true" />
+                    <span>
+                      {tarefa.responsavel.tipo === 'vaga' ? 'Vaga: ' : 'Resp.: '}
+                      {tarefa.responsavel.nomeExibicao}
+                    </span>
+                  </span>
+                ) : raizAtual.compartilhada && tarefa.tarefaPaiId !== null ? (
+                  <span className="rounded-full border border-[var(--borda)] bg-[var(--superficie-alt)] px-2 py-0.5 text-[11px] text-[var(--texto-sec)]">
+                    Sem responsável
+                  </span>
+                ) : null}
 
                 {tarefa.temFilhaUrgenteAberta ? (
                   <span className="inline-flex items-center gap-1 rounded-full border border-[var(--prio-urgente)] bg-[var(--superficie-alt)] px-2 py-0.5 text-[11px] font-bold text-[var(--prio-urgente)]">
@@ -244,11 +291,11 @@ export function ItemTarefaArvore({
 
             <button
               type="button"
-              disabled={ocupado || limiteProfundidadeAtingido}
+              disabled={ocupado || !permissoes.podeAdicionarSubtarefa}
               aria-label={`Adicionar subtarefa em ${tarefa.titulo}`}
               title={
-                limiteProfundidadeAtingido
-                  ? 'Limite máximo de 5 níveis atingido'
+                !permissoes.podeAdicionarSubtarefa
+                  ? 'Apenas o responsável ou dentro do limite de 5 níveis'
                   : 'Adicionar subtarefa'
               }
               onClick={() => aoSelecionarPaiParaCriar(tarefa)}
@@ -257,6 +304,31 @@ export function ItemTarefaArvore({
               <Plus className="h-3.5 w-3.5" aria-hidden="true" />
               <span>Subtarefa</span>
             </button>
+
+            {tarefa.tarefaPaiId === null && tarefa.compartilhada && aoAbrirPainelGrupo ? (
+              <button
+                type="button"
+                aria-label={`Painel da equipe de ${tarefa.titulo}`}
+                onClick={() => aoAbrirPainelGrupo(tarefa.id)}
+                className="inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-lg border border-[var(--primaria)] bg-[var(--superficie-alt)] px-2.5 text-xs font-semibold text-[var(--primaria)]"
+              >
+                <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Painel da equipe</span>
+              </button>
+            ) : null}
+
+            {tarefa.tarefaPaiId === null && !tarefa.compartilhada && aoCompartilharGrupo ? (
+              <button
+                type="button"
+                disabled={ocupado}
+                aria-label={`Compartilhar ${tarefa.titulo}`}
+                onClick={() => aoCompartilharGrupo(tarefa.id)}
+                className="inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-lg border border-[var(--borda)] bg-[var(--superficie-alt)] px-2.5 text-xs font-semibold text-[var(--texto)]"
+              >
+                <Share2 className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>Compartilhar</span>
+              </button>
+            ) : null}
 
             <button
               type="button"
@@ -271,10 +343,10 @@ export function ItemTarefaArvore({
             {concluida ? (
               <button
                 type="button"
-                disabled={ocupado}
+                disabled={ocupado || !permissoes.podeConcluirOuReabrir}
                 aria-label={`Reabrir ${tarefa.titulo} rapidamente`}
                 onClick={() => aoReabrir(tarefa.id)}
-                className="inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-[var(--borda)] bg-[var(--superficie-alt)] text-[var(--texto)]"
+                className="inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-[var(--borda)] bg-[var(--superficie-alt)] text-[var(--texto)] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
               </button>
@@ -282,10 +354,10 @@ export function ItemTarefaArvore({
 
             <button
               type="button"
-              disabled={ocupado}
+              disabled={ocupado || !permissoes.podeExcluir}
               aria-label={`Excluir ${tarefa.titulo}`}
               onClick={() => aoExcluir(tarefa.id)}
-              className="inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-[var(--borda)] bg-[var(--superficie-alt)] text-[var(--erro)]"
+              className="inline-flex min-h-9 min-w-9 cursor-pointer items-center justify-center rounded-lg border border-[var(--borda)] bg-[var(--superficie-alt)] text-[var(--erro)] disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
@@ -303,14 +375,19 @@ export function ItemTarefaArvore({
               <ItemTarefaArvore
                 key={sub.id}
                 tarefa={sub}
+                raizArvore={raizAtual}
                 irmas={tarefa.subtarefas}
                 indice={indiceSub}
+                papelNoGrupo={papelNoGrupo}
+                usuarioAtualId={usuarioAtualId}
                 aoConcluir={aoConcluir}
                 aoReabrir={aoReabrir}
                 aoSelecionarPaiParaCriar={aoSelecionarPaiParaCriar}
                 aoAbrirEdicao={aoAbrirEdicao}
                 aoExcluir={aoExcluir}
                 aoReordenarIrmas={aoReordenarIrmas}
+                aoCompartilharGrupo={aoCompartilharGrupo}
+                aoAbrirPainelGrupo={aoAbrirPainelGrupo}
                 ocupado={ocupado}
               />
             ))}

@@ -8,13 +8,16 @@ import { CenarioDoHorizonte } from '../cenario/CenarioDoHorizonte';
 import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
 import { PaginaPrimeiroAcesso } from '../dominios/conta/PaginaPrimeiroAcesso';
 import { PaginaPerfil } from '../dominios/conta/PaginaPerfil';
+import { PaginaConviteGrupo } from '../dominios/grupos/PaginaConviteGrupo';
 import { PaginaJornada } from '../dominios/jornada/PaginaJornada';
 import { PaginaLanding } from '../dominios/landing/PaginaLanding';
 import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
+import { criarServicoGrupos } from '../servicos/cliente-grupos';
 import { criarServicoJornada } from '../servicos/cliente-jornada';
 import { criarClienteSaude } from '../servicos/cliente-saude';
 import type { ServicoAutenticacaoFrontend } from '../servicos/tipos-conta';
+import type { ServicoGruposFrontend } from '../servicos/tipos-grupos';
 import type { ServicoJornadaFrontend } from '../servicos/tipos-jornada';
 import type { BuscadorDeSaude } from '../servicos/tipos-saude';
 import { CascaWorkspace } from './CascaWorkspace';
@@ -25,6 +28,7 @@ interface PropriedadesAplicacao {
   buscadorDeSaude?: BuscadorDeSaude;
   servicoAutenticacao?: ServicoAutenticacaoFrontend;
   servicoJornada?: ServicoJornadaFrontend;
+  servicoGrupos?: ServicoGruposFrontend;
   rotaInicial?: string;
 }
 
@@ -45,6 +49,7 @@ export function Aplicacao({
   buscadorDeSaude,
   servicoAutenticacao,
   servicoJornada,
+  servicoGrupos,
   rotaInicial,
 }: PropriedadesAplicacao) {
   const [queryClient] = useState(
@@ -61,6 +66,7 @@ export function Aplicacao({
 
   const buscador = useMemo(() => buscadorDeSaude ?? criarClienteSaude(), [buscadorDeSaude]);
   const jornada = useMemo(() => servicoJornada ?? criarServicoJornada(), [servicoJornada]);
+  const grupos = useMemo(() => servicoGrupos ?? criarServicoGrupos(), [servicoGrupos]);
   const { carregando, dados, erro, recarregar } = useSaudeApi(buscador);
   const { minuto, momentoDoDia, estadoClimatico, cromatico, astros, faseLunar, reduzirMovimento } =
     useTemaContinuo();
@@ -139,6 +145,7 @@ export function Aplicacao({
                           reduzirMovimento={reduzirMovimento}
                           suporteWebGL={suporteWebGL}
                           servico={jornada}
+                          servicoGrupos={grupos}
                           aoMudarProgressoJornada={setProgressoCenario}
                         />
                       }
@@ -149,6 +156,27 @@ export function Aplicacao({
                     />
                   </Route>
                 </Route>
+
+                <Route
+                  path="/convite/:token"
+                  element={
+                    <PaginaConviteGrupo
+                      faixaFavicon={astros.faixaFavicon}
+                      servicoGrupos={grupos}
+                      reduzirMovimento={reduzirMovimento}
+                    />
+                  }
+                />
+                <Route
+                  path="/convites/:token"
+                  element={
+                    <PaginaConviteGrupo
+                      faixaFavicon={astros.faixaFavicon}
+                      servicoGrupos={grupos}
+                      reduzirMovimento={reduzirMovimento}
+                    />
+                  }
+                />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>

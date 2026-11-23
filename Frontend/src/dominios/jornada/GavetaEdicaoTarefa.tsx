@@ -1,8 +1,12 @@
 import * as Dialog from '@radix-ui/react-dialog';
-import { Bell, FolderTree, Save, X } from 'lucide-react';
+import { Bell, FolderTree, Save, UserCheck, X } from 'lucide-react';
 import { useState } from 'react';
 import type { PrioridadeTarefa } from '../../astronomia/tipos';
 import { Botao } from '../../componentes/Botao';
+import type {
+  EntradaAtribuirResponsavel,
+  PainelDesempenhoGrupo,
+} from '../../servicos/tipos-grupos';
 import type {
   BlocoNota,
   ConfiguracaoRecorrencia,
@@ -38,12 +42,15 @@ export interface PropriedadesGavetaEdicaoTarefa {
   carregando: boolean;
   arvoreCompleta: readonly TarefaArvore[];
   etiquetas: readonly EtiquetaCompleta[];
+  painelGrupo: PainelDesempenhoGrupo | null;
   salvandoTarefa: boolean;
   salvandoDetalhes: boolean;
   movendo: boolean;
+  atribuindoResponsavel: boolean;
   aoFechar: () => void;
   aoAtualizarTarefa: (tarefaId: string, entrada: EntradaAtualizarTarefa) => Promise<void>;
   aoMoverTarefa: (tarefaId: string, novoPaiId: string | null) => Promise<void>;
+  aoAtribuirResponsavel: (tarefaId: string, entrada: EntradaAtribuirResponsavel) => Promise<void>;
   aoSalvarDetalhes: (
     tarefaId: string,
     entrada: { metadadosVisuais: MetadadosVisuaisTarefa; notasEmBlocos: BlocoNota[] },
@@ -55,11 +62,14 @@ interface ConteudoGavetaProps {
   detalhe: DetalheTarefaCompleta;
   arvoreCompleta: readonly TarefaArvore[];
   etiquetas: readonly EtiquetaCompleta[];
+  painelGrupo: PainelDesempenhoGrupo | null;
   salvandoTarefa: boolean;
   salvandoDetalhes: boolean;
   movendo: boolean;
+  atribuindoResponsavel: boolean;
   aoAtualizarTarefa: (tarefaId: string, entrada: EntradaAtualizarTarefa) => Promise<void>;
   aoMoverTarefa: (tarefaId: string, novoPaiId: string | null) => Promise<void>;
+  aoAtribuirResponsavel: (tarefaId: string, entrada: EntradaAtribuirResponsavel) => Promise<void>;
   aoSalvarDetalhes: (
     tarefaId: string,
     entrada: { metadadosVisuais: MetadadosVisuaisTarefa; notasEmBlocos: BlocoNota[] },
@@ -93,15 +103,31 @@ function gravarRascunhoLembrete(tarefaId: string, valor: string): void {
   }
 }
 
+function obterChaveResponsavelInicial(tarefa: TarefaArvore): string {
+  if (!tarefa.responsavel) {
+    return 'nenhum';
+  }
+  if (tarefa.responsavel.tipo === 'usuario' && tarefa.responsavel.usuarioId) {
+    return `usuario:${tarefa.responsavel.usuarioId}`;
+  }
+  if (tarefa.responsavel.tipo === 'vaga' && tarefa.responsavel.vagaId) {
+    return `vaga:${tarefa.responsavel.vagaId}`;
+  }
+  return 'nenhum';
+}
+
 function ConteudoGavetaEdicao({
   detalhe,
   arvoreCompleta,
   etiquetas,
+  painelGrupo,
   salvandoTarefa,
   salvandoDetalhes,
   movendo,
+  atribuindoResponsavel,
   aoAtualizarTarefa,
   aoMoverTarefa,
+  aoAtribuirResponsavel,
   aoSalvarDetalhes,
   reduzirMovimento,
 }: ConteudoGavetaProps) {
@@ -119,6 +145,9 @@ function ConteudoGavetaEdicao({
     tarefa.etiquetas.map((e) => e.id),
   );
   const [paiDestino, setPaiDestino] = useState<string>(tarefa.tarefaPaiId ?? '__raiz__');
+  const [chaveResponsavel, setChaveResponsavel] = useState<string>(() =>
+    obterChaveResponsavelInicial(tarefa),
+  );
   const [antecedenciaLembrete, setAntecedenciaLembrete] = useState<string>(() =>
     lerRascunhoLembrete(tarefa.id),
   );
@@ -196,6 +225,34 @@ function ConteudoGavetaEdicao({
       setMensagemStatus('Posição na árvore atualizada.');
     } catch (erro) {
       setErroEdicao(erro instanceof Error ? erro.message : 'Não foi possível mover a tarefa.');
+    }
+  };
+
+  const lidarSalvarResponsavel = async () => {
+    setErroEdicao(null);
+    setMensagemStatus(null);
+    let entrada: EntradaAtribuirResponsavel = {
+      responsavelUsuarioId: null,
+      vagaResponsavelId: null,
+    };
+    if (chaveResponsavel.startsWith('usuario:')) {
+      entrada = {
+        responsavelUsuarioId: chaveResponsavel.slice('usuario:'.length),
+        vagaResponsavelId: null,
+      };
+    } else if (chaveResponsavel.startsWith('vaga:')) {
+      entrada = {
+        responsavelUsuarioId: null,
+        vagaResponsavelId: chaveResponsavel.slice('vaga:'.length),
+      };
+    }
+    try {
+      await aoAtribuirResponsavel(tarefa.id, entrada);
+      setMensagemStatus('Responsável da etapa atualizado.');
+    } catch (erro) {
+      setErroEdicao(
+        erro instanceof Error ? erro.message : 'Não foi possível atualizar o responsável.',
+      );
     }
   };
 
@@ -423,6 +480,72 @@ function ConteudoGavetaEdicao({
         </div>
       </section>
 
+      {painelGrupo ? (
+        <section className="space-y-3 rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-4">
+          <div className="flex items-center gap-2">
+            <UserCheck className="h-4 w-4 text-[var(--primaria)]" aria-hidden="true" />
+            <h3 className="fonte-display text-base font-bold text-[var(--texto)]">
+              Colaboração em conjunto
+            </h3>
+          </div>
+
+          <p className="text-xs text-[var(--texto-sec)]">
+            As notas em blocos desta árvore são compartilhadas com toda a equipe.
+          </p>
+
+          {tarefa.tarefaPaiId !== null ? (
+            painelGrupo.meuPapel === 'lider' ? (
+              <div className="flex flex-wrap items-end gap-2">
+                <div className="min-w-[200px] flex-1 space-y-1">
+                  <label
+                    htmlFor="seletor-responsavel-etapa"
+                    className="block text-xs font-semibold text-[var(--texto-sec)]"
+                  >
+                    Responsável pela etapa
+                  </label>
+                  <select
+                    id="seletor-responsavel-etapa"
+                    aria-label="Responsável pela etapa"
+                    value={chaveResponsavel}
+                    onChange={(e) => setChaveResponsavel(e.target.value)}
+                    className="min-h-10 w-full rounded-xl border border-[var(--borda)] bg-[var(--superficie-solida)] px-3 text-sm text-[var(--texto)]"
+                  >
+                    <option value="nenhum">Sem responsável</option>
+                    {painelGrupo.integrantes.map((membro) => (
+                      <option key={membro.usuarioId} value={`usuario:${membro.usuarioId}`}>
+                        {membro.nomeExibicao} ({membro.papel === 'lider' ? 'Líder' : 'Colaborador'})
+                      </option>
+                    ))}
+                    {painelGrupo.vagasAbertas.map((vaga) => (
+                      <option key={vaga.vagaId} value={`vaga:${vaga.vagaId}`}>
+                        Vaga: {vaga.nomeExibicao}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <Botao
+                  type="button"
+                  variante="secundario"
+                  tamanho="sm"
+                  reduzirMovimento={reduzirMovimento}
+                  disabled={atribuindoResponsavel}
+                  onClick={() => {
+                    void lidarSalvarResponsavel();
+                  }}
+                >
+                  <span>{atribuindoResponsavel ? 'Salvando...' : 'Salvar responsável'}</span>
+                </Botao>
+              </div>
+            ) : (
+              <p className="text-xs font-semibold text-[var(--texto)]">
+                Responsável atual: {tarefa.responsavel?.nomeExibicao ?? 'Sem responsável'}
+              </p>
+            )
+          ) : null}
+        </section>
+      ) : null}
+
       <section className="space-y-3 rounded-2xl border border-[var(--borda)] bg-[var(--superficie-alt)] p-4">
         <div className="flex items-center gap-2">
           <FolderTree className="h-4 w-4 text-[var(--primaria)]" aria-hidden="true" />
@@ -556,12 +679,15 @@ export function GavetaEdicaoTarefa({
   carregando,
   arvoreCompleta,
   etiquetas,
+  painelGrupo,
   salvandoTarefa,
   salvandoDetalhes,
   movendo,
+  atribuindoResponsavel,
   aoFechar,
   aoAtualizarTarefa,
   aoMoverTarefa,
+  aoAtribuirResponsavel,
   aoSalvarDetalhes,
   reduzirMovimento,
 }: PropriedadesGavetaEdicaoTarefa) {
@@ -603,11 +729,14 @@ export function GavetaEdicaoTarefa({
                 detalhe={detalhe}
                 arvoreCompleta={arvoreCompleta}
                 etiquetas={etiquetas}
+                painelGrupo={painelGrupo}
                 salvandoTarefa={salvandoTarefa}
                 salvandoDetalhes={salvandoDetalhes}
                 movendo={movendo}
+                atribuindoResponsavel={atribuindoResponsavel}
                 aoAtualizarTarefa={aoAtualizarTarefa}
                 aoMoverTarefa={aoMoverTarefa}
+                aoAtribuirResponsavel={aoAtribuirResponsavel}
                 aoSalvarDetalhes={aoSalvarDetalhes}
                 reduzirMovimento={reduzirMovimento}
               />
