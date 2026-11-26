@@ -1,6 +1,6 @@
 # Roteiro de desenvolvimento - primeira entrega (Lume)
 
-**Registro de situação em 23/11/2026:** **Fases 01 a 24 concluídas** (Ciclo 1 completo com `D01`-`D12` fechadas e protótipo V2 aprovado; Ciclo 2 completo com backend FastAPI + PostgreSQL `18` + MongoDB `8.2.5`, OAuth Google/PKCE/CSRF, motor de árvore composta, recorrência periódica, etiquetas, notas ricas, Tarefas em Conjunto e clima local opt-in Open-Meteo em TDD; Ciclo 3 completo com **Fases 13 a 18 concluídas**, entregando sistema cromático contínuo 24h com contraste WCAG AA nos `1.440` minutos, tipografia local `SIL OFL 1.1`, `4` favicons adaptativos, astronomia lunar real, Fallback 2D, base PWA, cenário 3D procedural com Lua 3D real/nuvens/chuva e fallback automático, porta de entrada com Landing cinematográfica, demos locais, `16` avatares Soft-3D, Primeiro Acesso, Perfil e exclusão `EXCLUIR`, **Jornada do Dia** com árvore até 5 níveis, recorrência visual, drag-and-drop `@dnd-kit`, busca/filtros/etiquetas, mini-card de clima opt-in (`ID-24`), gaveta de edição com 6 blocos ricos e exportação `.md`/`.json`, **interface de Tarefas em Conjunto** com compartilhamento, vagas nomeadas, link de convite (`/convite/:token`), atribuição por subtarefa, painel da equipe e *polling* inteligente `12s`, e **Mapa Visual de Constelação/Ramos** em `@xyflow/react`; Ciclo 4 completo com **Fases 19 a 24 concluídas**, entregando **Modo Foco Imersivo** (`/foco`), **Calendário Mensal dos Prazos** (`/calendario`), **Dashboard completo de Estatísticas (`D14`), Diário do Ciclo (`eventos_ciclo`) e Preferências do Cenário** (`/estatisticas`) com `Recharts`, **Modo Tutorial Guiado em 6 passos (`ID-38`)**, **Experiência Sonora opt-in (`D15`)** 100% procedural via Web Audio API e **PWA instalável + Lembretes e Notificações Web Push (`VAPID`) multi-dispositivo e eventos de grupo** com guia visual iOS `16.4+`, `pywebpush` e endpoint interno de cron protegido por `X-Token-Interno` em TDD; incorporadas ainda as evoluções `ID-36` a `ID-40` em roteiro de **`27` fases + `Fase 24B`** dedicada à reformulação visual do cenário 3D após as fases funcionais). Próxima etapa: **Fase 24B: reformulação visual completa do cenário 3D e enquadramento do horizonte (`ID-40`)**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Contratos-api.md](Contratos-api.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Ambiente-local.md](Ambiente-local.md), [Licencas-audio.md](Licencas-audio.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
+**Registro de situação em 26/11/2026:** **Fases 01 a 24 concluídas** (Ciclo 1 completo com `D01`-`D12` fechadas e protótipo V2 aprovado; Ciclo 2 completo com backend FastAPI + PostgreSQL `18` + MongoDB `8.2.5`, OAuth Google/PKCE/CSRF, motor de árvore composta, recorrência periódica, etiquetas, notas ricas, Tarefas em Conjunto e clima local opt-in Open-Meteo em TDD; Ciclo 3 completo com **Fases 13 a 18 concluídas**, entregando sistema cromático contínuo 24h com contraste WCAG AA nos `1.440` minutos, tipografia local `SIL OFL 1.1`, `4` favicons adaptativos, astronomia lunar real, Fallback 2D, base PWA, cenário 3D procedural com Lua 3D real/nuvens/chuva e fallback automático, porta de entrada com Landing cinematográfica, demos locais, `16` avatares Soft-3D, Primeiro Acesso, Perfil e exclusão `EXCLUIR`, **Jornada do Dia** com árvore até 5 níveis, recorrência visual, drag-and-drop `@dnd-kit`, busca/filtros/etiquetas, mini-card de clima opt-in (`ID-24`), gaveta de edição com 6 blocos ricos e exportação `.md`/`.json`, **interface de Tarefas em Conjunto** com compartilhamento, vagas nomeadas, link de convite (`/convite/:token`), atribuição por subtarefa, painel da equipe e *polling* inteligente `12s`, e **Mapa Visual de Constelação/Ramos** em `@xyflow/react`; Ciclo 4 completo com **Fases 19 a 24 concluídas**, entregando **Modo Foco Imersivo** (`/foco`), **Calendário Mensal dos Prazos** (`/calendario`), **Dashboard completo de Estatísticas (`D14`), Diário do Ciclo (`eventos_ciclo`) e Preferências do Cenário** (`/estatisticas`) com `Recharts`, **Modo Tutorial Guiado em 6 passos (`ID-38`)**, **Experiência Sonora opt-in (`D15`)** 100% procedural via Web Audio API e **PWA instalável + Lembretes e Notificações Web Push (`VAPID`) multi-dispositivo e eventos de grupo** com guia visual iOS `16.4+`, `pywebpush` e endpoint interno de cron protegido por `X-Token-Interno` em TDD; incorporadas ainda as evoluções `ID-36` a `ID-41` com a `Fase 24B` reposicionada para o fim da fila, após a publicação online, como retoques visuais finais). Próxima etapa: **Fase 25: revisão de integridade, privacidade/consentimento, permissões de grupo, segurança, acessibilidade, PWA/Push e desempenho 3D/chuva**. Base SDD em [Regras.md](../Agents/Regras.md), [Detalhes.md](Detalhes.md), [Guia-visual.md](Guia-visual.md), [Contratos-api.md](Contratos-api.md), [Planejamento-tecnico.md](Planejamento-tecnico.md), [Ambiente-local.md](Ambiente-local.md), [Licencas-audio.md](Licencas-audio.md), [Processo-de-desenvolvimento-com-IA.md](Processo-de-desenvolvimento-com-IA.md) e [Registro-de-ideias-e-decisoes.md](Registro-de-ideias-e-decisoes.md).
 
 **Escopo da primeira entrega:** aplicação web responsiva e PWA instalável de gerenciamento de tarefas pessoais e em conjunto para Web II com Login exclusivo via Google OAuth, primeiro acesso e exclusão de conta, cadastro e gestão completa de tarefas com 4 prioridades, **recorrência periódica** (`diaria`, `semanal`, `mensal`) e rastreio de reaberturas, composição em árvore multinível (até 5 níveis) com progresso automático e cascata inteligente, **Tarefas em Conjunto** por link de convite com vagas nomeadas e painel da equipe, simulação viva do ciclo do dia (**Manhã**, **Tarde**, **Crepúsculo**, **Noite**) com **Lua 3D na fase lunar real (Hemisfério Sul)**, **clima local opt-in** e **cenário climático reativo** em cena 3D híbrida (com Modo Desempenho / Fallback 2D), Landing com demos interativas, Jornada do Dia, Mapa Visual Constelação/Ramos (`@xyflow/react`), Modo Foco Imersivo, Calendário Mensal dos Prazos, **Dashboard completo de Estatísticas e Diário do Ciclo** (`D14`), **Modo Tutorial Guiado** para novos usuários, experiência sonora opt-in, **Sistema de Lembretes + Web Push multi-dispositivo** e publicação gratuita na web.
 
@@ -47,10 +47,10 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 - [x] Fase 22 - Modo Tutorial Guiado em 6 passos após criação de conta e opção de pular/rever (TDD)
 - [x] Fase 23 - experiência sonora opt-in (micro-efeitos, paisagens por momento do dia e som de chuva) (TDD)
 - [x] Fase 24 - PWA instalável, Sistema de Lembretes e Notificações Web Push (`VAPID`) multi-dispositivo e eventos de grupo (TDD)
-- [ ] Fase 24B - reformulação visual completa do cenário 3D e enquadramento do horizonte (`ID-40`) (TDD)
 - [ ] Fase 25 - revisão de integridade, privacidade/consentimento, permissões de grupo, segurança, acessibilidade, PWA/Push e desempenho 3D/chuva
 - [ ] Fase 26 - provisionar bancos gratuitos na nuvem e publicar ambiente na web (incl. chaves `VAPID` e cron gratuito)
 - [ ] Fase 27 - aceitação final, documentação para Web II e roteiro de apresentação
+- [ ] Fase 24B - reformulação visual completa do cenário 3D e enquadramento do horizonte (`ID-40`, `ID-41`, retoques finais pós-publicação) (TDD)
 
 ---
 
@@ -62,7 +62,7 @@ O desenvolvimento é guiado por **Spec-Driven Development (SDD)** e dividido em 
 | Ciclo 2 | 06-12 | Fundação técnica, Git/CI, bancos poliglotas, OAuth, motor de tarefas/recorrência, Tarefas em Conjunto (API) e clima local | TDD rigoroso de backend, SOLID, ACID, permissões e opt-in |
 | Ciclo 3 | 13-18 | Design System 24h + astronomia lunar + PWA base, mundo 3D reativo, Landing, Jornada, interface de Grupos e Mapa `@xyflow/react` | TDD frontend, WebGL leve, colaboração e acessibilidade |
 | Ciclo 4 | 19-24 | Modo Foco, Calendário Mensal, Dashboard completo de Estatísticas (`D14`), Modo Tutorial Guiado, Áudio opt-in e Web Push | Integração poliglota completa, gráficos `Recharts` e avisos multi-dispositivo |
-| Ciclo 5 | 24B, 25-27 | Reformulação visual do cenário 3D (`ID-40`), auditoria de segurança/grupos/consentimento/PWA/desempenho, deploy gratuito na web e apresentação Web II | Redesign visual 3D, verificação real em produção e documentação final |
+| Ciclo 5 | 25-27, 24B | Auditoria de segurança/grupos/consentimento/PWA/desempenho, deploy gratuito na web, apresentação Web II e retoques visuais finais do cenário 3D (`ID-40`, `ID-41`) | Verificação real em produção, documentação final e redesign visual 3D pós-publicação |
 
 ---
 
@@ -569,22 +569,7 @@ A tabela abaixo lista todas as decisões estruturantes (`D01`-`D16`) que governa
 
 ---
 
-## 8. Ciclo 5 - Reformulação visual 3D, acabamento, publicação e entrega acadêmica (Fases 24B e 25-27)
-
-### Fase 24B - Reformulação visual completa do cenário 3D e enquadramento do horizonte (TDD)
-
-**Depende de:** Fases 14, 15 a 24; decisão `ID-40`.
-
-- Executar refatoração artística e técnica completa do cenário 3D após a conclusão das fases funcionais, elevando fidelidade visual, profundidade atmosférica e acabamento de diorama em todos os 4 momentos do dia e 5 estados climáticos.
-- Reavaliar em conjunto com Athos o equilíbrio entre geometria procedural e eventuais modelos `.glb` leves/otimizados com compressão e orçamento responsivo controlado, enriquecendo o jardim/paisagem (árvores estilizadas, iluminação quente noturna, água/reflexos, flores mais expressivas e constelações celestes).
-- Ajustar enquadramento de câmera, névoa, transparência e respiro visual dos cartões de interface nas principais telas (Landing, Jornada, Mapa, Foco) para que o horizonte 3D permaneça bem visível e harmonioso sem perder contraste WCAG AA (`>= 4.5:1`).
-- Atualizar e expandir testes unitários e de integração garantindo pausa em aba oculta, respeito a `prefers-reduced-motion` e alternância automática/manual para o Fallback 2D.
-
-**Entrega:** cenário 3D visualmente reformulado, expressivo e integrado ao respiro da interface sem comprometer desempenho ou contraste.
-
-**Concluída quando:** o novo cenário 3D é validado visualmente ao vivo nos 4 momentos e 5 climas e todos os testes de lógica 3D e acessibilidade passam em TDD.
-
----
+## 8. Ciclo 5 - Acabamento, publicação, entrega acadêmica e retoques visuais 3D finais (Fases 25-27 e 24B)
 
 ### Fase 25 - revisão de integridade, privacidade, permissões de grupo, segurança, acessibilidade, PWA/Push e desempenho
 
@@ -625,4 +610,19 @@ A tabela abaixo lista todas as decisões estruturantes (`D01`-`D16`) que governa
 
 **Entrega:** primeira entrega encerrada, verificada e pronta para apresentação em Web II.
 
-**Concluída quando:** todos os checklists das 27 fases estão concluídos e o projeto roda de forma impecável tanto localmente quanto na web.
+**Concluída quando:** todos os checklists das Fases 01 a 27 estão concluídos e o projeto roda de forma impecável tanto localmente quanto na web.
+
+---
+
+### Fase 24B - Reformulação visual completa do cenário 3D e enquadramento do horizonte (TDD, retoques finais pós-publicação)
+
+**Depende de:** Fases 14, 15 a 27; decisões `ID-40` e `ID-41` (executada como retoque final com a aplicação já pronta e no ar).
+
+- Executar refatoração artística e técnica completa do cenário 3D depois que a aplicação estiver pronta, revisada e publicada online, elevando fidelidade visual, profundidade atmosférica e acabamento de diorama em todos os 4 momentos do dia e 5 estados climáticos.
+- Reavaliar em conjunto com Athos o equilíbrio entre geometria procedural e eventuais modelos `.glb` leves/otimizados com compressão e orçamento responsivo controlado, enriquecendo o jardim/paisagem (árvores estilizadas, iluminação quente noturna, água/reflexos, flores mais expressivas e constelações celestes).
+- Ajustar enquadramento de câmera, névoa, transparência e respiro visual dos cartões de interface nas principais telas (Landing, Jornada, Mapa, Foco) para que o horizonte 3D permaneça bem visível e harmonioso sem perder contraste WCAG AA (`>= 4.5:1`).
+- Atualizar e expandir testes unitários e de integração garantindo pausa em aba oculta, respeito a `prefers-reduced-motion` e alternância automática/manual para o Fallback 2D, revalidando o ambiente publicado após os retoques.
+
+**Entrega:** cenário 3D visualmente reformulado, expressivo e integrado ao respiro da interface sem comprometer desempenho ou contraste.
+
+**Concluída quando:** o novo cenário 3D é validado visualmente ao vivo nos 4 momentos e 5 climas e todos os testes de lógica 3D e acessibilidade passam em TDD.
