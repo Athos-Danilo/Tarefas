@@ -237,10 +237,8 @@ async def _resolver_raiz_autorizada(
     raiz_id = cast(UUID, linha[0])
     dono_id = cast(UUID, linha[1])
     compartilhada = bool(linha[2])
-    if dono_id == usuario_id:
-        return raiz_id, dono_id, compartilhada
     if not compartilhada:
-        return None
+        return (raiz_id, dono_id, False) if dono_id == usuario_id else None
     membro = (
         await sessao.execute(
             select(MembroTarefaModelo.id).where(

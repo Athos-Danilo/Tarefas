@@ -1,7 +1,7 @@
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -114,6 +114,27 @@ def criar_aplicacao(
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    @aplicacao.middleware("http")
+    async def aplicar_cabecalhos_seguranca(
+        requisicao: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        resposta = await call_next(requisicao)
+        resposta.headers.setdefault("X-Content-Type-Options", "nosniff")
+        resposta.headers.setdefault("X-Frame-Options", "DENY")
+        resposta.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+        resposta.headers.setdefault(
+            "Permissions-Policy",
+            "camera=(), microphone=(), payment=()",
+        )
+        caminho = requisicao.url.path
+        eh_rota_sensivel = caminho.startswith(
+            ("/api/autenticacao", "/api/push", "/api/interno")
+        ) or (caminho.startswith("/api/conta") and caminho != "/api/conta/avatar/atual")
+        if eh_rota_sensivel:
+            resposta.headers.setdefault("Cache-Control", "no-store")
+        return resposta
 
     @aplicacao.exception_handler(ErroDeDominio)
     async def tratar_erro_de_dominio(

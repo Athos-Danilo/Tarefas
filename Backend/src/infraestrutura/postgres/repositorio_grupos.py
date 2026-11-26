@@ -28,6 +28,7 @@ from dominio.grupos import (
 )
 from infraestrutura.postgres.modelos import (
     ConviteTarefaModelo,
+    LembreteTarefaModelo,
     MembroTarefaModelo,
     TarefaModelo,
     UsuarioModelo,
@@ -877,6 +878,15 @@ class RepositorioGruposPostgres:
                     VagaTarefaModelo.ocupada_por_usuario_id == usuario_alvo_id,
                 )
                 .values(ocupada_por_usuario_id=None)
+            )
+            await sessao.execute(
+                update(LembreteTarefaModelo)
+                .where(
+                    LembreteTarefaModelo.usuario_id == usuario_alvo_id,
+                    LembreteTarefaModelo.tarefa_id.in_(ids_arvore),
+                    LembreteTarefaModelo.status == "pendente",
+                )
+                .values(status="cancelado")
             )
             await sessao.execute(
                 delete(MembroTarefaModelo).where(

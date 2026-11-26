@@ -46,6 +46,8 @@ export function TourGuiadoLume({
   aoPular,
 }: PropriedadesTourGuiadoLume) {
   const dialogoRef = useRef<HTMLDivElement | null>(null);
+  const elementoAnteriorRef = useRef<HTMLElement | null>(null);
+  const estavaAbertoRef = useRef(false);
   const [medicaoTela, setMedicaoTela] = useState<{
     rect: RetanguloAlvo | null;
     viewport: ViewportJanela;
@@ -85,6 +87,24 @@ export function TourGuiadoLume({
       window.removeEventListener('scroll', atualizarMedicao, true);
     };
   }, [aberto, passoAtual.seletorAlvo]);
+
+  useEffect(() => {
+    if (aberto) {
+      estavaAbertoRef.current = true;
+      const ativo = document.activeElement;
+      elementoAnteriorRef.current = ativo instanceof HTMLElement ? ativo : null;
+      return;
+    }
+
+    if (estavaAbertoRef.current) {
+      estavaAbertoRef.current = false;
+      const anterior = elementoAnteriorRef.current;
+      elementoAnteriorRef.current = null;
+      if (anterior && anterior.isConnected) {
+        anterior.focus();
+      }
+    }
+  }, [aberto]);
 
   useEffect(() => {
     if (!aberto) {

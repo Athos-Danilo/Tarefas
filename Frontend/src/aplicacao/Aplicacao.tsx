@@ -1,21 +1,13 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MotionConfig } from 'motion/react';
-import { useMemo, useState, type ReactNode } from 'react';
+import { Suspense, lazy, useMemo, useState, type ReactNode } from 'react';
 import { BrowserRouter, MemoryRouter, Navigate, Route, Routes } from 'react-router';
 import { useMotorTemporal } from '../astronomia/motor-temporal';
 import { OrquestradorAudioLume } from '../audio/OrquestradorAudioLume';
 import { CenarioDoHorizonte } from '../cenario/CenarioDoHorizonte';
 import { detectarSuporteWebGL } from '../cenario/detector-capacidade';
-import { PaginaCalendarioMensal } from '../dominios/calendario/PaginaCalendarioMensal';
-import { PaginaPrimeiroAcesso } from '../dominios/conta/PaginaPrimeiroAcesso';
-import { PaginaPerfil } from '../dominios/conta/PaginaPerfil';
-import { PaginaEstatisticas } from '../dominios/estatisticas/PaginaEstatisticas';
-import { PaginaConviteGrupo } from '../dominios/grupos/PaginaConviteGrupo';
-import { PaginaJornada } from '../dominios/jornada/PaginaJornada';
 import { PaginaLanding } from '../dominios/landing/PaginaLanding';
-import { PaginaMapaConstelacao } from '../dominios/mapa/PaginaMapaConstelacao';
-import { PaginaModoFoco } from '../dominios/foco/PaginaModoFoco';
 import { useSaudeApi } from '../hooks/usar-saude-api';
 import { useTemaContinuo } from '../hooks/usar-tema-continuo';
 import { criarServicoCalendario } from '../servicos/cliente-calendario';
@@ -38,6 +30,61 @@ import type { BuscadorDeSaude } from '../servicos/tipos-saude';
 import { CascaWorkspace } from './CascaWorkspace';
 import { RotaAutenticada, RotaPrimeiroAcesso } from './GuardasRota';
 import { ProvedorAutenticacao } from './ProvedorAutenticacao';
+
+const PaginaCalendarioMensal = lazy(() =>
+  import('../dominios/calendario/PaginaCalendarioMensal').then((modulo) => ({
+    default: modulo.PaginaCalendarioMensal,
+  })),
+);
+const PaginaPrimeiroAcesso = lazy(() =>
+  import('../dominios/conta/PaginaPrimeiroAcesso').then((modulo) => ({
+    default: modulo.PaginaPrimeiroAcesso,
+  })),
+);
+const PaginaPerfil = lazy(() =>
+  import('../dominios/conta/PaginaPerfil').then((modulo) => ({
+    default: modulo.PaginaPerfil,
+  })),
+);
+const PaginaEstatisticas = lazy(() =>
+  import('../dominios/estatisticas/PaginaEstatisticas').then((modulo) => ({
+    default: modulo.PaginaEstatisticas,
+  })),
+);
+const PaginaConviteGrupo = lazy(() =>
+  import('../dominios/grupos/PaginaConviteGrupo').then((modulo) => ({
+    default: modulo.PaginaConviteGrupo,
+  })),
+);
+const PaginaJornada = lazy(() =>
+  import('../dominios/jornada/PaginaJornada').then((modulo) => ({
+    default: modulo.PaginaJornada,
+  })),
+);
+const PaginaMapaConstelacao = lazy(() =>
+  import('../dominios/mapa/PaginaMapaConstelacao').then((modulo) => ({
+    default: modulo.PaginaMapaConstelacao,
+  })),
+);
+const PaginaModoFoco = lazy(() =>
+  import('../dominios/foco/PaginaModoFoco').then((modulo) => ({
+    default: modulo.PaginaModoFoco,
+  })),
+);
+
+function FallbackCarregamentoRota() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex min-h-[40vh] items-center justify-center px-6 py-12"
+    >
+      <p className="superficie-bento rounded-2xl px-5 py-3 text-sm font-medium text-[var(--texto-sec)]">
+        Carregando espaço no Lume...
+      </p>
+    </div>
+  );
+}
 
 interface PropriedadesAplicacao {
   buscadorDeSaude?: BuscadorDeSaude;
@@ -138,149 +185,151 @@ export function Aplicacao({
             />
 
             <RoteadorAplicacao rotaInicial={rotaInicial}>
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <PaginaLanding
-                      minuto={minuto}
-                      momentoDoDia={momentoDoDia}
-                      cromatico={cromatico}
-                      astros={astros}
-                      faseLunar={faseLunar}
-                      reduzirMovimento={reduzirMovimento}
-                      suporteWebGL={suporteWebGL}
-                      carregandoSaude={carregando}
-                      dadosSaude={dados}
-                      erroSaude={erro}
-                      aoRecarregarSaude={() => {
-                        void recarregar();
-                      }}
-                      aoMudarProgressoDemo={setProgressoCenario}
-                    />
-                  }
-                />
-
-                <Route element={<RotaPrimeiroAcesso />}>
+              <Suspense fallback={<FallbackCarregamentoRota />}>
+                <Routes>
                   <Route
-                    path="/primeiro-acesso"
+                    path="/"
                     element={
-                      <PaginaPrimeiroAcesso
+                      <PaginaLanding
+                        minuto={minuto}
+                        momentoDoDia={momentoDoDia}
+                        cromatico={cromatico}
+                        astros={astros}
+                        faseLunar={faseLunar}
+                        reduzirMovimento={reduzirMovimento}
+                        suporteWebGL={suporteWebGL}
+                        carregandoSaude={carregando}
+                        dadosSaude={dados}
+                        erroSaude={erro}
+                        aoRecarregarSaude={() => {
+                          void recarregar();
+                        }}
+                        aoMudarProgressoDemo={setProgressoCenario}
+                      />
+                    }
+                  />
+
+                  <Route element={<RotaPrimeiroAcesso />}>
+                    <Route
+                      path="/primeiro-acesso"
+                      element={
+                        <PaginaPrimeiroAcesso
+                          faixaFavicon={astros.faixaFavicon}
+                          reduzirMovimento={reduzirMovimento}
+                        />
+                      }
+                    />
+                  </Route>
+
+                  <Route element={<RotaAutenticada />}>
+                    <Route
+                      element={
+                        <CascaWorkspace
+                          faixaFavicon={astros.faixaFavicon}
+                          reduzirMovimento={reduzirMovimento}
+                          servicoEstatisticas={estatisticas}
+                        />
+                      }
+                    >
+                      <Route
+                        path="/jornada"
+                        element={
+                          <PaginaJornada
+                            minuto={minuto}
+                            momentoDoDia={momentoDoDia}
+                            nomeMomento={cromatico.nomeMomento}
+                            faseLunar={faseLunar}
+                            reduzirMovimento={reduzirMovimento}
+                            suporteWebGL={suporteWebGL}
+                            servico={jornada}
+                            servicoGrupos={grupos}
+                            servicoPush={push}
+                            aoMudarProgressoJornada={setProgressoCenario}
+                          />
+                        }
+                      />
+                      <Route
+                        path="/mapa"
+                        element={
+                          <PaginaMapaConstelacao
+                            momentoDoDia={momentoDoDia}
+                            faseLunar={faseLunar}
+                            reduzirMovimento={reduzirMovimento}
+                            servicoJornada={jornada}
+                            servicoGrupos={grupos}
+                            servicoConstelacoes={constelacoes}
+                            aoMudarProgressoJornada={setProgressoCenario}
+                          />
+                        }
+                      />
+                      <Route
+                        path="/foco"
+                        element={
+                          <PaginaModoFoco
+                            momentoDoDia={momentoDoDia}
+                            faseLunar={faseLunar}
+                            reduzirMovimento={reduzirMovimento}
+                            servicoJornada={jornada}
+                            servicoFoco={foco}
+                            aoMudarModoContemplativo={setModoFocoContemplativo}
+                          />
+                        }
+                      />
+                      <Route
+                        path="/calendario"
+                        element={
+                          <PaginaCalendarioMensal
+                            reduzirMovimento={reduzirMovimento}
+                            servicoJornada={jornada}
+                            servicoGrupos={grupos}
+                            servicoCalendario={calendario}
+                            servicoPush={push}
+                          />
+                        }
+                      />
+                      <Route
+                        path="/estatisticas"
+                        element={
+                          <PaginaEstatisticas
+                            reduzirMovimento={reduzirMovimento}
+                            servicoJornada={jornada}
+                            servicoEstatisticas={estatisticas}
+                          />
+                        }
+                      />
+                      <Route
+                        path="/perfil"
+                        element={
+                          <PaginaPerfil reduzirMovimento={reduzirMovimento} servicoPush={push} />
+                        }
+                      />
+                    </Route>
+                  </Route>
+
+                  <Route
+                    path="/convite/:token"
+                    element={
+                      <PaginaConviteGrupo
                         faixaFavicon={astros.faixaFavicon}
+                        servicoGrupos={grupos}
                         reduzirMovimento={reduzirMovimento}
                       />
                     }
                   />
-                </Route>
-
-                <Route element={<RotaAutenticada />}>
                   <Route
+                    path="/convites/:token"
                     element={
-                      <CascaWorkspace
+                      <PaginaConviteGrupo
                         faixaFavicon={astros.faixaFavicon}
+                        servicoGrupos={grupos}
                         reduzirMovimento={reduzirMovimento}
-                        servicoEstatisticas={estatisticas}
                       />
                     }
-                  >
-                    <Route
-                      path="/jornada"
-                      element={
-                        <PaginaJornada
-                          minuto={minuto}
-                          momentoDoDia={momentoDoDia}
-                          nomeMomento={cromatico.nomeMomento}
-                          faseLunar={faseLunar}
-                          reduzirMovimento={reduzirMovimento}
-                          suporteWebGL={suporteWebGL}
-                          servico={jornada}
-                          servicoGrupos={grupos}
-                          servicoPush={push}
-                          aoMudarProgressoJornada={setProgressoCenario}
-                        />
-                      }
-                    />
-                    <Route
-                      path="/mapa"
-                      element={
-                        <PaginaMapaConstelacao
-                          momentoDoDia={momentoDoDia}
-                          faseLunar={faseLunar}
-                          reduzirMovimento={reduzirMovimento}
-                          servicoJornada={jornada}
-                          servicoGrupos={grupos}
-                          servicoConstelacoes={constelacoes}
-                          aoMudarProgressoJornada={setProgressoCenario}
-                        />
-                      }
-                    />
-                    <Route
-                      path="/foco"
-                      element={
-                        <PaginaModoFoco
-                          momentoDoDia={momentoDoDia}
-                          faseLunar={faseLunar}
-                          reduzirMovimento={reduzirMovimento}
-                          servicoJornada={jornada}
-                          servicoFoco={foco}
-                          aoMudarModoContemplativo={setModoFocoContemplativo}
-                        />
-                      }
-                    />
-                    <Route
-                      path="/calendario"
-                      element={
-                        <PaginaCalendarioMensal
-                          reduzirMovimento={reduzirMovimento}
-                          servicoJornada={jornada}
-                          servicoGrupos={grupos}
-                          servicoCalendario={calendario}
-                          servicoPush={push}
-                        />
-                      }
-                    />
-                    <Route
-                      path="/estatisticas"
-                      element={
-                        <PaginaEstatisticas
-                          reduzirMovimento={reduzirMovimento}
-                          servicoJornada={jornada}
-                          servicoEstatisticas={estatisticas}
-                        />
-                      }
-                    />
-                    <Route
-                      path="/perfil"
-                      element={
-                        <PaginaPerfil reduzirMovimento={reduzirMovimento} servicoPush={push} />
-                      }
-                    />
-                  </Route>
-                </Route>
+                  />
 
-                <Route
-                  path="/convite/:token"
-                  element={
-                    <PaginaConviteGrupo
-                      faixaFavicon={astros.faixaFavicon}
-                      servicoGrupos={grupos}
-                      reduzirMovimento={reduzirMovimento}
-                    />
-                  }
-                />
-                <Route
-                  path="/convites/:token"
-                  element={
-                    <PaginaConviteGrupo
-                      faixaFavicon={astros.faixaFavicon}
-                      servicoGrupos={grupos}
-                      reduzirMovimento={reduzirMovimento}
-                    />
-                  }
-                />
-
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
             </RoteadorAplicacao>
           </Tooltip.Provider>
         </MotionConfig>

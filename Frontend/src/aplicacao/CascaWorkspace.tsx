@@ -91,6 +91,12 @@ export function CascaWorkspace({
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 pb-24 md:flex-row md:px-6 md:pb-8">
+      <a
+        href="#conteudo-principal"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-xl focus:bg-[var(--primaria)] focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[var(--primaria-texto)] focus:shadow-lg"
+      >
+        Pular para o conteúdo principal
+      </a>
       <aside
         aria-label="Navegação principal do workspace"
         className="hidden shrink-0 md:block md:w-[78px] lg:w-64"
@@ -132,6 +138,7 @@ export function CascaWorkspace({
                     key={rota}
                     to={rota}
                     aria-label={rotulo}
+                    aria-current={ativo ? 'page' : undefined}
                     className={`flex min-h-11 items-center justify-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition-colors lg:justify-start ${
                       ativo
                         ? 'bg-[var(--primaria)] text-[var(--primaria-texto)]'
@@ -186,7 +193,7 @@ export function CascaWorkspace({
         </CartaoBento>
       </aside>
 
-      <main className="min-w-0 flex-1">
+      <main id="conteudo-principal" tabIndex={-1} className="min-w-0 flex-1">
         <Outlet />
       </main>
 
@@ -201,7 +208,8 @@ export function CascaWorkspace({
             <Link
               key={rota}
               to={rota}
-              className={`flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold ${
+              aria-current={ativo ? 'page' : undefined}
+              className={`flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold ${
                 ativo ? 'bg-[var(--primaria)] text-[var(--primaria-texto)]' : 'text-[var(--texto)]'
               }`}
             >
@@ -217,7 +225,7 @@ export function CascaWorkspace({
           onClick={() => {
             void lidarAlternarAudio();
           }}
-          className={`flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-xl px-2.5 text-xs font-semibold ${
+          className={`flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl px-2.5 text-xs font-semibold ${
             audioHabilitado
               ? 'bg-[var(--primaria)] text-[var(--primaria-texto)]'
               : 'text-[var(--texto)]'
@@ -232,11 +240,12 @@ export function CascaWorkspace({
 
         <button
           type="button"
+          aria-label="Sair da conta"
           onClick={() => {
             void lidarSair();
           }}
           disabled={saindo}
-          className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-[var(--texto)]"
+          className="flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-3 text-xs font-semibold text-[var(--texto)]"
         >
           <LogOut className="h-4 w-4" aria-hidden="true" />
           <span>Sair</span>

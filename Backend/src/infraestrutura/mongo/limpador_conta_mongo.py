@@ -20,7 +20,9 @@ class LimpadorContaMongo:
         for nome_colecao in (
             COLECAO_DETALHES_TAREFAS,
             COLECAO_LAYOUTS_CONSTELACAO,
-            COLECAO_EVENTOS_CICLO,
             COLECAO_PREFERENCIAS_CENARIO,
         ):
             await self._banco[nome_colecao].delete_many({"usuario_id": usuario_id})
+        await self._banco[COLECAO_EVENTOS_CICLO].delete_many(
+            {"$or": [{"usuario_id": usuario_id}, {"autor_usuario_id": usuario_id}]}
+        )

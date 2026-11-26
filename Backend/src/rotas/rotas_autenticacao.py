@@ -77,7 +77,13 @@ async def callback_login_google(
         token_assinado=token_assinado,
     )
     resposta = RedirectResponse(url=resultado.redirecionar_para, status_code=302)
-    resposta.delete_cookie(key=COOKIE_OAUTH_ESTADO, path="/")
+    resposta.delete_cookie(
+        key=COOKIE_OAUTH_ESTADO,
+        path="/",
+        httponly=True,
+        samesite="lax",
+        secure=config.cookie_seguro,
+    )
     resposta.set_cookie(
         key=COOKIE_SESSAO,
         value=resultado.token_sessao_bruto,
