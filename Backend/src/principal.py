@@ -1,5 +1,6 @@
+import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
-from contextlib import asynccontextmanager, suppress
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
@@ -44,6 +45,8 @@ from rotas.rotas_push import roteador_interno, roteador_lembretes, roteador_push
 from rotas.rotas_saude import roteador_saude
 from rotas.rotas_tarefas import roteador_tarefas
 
+logger = logging.getLogger(__name__)
+
 
 def criar_aplicacao(
     configuracoes: Configuracoes | None = None,
@@ -80,8 +83,12 @@ def criar_aplicacao(
             app.state.gerenciador_mongo = gerenciador_mongo
             app.state.verificador_documental = VerificadorMongo(gerenciador_mongo)
             # Permite /api/saude reportar "indisponivel" sem travar a inicializacao.
-            with suppress(PyMongoError, OSError, TimeoutError):
+            try:
                 await gerenciador_mongo.garantir_indices()
+            except (PyMongoError, OSError, TimeoutError) as exc:
+                logger.warning(
+                    "Falha ao garantir indices no MongoDB durante inicializacao: %s", exc
+                )
 
         try:
             yield
