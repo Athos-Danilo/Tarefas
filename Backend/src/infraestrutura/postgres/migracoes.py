@@ -3,6 +3,7 @@ from pathlib import Path
 from alembic.config import Config
 
 from alembic import command
+from infraestrutura.postgres.conexao import normalizar_url_postgres
 
 RAIZ_BACKEND = Path(__file__).resolve().parents[3]
 
@@ -12,7 +13,8 @@ def _criar_config_alembic(url_banco: str) -> Config:
     caminho_scripts = RAIZ_BACKEND / "alembic"
     config = Config(str(caminho_ini))
     config.set_main_option("script_location", str(caminho_scripts))
-    config.set_main_option("sqlalchemy.url", url_banco)
+    url_escapada = normalizar_url_postgres(url_banco).replace("%", "%%")
+    config.set_main_option("sqlalchemy.url", url_escapada)
     return config
 
 

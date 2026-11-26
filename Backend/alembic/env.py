@@ -7,6 +7,7 @@ from alembic import context
 from configuracao.configuracoes import Configuracoes
 from infraestrutura.postgres import modelos as _modelos_postgres  # noqa: F401
 from infraestrutura.postgres.base import BaseRelacional
+from infraestrutura.postgres.conexao import normalizar_url_postgres
 
 config = context.config
 
@@ -19,13 +20,13 @@ target_metadata = BaseRelacional.metadata
 def _resolver_url_banco() -> str:
     url_configurada = config.get_main_option("sqlalchemy.url")
     if url_configurada:
-        return url_configurada
+        return normalizar_url_postgres(url_configurada)
     url_ambiente = os.getenv("LUME_ALEMBIC_URL")
     if url_ambiente:
-        return url_ambiente
+        return normalizar_url_postgres(url_ambiente)
     url_settings = Configuracoes().postgres_url
     if url_settings:
-        return url_settings
+        return normalizar_url_postgres(url_settings)
     raise RuntimeError(
         "URL do PostgreSQL nao informada para o Alembic "
         "(defina LUME_POSTGRES_URL ou LUME_ALEMBIC_URL)."

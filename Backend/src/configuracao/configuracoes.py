@@ -17,9 +17,11 @@ class Configuracoes(BaseSettings):
     origens_cors: str = "http://localhost:5173,http://127.0.0.1:5173"
     postgres_url: str | None = None
     postgres_teste_url: str | None = None
+    postgres_timeout_segundos: int = 10
     mongo_url: str | None = None
     mongo_banco: str = "lume_dev"
     mongo_banco_teste: str = "tarefas_teste"
+    mongo_timeout_ms: int = 10000
     google_client_id: str | None = None
     google_client_secret: str | None = None
     google_redirect_uri: str = "http://localhost:5173/api/autenticacao/google/callback"

@@ -64,12 +64,19 @@ def criar_aplicacao(
         gerenciador_mongo: GerenciadorMongo | None = None
 
         if verificador_relacional is None and config.postgres_url:
-            fabrica_pg = FabricaPostgres(config.postgres_url)
+            fabrica_pg = FabricaPostgres(
+                config.postgres_url,
+                timeout_conexao_seg=config.postgres_timeout_segundos,
+            )
             app.state.fabrica_postgres = fabrica_pg
             app.state.verificador_relacional = VerificadorPostgres(fabrica_pg)
 
         if verificador_documental is None and config.mongo_url:
-            gerenciador_mongo = GerenciadorMongo(config.mongo_url, config.mongo_banco)
+            gerenciador_mongo = GerenciadorMongo(
+                config.mongo_url,
+                config.mongo_banco,
+                timeout_ms=config.mongo_timeout_ms,
+            )
             app.state.gerenciador_mongo = gerenciador_mongo
             app.state.verificador_documental = VerificadorMongo(gerenciador_mongo)
             # Permite /api/saude reportar "indisponivel" sem travar a inicializacao.
