@@ -1,4 +1,7 @@
 import '@testing-library/jest-dom/vitest';
+import { configure } from '@testing-library/react';
+
+configure({ asyncUtilTimeout: 4000 });
 
 if (typeof globalThis.ResizeObserver === 'undefined') {
   class ObservadorRedimensionamento {

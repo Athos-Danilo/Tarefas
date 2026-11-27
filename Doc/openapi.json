@@ -1,0 +1,7011 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Lume API",
+    "description": "API do gerenciador de tarefas pessoais Lume (Horizonte Vivo).",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/saude": {
+      "get": {
+        "tags": [
+          "Saude"
+        ],
+        "summary": "Consultar saude da API",
+        "description": "Verifica a disponibilidade basica do servico e de suas dependencias.",
+        "operationId": "consultar_saude_api_saude_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSaude"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/autenticacao/google/iniciar": {
+      "get": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Iniciar login com Google OAuth",
+        "operationId": "iniciar_login_google_api_autenticacao_google_iniciar_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/autenticacao/google/callback": {
+      "get": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Callback do Google OAuth 2.0",
+        "operationId": "callback_login_google_api_autenticacao_google_callback_get",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Code"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "State"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/autenticacao/sessao": {
+      "get": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Consultar sessao autenticada",
+        "operationId": "consultar_sessao_api_autenticacao_sessao_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSessao"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/autenticacao/sair": {
+      "post": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Encerrar sessao atual",
+        "operationId": "sair_sessao_atual_api_autenticacao_sair_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        }
+      }
+    },
+    "/api/autenticacao/sair-todos": {
+      "post": {
+        "tags": [
+          "Autenticacao"
+        ],
+        "summary": "Revogar todas as sessoes da conta",
+        "operationId": "sair_todas_sessoes_api_autenticacao_sair_todos_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSairTodos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conta/primeiro-acesso": {
+      "post": {
+        "tags": [
+          "Conta"
+        ],
+        "summary": "Concluir configuracao de primeiro acesso",
+        "operationId": "concluir_primeiro_acesso_api_conta_primeiro_acesso_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoPrimeiroAcesso"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaPrimeiroAcesso"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conta/perfil": {
+      "get": {
+        "tags": [
+          "Conta"
+        ],
+        "summary": "Consultar perfil da conta",
+        "operationId": "consultar_perfil_api_conta_perfil_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaPerfil"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Conta"
+        ],
+        "summary": "Atualizar nome e avatar do perfil",
+        "operationId": "atualizar_perfil_api_conta_perfil_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoAtualizarPerfil"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaPerfil"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conta/avatar": {
+      "post": {
+        "tags": [
+          "Conta"
+        ],
+        "summary": "Enviar avatar proprio (redimensionado para WebP 256x256)",
+        "operationId": "enviar_avatar_api_conta_avatar_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_enviar_avatar_api_conta_avatar_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaAvatarUpload"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conta/avatar/atual": {
+      "get": {
+        "tags": [
+          "Conta"
+        ],
+        "summary": "Baixar avatar personalizado da conta autenticada",
+        "operationId": "obter_avatar_atual_api_conta_avatar_atual_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/conta/excluir": {
+      "post": {
+        "tags": [
+          "Conta"
+        ],
+        "summary": "Excluir conta e todos os dados pessoais em definitivo",
+        "operationId": "excluir_conta_api_conta_excluir_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoExcluirConta"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaExcluirConta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/etiquetas": {
+      "get": {
+        "tags": [
+          "Etiquetas"
+        ],
+        "summary": "Listar etiquetas do usuario",
+        "operationId": "listar_etiquetas_api_etiquetas_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaListaEtiquetas"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Etiquetas"
+        ],
+        "summary": "Criar etiqueta nomeada",
+        "operationId": "criar_etiqueta_api_etiquetas_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoCriarEtiqueta"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EtiquetaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/etiquetas/{etiqueta_id}": {
+      "patch": {
+        "tags": [
+          "Etiquetas"
+        ],
+        "summary": "Atualizar nome ou cor de etiqueta",
+        "operationId": "atualizar_etiqueta_api_etiquetas__etiqueta_id__patch",
+        "parameters": [
+          {
+            "name": "etiqueta_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Etiqueta Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoAtualizarEtiqueta"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EtiquetaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Etiquetas"
+        ],
+        "summary": "Excluir etiqueta e desvincular das tarefas",
+        "operationId": "excluir_etiqueta_api_etiquetas__etiqueta_id__delete",
+        "parameters": [
+          {
+            "name": "etiqueta_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Etiqueta Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas": {
+      "get": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Listar tarefas em arvore ou lista plana com filtros",
+        "operationId": "listar_tarefas_api_tarefas_get",
+        "parameters": [
+          {
+            "name": "turno",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "manha",
+                    "tarde",
+                    "noite",
+                    "livre"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Turno"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pendente",
+                    "em_andamento",
+                    "concluida"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "prioridade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "baixa",
+                    "media",
+                    "alta",
+                    "urgente"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Prioridade"
+            }
+          },
+          {
+            "name": "etiqueta_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Etiqueta Id"
+            }
+          },
+          {
+            "name": "busca",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Busca"
+            }
+          },
+          {
+            "name": "incluir_concluidas",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Incluir Concluidas"
+            }
+          },
+          {
+            "name": "formato",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "arvore",
+                "plano"
+              ],
+              "type": "string",
+              "default": "arvore",
+              "title": "Formato"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaListarTarefas"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Criar tarefa raiz ou subtarefa",
+        "operationId": "criar_tarefa_api_tarefas_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoCriarTarefa"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaCriarTarefa"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/desfazer-cascata": {
+      "post": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Desfazer conclusao em cascata dentro do prazo de 15s",
+        "operationId": "desfazer_cascata_api_tarefas_desfazer_cascata_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoDesfazerCascata"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaDesfazerCascata"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/reordenar": {
+      "patch": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Reordenar manualmente tarefas irmas no mesmo nivel",
+        "operationId": "reordenar_irmas_api_tarefas_reordenar_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoReordenarIrmas"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaReordenarIrmas"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/{tarefa_id}": {
+      "get": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Obter tarefa com subarvore completa, detalhes e lembretes",
+        "operationId": "obter_tarefa_api_tarefas__tarefa_id__get",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaDetalheTarefaCompleta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Atualizar atributos editaveis de uma tarefa",
+        "operationId": "atualizar_tarefa_api_tarefas__tarefa_id__patch",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoAtualizarTarefa"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TarefaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Excluir tarefa simples, em cascata ou promovendo filhas diretas",
+        "operationId": "excluir_tarefa_rota_api_tarefas__tarefa_id__delete",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          },
+          {
+            "name": "estrategia",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "cascata",
+                    "promover_filhas"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Estrategia"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaExcluirTarefa"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/{tarefa_id}/concluir": {
+      "post": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Concluir tarefa (com cascata e recorrencia automatica)",
+        "operationId": "concluir_tarefa_rota_api_tarefas__tarefa_id__concluir_post",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoConcluirTarefa"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaConcluirTarefa"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/{tarefa_id}/reabrir": {
+      "post": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Reabrir tarefa concluida propagando para ancestrais concluido",
+        "operationId": "reabrir_tarefa_rota_api_tarefas__tarefa_id__reabrir_post",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoReabrirTarefa"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaReabrirTarefa"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/{tarefa_id}/mover": {
+      "post": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Mover subarvore ou promover subtarefa a raiz",
+        "operationId": "mover_tarefa_rota_api_tarefas__tarefa_id__mover_post",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoMoverTarefa"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaMoverTarefa"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/{tarefa_id}/detalhes": {
+      "get": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Ler metadados visuais e notas ricas em blocos no MongoDB",
+        "operationId": "obter_detalhes_tarefa_api_tarefas__tarefa_id__detalhes_get",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetalhesTarefaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Tarefas"
+        ],
+        "summary": "Salvar metadados visuais e notas ricas em blocos no MongoDB",
+        "operationId": "salvar_detalhes_tarefa_api_tarefas__tarefa_id__detalhes_put",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoSalvarDetalhes"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetalhesTarefaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/convites/{token}": {
+      "get": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Previa segura de convite para Tarefa em Conjunto",
+        "operationId": "obter_previa_convite_rota_api_grupos_convites__token__get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaPreviaConvite"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/convites/{token}/entrar": {
+      "post": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Entrar em Tarefa em Conjunto via token de convite",
+        "operationId": "entrar_por_convite_rota_api_grupos_convites__token__entrar_post",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoEntrarConvite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaEntrarConvite"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/compartilhar": {
+      "post": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Transformar tarefa-raiz em Tarefa em Conjunto",
+        "operationId": "compartilhar_tarefa_rota_api_grupos__tarefa_raiz_id__compartilhar_post",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaCompartilharGrupo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/vagas": {
+      "post": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Criar vaga nomeada para pre-atribuicao (exclusivo do Lider)",
+        "operationId": "criar_vaga_rota_api_grupos__tarefa_raiz_id__vagas_post",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoCriarVaga"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VagaGrupoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/vagas/{vaga_id}": {
+      "delete": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Remover vaga nomeada limpando atribuicoes (exclusivo do Lider)",
+        "operationId": "excluir_vaga_rota_api_grupos__tarefa_raiz_id__vagas__vaga_id__delete",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          },
+          {
+            "name": "vaga_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Vaga Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/convites/regenerar": {
+      "post": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Gerar novo link de convite invalidando o anterior",
+        "operationId": "regenerar_convite_rota_api_grupos__tarefa_raiz_id__convites_regenerar_post",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaRegenerarConvite"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/convites": {
+      "delete": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Revogar link de convite ativo sem remover participantes",
+        "operationId": "revogar_convites_rota_api_grupos__tarefa_raiz_id__convites_delete",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/desempenho": {
+      "get": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Consultar painel consolidado de desempenho da equipe",
+        "operationId": "obter_desempenho_grupo_rota_api_grupos__tarefa_raiz_id__desempenho_get",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaPainelDesempenhoGrupo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/transferir-lideranca": {
+      "post": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Transferir lideranca do projeto para outro integrante",
+        "operationId": "transferir_lideranca_rota_api_grupos__tarefa_raiz_id__transferir_lideranca_post",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoTransferirLideranca"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaTransferirLideranca"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/membros/{usuario_id}": {
+      "delete": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Remover integrante mantendo suas subtarefas como Sem responsavel",
+        "operationId": "remover_membro_rota_api_grupos__tarefa_raiz_id__membros__usuario_id__delete",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          },
+          {
+            "name": "usuario_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Usuario Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/grupos/{tarefa_raiz_id}/sair": {
+      "post": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Sair de Tarefa em Conjunto preservando subtarefas",
+        "operationId": "sair_grupo_rota_api_grupos__tarefa_raiz_id__sair_post",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSairGrupo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/{tarefa_id}/atribuir": {
+      "patch": {
+        "tags": [
+          "Tarefas em Conjunto"
+        ],
+        "summary": "Atribuir integrante ou vaga como responsavel por subtarefa",
+        "operationId": "atribuir_responsavel_rota_api_tarefas__tarefa_id__atribuir_patch",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoAtribuirResponsavel"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TarefaResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/constelacoes/{tarefa_raiz_id}/layout": {
+      "get": {
+        "tags": [
+          "Constelacoes"
+        ],
+        "summary": "Carregar coordenadas personalizadas do mapa visual da constelacao",
+        "operationId": "obter_layout_constelacao_rota_api_constelacoes__tarefa_raiz_id__layout_get",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaLayoutConstelacao"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Constelacoes"
+        ],
+        "summary": "Salvar coordenadas dos nos e viewport do mapa no MongoDB",
+        "operationId": "salvar_layout_constelacao_rota_api_constelacoes__tarefa_raiz_id__layout_put",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoSalvarLayoutConstelacao"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaLayoutConstelacao"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Constelacoes"
+        ],
+        "summary": "Limpar posicoes personalizadas e restaurar organizacao automatica",
+        "operationId": "remover_layout_constelacao_rota_api_constelacoes__tarefa_raiz_id__layout_delete",
+        "parameters": [
+          {
+            "name": "tarefa_raiz_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Raiz Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/foco/sessoes/ativa": {
+      "get": {
+        "tags": [
+          "Modo Foco"
+        ],
+        "summary": "Consultar sessao de foco atualmente em andamento",
+        "operationId": "obter_sessao_foco_ativa_rota_api_foco_sessoes_ativa_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSessaoFocoAtiva"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/foco/sessoes": {
+      "post": {
+        "tags": [
+          "Modo Foco"
+        ],
+        "summary": "Iniciar sessao no Modo Foco vinculada a uma tarefa",
+        "operationId": "iniciar_sessao_foco_rota_api_foco_sessoes_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoIniciarSessaoFoco"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSessaoFocoItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Modo Foco"
+        ],
+        "summary": "Listar historico recente de sessoes de foco do usuario",
+        "operationId": "listar_historico_foco_rota_api_foco_sessoes_get",
+        "parameters": [
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "description": "Quantidade maxima de sessoes retornadas",
+              "default": 20,
+              "title": "Limite"
+            },
+            "description": "Quantidade maxima de sessoes retornadas"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaHistoricoFoco"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/foco/sessoes/{sessao_id}/concluir": {
+      "post": {
+        "tags": [
+          "Modo Foco"
+        ],
+        "summary": "Concluir sessao de foco em andamento registrando evento no diario",
+        "operationId": "concluir_sessao_foco_rota_api_foco_sessoes__sessao_id__concluir_post",
+        "parameters": [
+          {
+            "name": "sessao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Sessao Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RequisicaoEncerrarSessaoFoco"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Corpo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSessaoFocoItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/foco/sessoes/{sessao_id}/interromper": {
+      "post": {
+        "tags": [
+          "Modo Foco"
+        ],
+        "summary": "Interromper sessao de foco em andamento preservando o tempo real decorrido",
+        "operationId": "interromper_sessao_foco_rota_api_foco_sessoes__sessao_id__interromper_post",
+        "parameters": [
+          {
+            "name": "sessao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Sessao Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/RequisicaoEncerrarSessaoFoco"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Corpo"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaSessaoFocoItem"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendario/mensal": {
+      "get": {
+        "tags": [
+          "Calendario"
+        ],
+        "summary": "Consultar prazos e ocorrencias recorrentes na janela mensal",
+        "operationId": "consultar_calendario_mensal_rota_api_calendario_mensal_get",
+        "parameters": [
+          {
+            "name": "ano",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Ano da janela mensal",
+              "title": "Ano"
+            },
+            "description": "Ano da janela mensal"
+          },
+          {
+            "name": "mes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Mes (1 a 12) da janela mensal",
+              "title": "Mes"
+            },
+            "description": "Mes (1 a 12) da janela mensal"
+          },
+          {
+            "name": "fuso_horario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Fuso horario IANA do cliente",
+              "default": "America/Sao_Paulo",
+              "title": "Fuso Horario"
+            },
+            "description": "Fuso horario IANA do cliente"
+          },
+          {
+            "name": "prioridade",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtro opcional de prioridade",
+              "title": "Prioridade"
+            },
+            "description": "Filtro opcional de prioridade"
+          },
+          {
+            "name": "turno",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filtro opcional de turno",
+              "title": "Turno"
+            },
+            "description": "Filtro opcional de turno"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaCalendarioMensal"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/estatisticas/resumo": {
+      "get": {
+        "tags": [
+          "Estatisticas"
+        ],
+        "summary": "Consultar KPIs completos, series, mapa de calor, recorrencias e retrabalho",
+        "operationId": "obter_resumo_estatisticas_rota_api_estatisticas_resumo_get",
+        "parameters": [
+          {
+            "name": "periodo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "30d",
+              "title": "Periodo"
+            }
+          },
+          {
+            "name": "escopo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "todas",
+              "title": "Escopo"
+            }
+          },
+          {
+            "name": "etiqueta_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Etiqueta Id"
+            }
+          },
+          {
+            "name": "fuso_horario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "America/Sao_Paulo",
+              "title": "Fuso Horario"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaEstatisticasResumo"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/diario/eventos": {
+      "get": {
+        "tags": [
+          "Diario"
+        ],
+        "summary": "Listar eventos ricos do diario do ciclo paginados por cursor",
+        "operationId": "listar_diario_eventos_rota_api_diario_eventos_get",
+        "parameters": [
+          {
+            "name": "limite",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "title": "Limite"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "tipo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tipo"
+            }
+          },
+          {
+            "name": "busca",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Busca"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaDiarioEventos"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/preferencias": {
+      "get": {
+        "tags": [
+          "Preferencias"
+        ],
+        "summary": "Ler preferencias de cenario, audio, qualidade 3D e tutorial",
+        "operationId": "obter_preferencias_rota_api_preferencias_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaPreferenciasCenario"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Preferencias"
+        ],
+        "summary": "Atualizar preferencias de cenario preservando consentimento de clima",
+        "operationId": "atualizar_preferencias_rota_api_preferencias_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoAtualizarPreferencias"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaPreferenciasCenario"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exportacao/tarefas": {
+      "get": {
+        "tags": [
+          "Exportacao"
+        ],
+        "summary": "Exportar arvore de tarefas e notas ricas em Markdown ou JSON",
+        "operationId": "exportar_tarefas_rota_api_exportacao_tarefas_get",
+        "parameters": [
+          {
+            "name": "formato",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "md",
+                "json"
+              ],
+              "type": "string",
+              "default": "json",
+              "title": "Formato"
+            }
+          },
+          {
+            "name": "tarefa_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/exportacao/diario": {
+      "get": {
+        "tags": [
+          "Exportacao"
+        ],
+        "summary": "Exportar eventos ricos do diario do ciclo em Markdown ou JSON",
+        "operationId": "exportar_diario_rota_api_exportacao_diario_get",
+        "parameters": [
+          {
+            "name": "formato",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "md",
+                "json"
+              ],
+              "type": "string",
+              "default": "json",
+              "title": "Formato"
+            }
+          },
+          {
+            "name": "de",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "De"
+            }
+          },
+          {
+            "name": "ate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ate"
+            }
+          },
+          {
+            "name": "fuso_horario",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "America/Sao_Paulo",
+              "title": "Fuso Horario"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clima/cidades": {
+      "get": {
+        "tags": [
+          "Clima Local"
+        ],
+        "summary": "Buscar sugestoes de cidades no Open-Meteo com coordenadas aproximadas",
+        "operationId": "buscar_cidades_rota_api_clima_cidades_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Nome da cidade para busca",
+              "default": "",
+              "title": "Q"
+            },
+            "description": "Nome da cidade para busca"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaBuscaCidades"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clima/consentimento": {
+      "put": {
+        "tags": [
+          "Clima Local"
+        ],
+        "summary": "Atualizar consentimento opt-in de clima local e localizacao aproximada",
+        "operationId": "atualizar_consentimento_clima_rota_api_clima_consentimento_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoConsentimentoClima"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaConsentimentoClima"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clima/atual": {
+      "get": {
+        "tags": [
+          "Clima Local"
+        ],
+        "summary": "Consultar clima atual autorizado com cache por coordenada aproximada",
+        "operationId": "consultar_clima_atual_rota_api_clima_atual_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaClimaAtual"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/push/chave-publica": {
+      "get": {
+        "tags": [
+          "Web Push e Dispositivos"
+        ],
+        "summary": "Obter chave publica VAPID em Base64 URL-safe",
+        "operationId": "obter_chave_publica_push_api_push_chave_publica_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaChavePublicaPush"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/push/dispositivos": {
+      "get": {
+        "tags": [
+          "Web Push e Dispositivos"
+        ],
+        "summary": "Listar dispositivos Web Push ativos da conta",
+        "operationId": "listar_dispositivos_push_api_push_dispositivos_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaListarDispositivosPush"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Web Push e Dispositivos"
+        ],
+        "summary": "Registrar ou atualizar dispositivo para Web Push VAPID",
+        "operationId": "registrar_dispositivo_push_api_push_dispositivos_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoRegistrarDispositivoPush"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DispositivoPushResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/push/dispositivos/{dispositivo_id}": {
+      "delete": {
+        "tags": [
+          "Web Push e Dispositivos"
+        ],
+        "summary": "Revogar dispositivo Web Push imediatamente",
+        "operationId": "revogar_dispositivo_push_api_push_dispositivos__dispositivo_id__delete",
+        "parameters": [
+          {
+            "name": "dispositivo_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Dispositivo Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tarefas/{tarefa_id}/lembretes": {
+      "get": {
+        "tags": [
+          "Lembretes"
+        ],
+        "summary": "Listar lembretes agendados de uma tarefa",
+        "operationId": "listar_lembretes_tarefa_api_tarefas__tarefa_id__lembretes_get",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaListarLembretesTarefa"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Lembretes"
+        ],
+        "summary": "Criar lembrete para uma tarefa (ate 3 ativos por tarefa)",
+        "operationId": "criar_lembrete_tarefa_api_tarefas__tarefa_id__lembretes_post",
+        "parameters": [
+          {
+            "name": "tarefa_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Tarefa Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoCriarLembrete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LembreteDetalhadoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/lembretes/{lembrete_id}": {
+      "patch": {
+        "tags": [
+          "Lembretes"
+        ],
+        "summary": "Atualizar horario ou antecedencia de um lembrete pendente",
+        "operationId": "atualizar_lembrete_rota_api_lembretes__lembrete_id__patch",
+        "parameters": [
+          {
+            "name": "lembrete_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Lembrete Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequisicaoAtualizarLembrete"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LembreteDetalhadoResposta"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Lembretes"
+        ],
+        "summary": "Cancelar um lembrete pendente",
+        "operationId": "cancelar_lembrete_rota_api_lembretes__lembrete_id__delete",
+        "parameters": [
+          {
+            "name": "lembrete_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Lembrete Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/interno/disparar-lembretes": {
+      "post": {
+        "tags": [
+          "Uso Interno / Cron"
+        ],
+        "summary": "Varredura interna de lembretes vencidos por cron (X-Token-Interno)",
+        "operationId": "disparar_lembretes_cron_api_interno_disparar_lembretes_post",
+        "parameters": [
+          {
+            "name": "X-Token-Interno",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Token-Interno"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaDisparoLembretesCron"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AncestralResumoResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "em_andamento",
+              "concluida"
+            ],
+            "title": "Status"
+          },
+          "percentual_conclusao": {
+            "type": "integer",
+            "title": "Percentual Conclusao"
+          },
+          "total_folhas": {
+            "type": "integer",
+            "title": "Total Folhas"
+          },
+          "folhas_concluidas": {
+            "type": "integer",
+            "title": "Folhas Concluidas"
+          },
+          "tem_filha_urgente_aberta": {
+            "type": "boolean",
+            "title": "Tem Filha Urgente Aberta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "percentual_conclusao",
+          "total_folhas",
+          "folhas_concluidas",
+          "tem_filha_urgente_aberta"
+        ],
+        "title": "AncestralResumoResposta",
+        "description": "Resumo atualizado de ancestral apos criacao de subtarefa."
+      },
+      "AtividadeGrupoResposta": {
+        "properties": {
+          "evento_id": {
+            "type": "string",
+            "title": "Evento Id"
+          },
+          "autor_nome": {
+            "type": "string",
+            "title": "Autor Nome"
+          },
+          "tipo_evento": {
+            "type": "string",
+            "title": "Tipo Evento"
+          },
+          "resumo": {
+            "type": "string",
+            "title": "Resumo"
+          },
+          "criado_em": {
+            "type": "string",
+            "title": "Criado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evento_id",
+          "autor_nome",
+          "tipo_evento",
+          "resumo",
+          "criado_em"
+        ],
+        "title": "AtividadeGrupoResposta",
+        "description": "Registro na linha do tempo do projeto em conjunto."
+      },
+      "Body_enviar_avatar_api_conta_avatar_post": {
+        "properties": {
+          "arquivo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Arquivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "arquivo"
+        ],
+        "title": "Body_enviar_avatar_api_conta_avatar_post"
+      },
+      "ChavesPushEntrada": {
+        "properties": {
+          "p256dh": {
+            "type": "string",
+            "title": "P256Dh"
+          },
+          "auth": {
+            "type": "string",
+            "title": "Auth"
+          }
+        },
+        "type": "object",
+        "required": [
+          "p256dh",
+          "auth"
+        ],
+        "title": "ChavesPushEntrada",
+        "description": "Par de chaves criptograficas gerado por PushSubscription.toJSON()."
+      },
+      "DetalhesTarefaResposta": {
+        "properties": {
+          "tarefa_id": {
+            "type": "string",
+            "title": "Tarefa Id"
+          },
+          "usuario_id": {
+            "type": "string",
+            "title": "Usuario Id"
+          },
+          "metadados_visuais": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadados Visuais"
+          },
+          "notas_em_blocos": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Notas Em Blocos"
+          },
+          "atualizado_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atualizado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_id",
+          "usuario_id",
+          "metadados_visuais",
+          "notas_em_blocos",
+          "atualizado_em"
+        ],
+        "title": "DetalhesTarefaResposta",
+        "description": "Documento de metadados visuais e notas em blocos da tarefa."
+      },
+      "DiaCalendarioResposta": {
+        "properties": {
+          "data": {
+            "type": "string",
+            "title": "Data"
+          },
+          "total_tarefas": {
+            "type": "integer",
+            "title": "Total Tarefas"
+          },
+          "maior_prioridade": {
+            "type": "string",
+            "enum": [
+              "baixa",
+              "media",
+              "alta",
+              "urgente"
+            ],
+            "title": "Maior Prioridade"
+          },
+          "tem_atrasada": {
+            "type": "boolean",
+            "title": "Tem Atrasada"
+          },
+          "tem_recorrente": {
+            "type": "boolean",
+            "title": "Tem Recorrente"
+          },
+          "tarefas": {
+            "items": {
+              "$ref": "#/components/schemas/ItemCalendarioResposta"
+            },
+            "type": "array",
+            "title": "Tarefas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "total_tarefas",
+          "maior_prioridade",
+          "tem_atrasada",
+          "tem_recorrente",
+          "tarefas"
+        ],
+        "title": "DiaCalendarioResposta",
+        "description": "Agregado diario de prazos e prioridades."
+      },
+      "DispositivoPushResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "rotulo_dispositivo": {
+            "type": "string",
+            "title": "Rotulo Dispositivo"
+          },
+          "plataforma": {
+            "type": "string",
+            "enum": [
+              "desktop",
+              "android",
+              "ios",
+              "outro"
+            ],
+            "title": "Plataforma"
+          },
+          "criado_em": {
+            "type": "string",
+            "title": "Criado Em"
+          },
+          "ultimo_envio_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ultimo Envio Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "rotulo_dispositivo",
+          "plataforma",
+          "criado_em",
+          "ultimo_envio_em"
+        ],
+        "title": "DispositivoPushResposta",
+        "description": "Representacao segura de dispositivo Web Push sem expor segredos p256dh/auth."
+      },
+      "DistribuicaoPrioridadeResposta": {
+        "properties": {
+          "baixa": {
+            "type": "integer",
+            "title": "Baixa"
+          },
+          "media": {
+            "type": "integer",
+            "title": "Media"
+          },
+          "alta": {
+            "type": "integer",
+            "title": "Alta"
+          },
+          "urgente": {
+            "type": "integer",
+            "title": "Urgente"
+          }
+        },
+        "type": "object",
+        "required": [
+          "baixa",
+          "media",
+          "alta",
+          "urgente"
+        ],
+        "title": "DistribuicaoPrioridadeResposta",
+        "description": "Conclusoes agrupadas por prioridade."
+      },
+      "DistribuicaoTurnoResposta": {
+        "properties": {
+          "manha": {
+            "type": "integer",
+            "title": "Manha"
+          },
+          "tarde": {
+            "type": "integer",
+            "title": "Tarde"
+          },
+          "noite": {
+            "type": "integer",
+            "title": "Noite"
+          },
+          "livre": {
+            "type": "integer",
+            "title": "Livre"
+          }
+        },
+        "type": "object",
+        "required": [
+          "manha",
+          "tarde",
+          "noite",
+          "livre"
+        ],
+        "title": "DistribuicaoTurnoResposta",
+        "description": "Conclusoes agrupadas por turno."
+      },
+      "EtiquetaResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "cor": {
+            "type": "string",
+            "title": "Cor"
+          },
+          "criado_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Criado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "cor"
+        ],
+        "title": "EtiquetaResposta",
+        "description": "Resposta completa de etiqueta no CRUD /api/etiquetas."
+      },
+      "EtiquetaResumoResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "cor": {
+            "type": "string",
+            "title": "Cor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome",
+          "cor"
+        ],
+        "title": "EtiquetaResumoResposta",
+        "description": "Representacao resumida de etiqueta associada a uma tarefa."
+      },
+      "EventoDiarioResposta": {
+        "properties": {
+          "evento_id": {
+            "type": "string",
+            "title": "Evento Id"
+          },
+          "autor_usuario_id": {
+            "type": "string",
+            "title": "Autor Usuario Id"
+          },
+          "tarefa_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarefa Id"
+          },
+          "tarefa_raiz_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarefa Raiz Id"
+          },
+          "tipo_evento": {
+            "type": "string",
+            "title": "Tipo Evento"
+          },
+          "momento_do_dia": {
+            "type": "string",
+            "title": "Momento Do Dia"
+          },
+          "resumo": {
+            "type": "string",
+            "title": "Resumo"
+          },
+          "detalhes": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Detalhes"
+          },
+          "criado_em": {
+            "type": "string",
+            "title": "Criado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evento_id",
+          "autor_usuario_id",
+          "tarefa_id",
+          "tarefa_raiz_id",
+          "tipo_evento",
+          "momento_do_dia",
+          "resumo",
+          "detalhes",
+          "criado_em"
+        ],
+        "title": "EventoDiarioResposta",
+        "description": "Item serializado de eventos_ciclo no diario."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IntegrantePainelResposta": {
+        "properties": {
+          "usuario_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Usuario Id"
+          },
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "papel": {
+            "type": "string",
+            "enum": [
+              "lider",
+              "colaborador"
+            ],
+            "title": "Papel"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "atribuidas": {
+            "type": "integer",
+            "title": "Atribuidas"
+          },
+          "concluidas": {
+            "type": "integer",
+            "title": "Concluidas"
+          },
+          "percentual": {
+            "type": "integer",
+            "title": "Percentual"
+          }
+        },
+        "type": "object",
+        "required": [
+          "usuario_id",
+          "nome_exibicao",
+          "papel",
+          "avatar_url",
+          "atribuidas",
+          "concluidas",
+          "percentual"
+        ],
+        "title": "IntegrantePainelResposta",
+        "description": "Desempenho individual no painel do grupo."
+      },
+      "ItemCalendarioResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "prioridade": {
+            "type": "string",
+            "enum": [
+              "baixa",
+              "media",
+              "alta",
+              "urgente"
+            ],
+            "title": "Prioridade"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "em_andamento",
+              "concluida"
+            ],
+            "title": "Status"
+          },
+          "turno": {
+            "type": "string",
+            "enum": [
+              "manha",
+              "tarde",
+              "noite",
+              "livre"
+            ],
+            "title": "Turno"
+          },
+          "prazo": {
+            "type": "string",
+            "title": "Prazo"
+          },
+          "atrasada": {
+            "type": "boolean",
+            "title": "Atrasada"
+          },
+          "recorrente": {
+            "type": "boolean",
+            "title": "Recorrente"
+          },
+          "eh_projecao": {
+            "type": "boolean",
+            "title": "Eh Projecao"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "titulo",
+          "prioridade",
+          "status",
+          "turno",
+          "prazo",
+          "atrasada",
+          "recorrente",
+          "eh_projecao"
+        ],
+        "title": "ItemCalendarioResposta",
+        "description": "Tarefa real ou ocorrencia recorrente exibida em um dia do calendario."
+      },
+      "ItemOrdenacaoIrma": {
+        "properties": {
+          "tarefa_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Id"
+          },
+          "ordem_manual": {
+            "type": "integer",
+            "title": "Ordem Manual"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_id",
+          "ordem_manual"
+        ],
+        "title": "ItemOrdenacaoIrma",
+        "description": "Item individual de ordenacao manual entre irmas."
+      },
+      "ItemPorEtiquetaResposta": {
+        "properties": {
+          "etiqueta_id": {
+            "type": "string",
+            "title": "Etiqueta Id"
+          },
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "cor": {
+            "type": "string",
+            "title": "Cor"
+          },
+          "concluidas": {
+            "type": "integer",
+            "title": "Concluidas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "etiqueta_id",
+          "nome",
+          "cor",
+          "concluidas"
+        ],
+        "title": "ItemPorEtiquetaResposta",
+        "description": "Conclusoes por etiqueta."
+      },
+      "KpisEstatisticasResposta": {
+        "properties": {
+          "total_criadas": {
+            "type": "integer",
+            "title": "Total Criadas"
+          },
+          "total_concluidas": {
+            "type": "integer",
+            "title": "Total Concluidas"
+          },
+          "taxa_conclusao_pct": {
+            "type": "integer",
+            "title": "Taxa Conclusao Pct"
+          },
+          "tempo_medio_conclusao_horas": {
+            "type": "number",
+            "title": "Tempo Medio Conclusao Horas"
+          },
+          "pontualidade_pct": {
+            "type": "integer",
+            "title": "Pontualidade Pct"
+          },
+          "sequencia_atual_dias": {
+            "type": "integer",
+            "title": "Sequencia Atual Dias"
+          },
+          "sequencia_recorde_dias": {
+            "type": "integer",
+            "title": "Sequencia Recorde Dias"
+          },
+          "minutos_foco_totais": {
+            "type": "integer",
+            "title": "Minutos Foco Totais"
+          },
+          "taxa_foco_concluido_pct": {
+            "type": "integer",
+            "title": "Taxa Foco Concluido Pct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_criadas",
+          "total_concluidas",
+          "taxa_conclusao_pct",
+          "tempo_medio_conclusao_horas",
+          "pontualidade_pct",
+          "sequencia_atual_dias",
+          "sequencia_recorde_dias",
+          "minutos_foco_totais",
+          "taxa_foco_concluido_pct"
+        ],
+        "title": "KpisEstatisticasResposta",
+        "description": "Indicadores principais do dashboard D14."
+      },
+      "LembreteDetalhadoResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "tarefa_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Id"
+          },
+          "disparar_em": {
+            "type": "string",
+            "title": "Disparar Em"
+          },
+          "antecedencia_min": {
+            "type": "integer",
+            "title": "Antecedencia Min"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "enviado",
+              "cancelado"
+            ],
+            "title": "Status"
+          },
+          "enviado_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enviado Em"
+          },
+          "criado_em": {
+            "type": "string",
+            "title": "Criado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tarefa_id",
+          "disparar_em",
+          "antecedencia_min",
+          "status",
+          "enviado_em",
+          "criado_em"
+        ],
+        "title": "LembreteDetalhadoResposta",
+        "description": "Representacao completa de lembrete vinculado a uma tarefa."
+      },
+      "LembreteResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "disparar_em": {
+            "type": "string",
+            "title": "Disparar Em"
+          },
+          "antecedencia_min": {
+            "type": "integer",
+            "title": "Antecedencia Min"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "disparar_em",
+          "antecedencia_min",
+          "status"
+        ],
+        "title": "LembreteResposta",
+        "description": "Resumo de lembrete vinculado a tarefa."
+      },
+      "MembroPreviaResposta": {
+        "properties": {
+          "usuario_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Usuario Id"
+          },
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "papel": {
+            "type": "string",
+            "enum": [
+              "lider",
+              "colaborador"
+            ],
+            "title": "Papel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "usuario_id",
+          "nome_exibicao",
+          "avatar_url",
+          "papel"
+        ],
+        "title": "MembroPreviaResposta",
+        "description": "Membro ativo exibido na previa do convite."
+      },
+      "PontoMapaCalorResposta": {
+        "properties": {
+          "data": {
+            "type": "string",
+            "title": "Data"
+          },
+          "intensidade": {
+            "type": "integer",
+            "title": "Intensidade"
+          },
+          "acoes": {
+            "type": "integer",
+            "title": "Acoes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "intensidade",
+          "acoes"
+        ],
+        "title": "PontoMapaCalorResposta",
+        "description": "Celula diaria para o heatmap de atividade."
+      },
+      "PontoSerieTemporalResposta": {
+        "properties": {
+          "data": {
+            "type": "string",
+            "title": "Data"
+          },
+          "criadas": {
+            "type": "integer",
+            "title": "Criadas"
+          },
+          "concluidas": {
+            "type": "integer",
+            "title": "Concluidas"
+          },
+          "minutos_foco": {
+            "type": "integer",
+            "title": "Minutos Foco"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "criadas",
+          "concluidas",
+          "minutos_foco"
+        ],
+        "title": "PontoSerieTemporalResposta",
+        "description": "Ponto diario de tarefas criadas, concluidas e foco."
+      },
+      "PosicaoNoLayoutSchema": {
+        "properties": {
+          "x": {
+            "type": "number",
+            "title": "X"
+          },
+          "y": {
+            "type": "number",
+            "title": "Y"
+          },
+          "fixado": {
+            "type": "boolean",
+            "title": "Fixado",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "x",
+          "y"
+        ],
+        "title": "PosicaoNoLayoutSchema",
+        "description": "Posicao bidimensional salva de um no no Mapa Visual."
+      },
+      "PreferenciasAudioResposta": {
+        "properties": {
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          },
+          "volume_geral": {
+            "type": "number",
+            "title": "Volume Geral"
+          },
+          "volume_efeitos": {
+            "type": "number",
+            "title": "Volume Efeitos"
+          },
+          "volume_ambiente": {
+            "type": "number",
+            "title": "Volume Ambiente"
+          }
+        },
+        "type": "object",
+        "required": [
+          "habilitado",
+          "volume_geral",
+          "volume_efeitos",
+          "volume_ambiente"
+        ],
+        "title": "PreferenciasAudioResposta",
+        "description": "Configuracoes de audio opt-in."
+      },
+      "PreferenciasTutorialResposta": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "etapa_atual": {
+            "type": "integer",
+            "title": "Etapa Atual"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "etapa_atual"
+        ],
+        "title": "PreferenciasTutorialResposta",
+        "description": "Estado do tutorial guiado do Lume."
+      },
+      "ProximaOcorrenciaResumo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "prazo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prazo"
+          },
+          "serie_recorrencia_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serie Recorrencia Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "prazo",
+          "serie_recorrencia_id"
+        ],
+        "title": "ProximaOcorrenciaResumo",
+        "description": "Resumo da proxima ocorrencia gerada para tarefas recorrentes."
+      },
+      "RecorrenciaEsquema": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "nenhuma",
+              "diaria",
+              "semanal",
+              "mensal"
+            ],
+            "title": "Tipo",
+            "default": "nenhuma"
+          },
+          "dias_semana": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Dias Semana"
+          },
+          "dia_mes": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dia Mes"
+          },
+          "intervalo": {
+            "type": "integer",
+            "title": "Intervalo",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "title": "RecorrenciaEsquema",
+        "description": "Esquema de recorrencia periodica em tarefas."
+      },
+      "RequisicaoAtribuirResponsavel": {
+        "properties": {
+          "responsavel_usuario_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsavel Usuario Id"
+          },
+          "vaga_responsavel_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vaga Responsavel Id"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoAtribuirResponsavel",
+        "description": "Payload de PATCH /api/tarefas/{tarefa_id}/atribuir."
+      },
+      "RequisicaoAtualizarEtiqueta": {
+        "properties": {
+          "nome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nome"
+          },
+          "cor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cor"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoAtualizarEtiqueta",
+        "description": "Payload parcial de PATCH /api/etiquetas/{etiqueta_id}."
+      },
+      "RequisicaoAtualizarLembrete": {
+        "properties": {
+          "disparar_em": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Disparar Em"
+          },
+          "antecedencia_min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Antecedencia Min"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoAtualizarLembrete",
+        "description": "Payload parcial de PATCH /api/lembretes/{lembrete_id}."
+      },
+      "RequisicaoAtualizarPerfil": {
+        "properties": {
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "avatar_tipo": {
+            "type": "string",
+            "title": "Avatar Tipo"
+          },
+          "avatar_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome_exibicao",
+          "avatar_tipo"
+        ],
+        "title": "RequisicaoAtualizarPerfil",
+        "description": "Payload de PATCH /api/conta/perfil."
+      },
+      "RequisicaoAtualizarPreferencias": {
+        "properties": {
+          "modo_temporal": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modo Temporal"
+          },
+          "hora_simulada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hora Simulada"
+          },
+          "qualidade_3d": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Qualidade 3D"
+          },
+          "reduzir_movimento": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reduzir Movimento"
+          },
+          "audio": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequisicaoAudioParcial"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tutorial": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequisicaoTutorialParcial"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoAtualizarPreferencias",
+        "description": "Payload parcial de PATCH /api/preferencias."
+      },
+      "RequisicaoAtualizarTarefa": {
+        "properties": {
+          "titulo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Titulo"
+          },
+          "prioridade": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "baixa",
+                  "media",
+                  "alta",
+                  "urgente"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prioridade"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "pendente",
+                  "em_andamento",
+                  "concluida"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "turno": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "manha",
+                  "tarde",
+                  "noite",
+                  "livre"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turno"
+          },
+          "prazo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prazo"
+          },
+          "recorrencia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecorrenciaEsquema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "etiqueta_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etiqueta Ids"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoAtualizarTarefa",
+        "description": "Payload parcial de PATCH /api/tarefas/{tarefa_id}."
+      },
+      "RequisicaoAudioParcial": {
+        "properties": {
+          "habilitado": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Habilitado"
+          },
+          "volume_geral": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Geral"
+          },
+          "volume_efeitos": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Efeitos"
+          },
+          "volume_ambiente": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Volume Ambiente"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoAudioParcial",
+        "description": "Campos opcionais de audio para PATCH /api/preferencias."
+      },
+      "RequisicaoConcluirTarefa": {
+        "properties": {
+          "confirmar_cascata": {
+            "type": "boolean",
+            "title": "Confirmar Cascata",
+            "default": false
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoConcluirTarefa",
+        "description": "Payload de POST /api/tarefas/{tarefa_id}/concluir."
+      },
+      "RequisicaoConsentimentoClima": {
+        "properties": {
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          },
+          "modo_localizacao": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "navegador",
+                  "manual"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modo Localizacao"
+          },
+          "cidade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cidade"
+          },
+          "uf": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uf"
+          },
+          "latitude_aprox": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude Aprox"
+          },
+          "longitude_aprox": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude Aprox"
+          }
+        },
+        "type": "object",
+        "required": [
+          "habilitado"
+        ],
+        "title": "RequisicaoConsentimentoClima",
+        "description": "Payload de PUT /api/clima/consentimento."
+      },
+      "RequisicaoCriarEtiqueta": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "title": "Nome"
+          },
+          "cor": {
+            "type": "string",
+            "title": "Cor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "cor"
+        ],
+        "title": "RequisicaoCriarEtiqueta",
+        "description": "Payload de POST /api/etiquetas."
+      },
+      "RequisicaoCriarLembrete": {
+        "properties": {
+          "disparar_em": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Disparar Em"
+          },
+          "antecedencia_min": {
+            "type": "integer",
+            "title": "Antecedencia Min",
+            "default": 15
+          }
+        },
+        "type": "object",
+        "required": [
+          "disparar_em"
+        ],
+        "title": "RequisicaoCriarLembrete",
+        "description": "Payload de POST /api/tarefas/{tarefa_id}/lembretes."
+      },
+      "RequisicaoCriarTarefa": {
+        "properties": {
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "tarefa_pai_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarefa Pai Id"
+          },
+          "prioridade": {
+            "type": "string",
+            "enum": [
+              "baixa",
+              "media",
+              "alta",
+              "urgente"
+            ],
+            "title": "Prioridade",
+            "default": "media"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "em_andamento",
+              "concluida"
+            ],
+            "title": "Status",
+            "default": "pendente"
+          },
+          "turno": {
+            "type": "string",
+            "enum": [
+              "manha",
+              "tarde",
+              "noite",
+              "livre"
+            ],
+            "title": "Turno",
+            "default": "livre"
+          },
+          "prazo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prazo"
+          },
+          "recorrencia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecorrenciaEsquema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "etiqueta_ids": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Etiqueta Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "titulo"
+        ],
+        "title": "RequisicaoCriarTarefa",
+        "description": "Payload de POST /api/tarefas."
+      },
+      "RequisicaoCriarVaga": {
+        "properties": {
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "email_opcional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Opcional"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome_exibicao"
+        ],
+        "title": "RequisicaoCriarVaga",
+        "description": "Payload de POST /api/grupos/{tarefa_raiz_id}/vagas."
+      },
+      "RequisicaoDesfazerCascata": {
+        "properties": {
+          "token_desfazer": {
+            "type": "string",
+            "title": "Token Desfazer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token_desfazer"
+        ],
+        "title": "RequisicaoDesfazerCascata",
+        "description": "Payload de POST /api/tarefas/desfazer-cascata."
+      },
+      "RequisicaoEncerrarSessaoFoco": {
+        "properties": {
+          "duracao_real_seg": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duracao Real Seg"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoEncerrarSessaoFoco",
+        "description": "Payload opcional para concluir ou interromper uma sessao de foco."
+      },
+      "RequisicaoEntrarConvite": {
+        "properties": {
+          "vaga_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vaga Id"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoEntrarConvite",
+        "description": "Payload opcional de POST /api/grupos/convites/{token}/entrar."
+      },
+      "RequisicaoExcluirConta": {
+        "properties": {
+          "confirmacao": {
+            "type": "string",
+            "title": "Confirmacao"
+          }
+        },
+        "type": "object",
+        "required": [
+          "confirmacao"
+        ],
+        "title": "RequisicaoExcluirConta",
+        "description": "Payload de confirmacao textual para POST /api/conta/excluir."
+      },
+      "RequisicaoIniciarSessaoFoco": {
+        "properties": {
+          "tarefa_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Id"
+          },
+          "duracao_planejada_seg": {
+            "type": "integer",
+            "title": "Duracao Planejada Seg"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_id",
+          "duracao_planejada_seg"
+        ],
+        "title": "RequisicaoIniciarSessaoFoco",
+        "description": "Payload de POST /api/foco/sessoes."
+      },
+      "RequisicaoMoverTarefa": {
+        "properties": {
+          "novo_pai_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Novo Pai Id"
+          },
+          "nova_ordem": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nova Ordem"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoMoverTarefa",
+        "description": "Payload de POST /api/tarefas/{tarefa_id}/mover."
+      },
+      "RequisicaoPrimeiroAcesso": {
+        "properties": {
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "avatar_tipo": {
+            "type": "string",
+            "title": "Avatar Tipo"
+          },
+          "avatar_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Id"
+          },
+          "criar_arvore_guia": {
+            "type": "boolean",
+            "title": "Criar Arvore Guia",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome_exibicao",
+          "avatar_tipo"
+        ],
+        "title": "RequisicaoPrimeiroAcesso",
+        "description": "Payload de POST /api/conta/primeiro-acesso."
+      },
+      "RequisicaoReabrirTarefa": {
+        "properties": {
+          "status_destino": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "em_andamento"
+            ],
+            "title": "Status Destino",
+            "default": "em_andamento"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoReabrirTarefa",
+        "description": "Payload de POST /api/tarefas/{tarefa_id}/reabrir."
+      },
+      "RequisicaoRegistrarDispositivoPush": {
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "title": "Endpoint"
+          },
+          "chaves": {
+            "$ref": "#/components/schemas/ChavesPushEntrada"
+          },
+          "rotulo_dispositivo": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rotulo Dispositivo"
+          },
+          "plataforma": {
+            "type": "string",
+            "title": "Plataforma",
+            "default": "outro"
+          }
+        },
+        "type": "object",
+        "required": [
+          "endpoint",
+          "chaves"
+        ],
+        "title": "RequisicaoRegistrarDispositivoPush",
+        "description": "Payload de POST /api/push/dispositivos."
+      },
+      "RequisicaoReordenarIrmas": {
+        "properties": {
+          "tarefa_pai_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarefa Pai Id"
+          },
+          "ordenacao": {
+            "items": {
+              "$ref": "#/components/schemas/ItemOrdenacaoIrma"
+            },
+            "type": "array",
+            "title": "Ordenacao"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ordenacao"
+        ],
+        "title": "RequisicaoReordenarIrmas",
+        "description": "Payload de PATCH /api/tarefas/reordenar."
+      },
+      "RequisicaoSalvarDetalhes": {
+        "properties": {
+          "metadados_visuais": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metadados Visuais"
+          },
+          "notas_em_blocos": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Notas Em Blocos"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoSalvarDetalhes",
+        "description": "Payload de PUT /api/tarefas/{tarefa_id}/detalhes."
+      },
+      "RequisicaoSalvarLayoutConstelacao": {
+        "properties": {
+          "nos": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PosicaoNoLayoutSchema"
+            },
+            "type": "object",
+            "title": "Nos"
+          },
+          "viewport": {
+            "$ref": "#/components/schemas/ViewportConstelacaoSchema"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoSalvarLayoutConstelacao",
+        "description": "Payload de PUT /api/constelacoes/{tarefa_raiz_id}/layout."
+      },
+      "RequisicaoTransferirLideranca": {
+        "properties": {
+          "novo_lider_usuario_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Novo Lider Usuario Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "novo_lider_usuario_id"
+        ],
+        "title": "RequisicaoTransferirLideranca",
+        "description": "Payload de POST /api/grupos/{tarefa_raiz_id}/transferir-lideranca."
+      },
+      "RequisicaoTutorialParcial": {
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "etapa_atual": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Etapa Atual"
+          }
+        },
+        "type": "object",
+        "title": "RequisicaoTutorialParcial",
+        "description": "Campos opcionais do tutorial para PATCH /api/preferencias."
+      },
+      "RespostaAvatarUpload": {
+        "properties": {
+          "avatar_tipo": {
+            "type": "string",
+            "title": "Avatar Tipo"
+          },
+          "avatar_url": {
+            "type": "string",
+            "title": "Avatar Url"
+          },
+          "largura": {
+            "type": "integer",
+            "title": "Largura"
+          },
+          "altura": {
+            "type": "integer",
+            "title": "Altura"
+          }
+        },
+        "type": "object",
+        "required": [
+          "avatar_tipo",
+          "avatar_url",
+          "largura",
+          "altura"
+        ],
+        "title": "RespostaAvatarUpload",
+        "description": "Resposta de POST /api/conta/avatar."
+      },
+      "RespostaBuscaCidades": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/SugestaoCidadeResposta"
+            },
+            "type": "array",
+            "title": "Itens"
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens"
+        ],
+        "title": "RespostaBuscaCidades",
+        "description": "Resposta de GET /api/clima/cidades."
+      },
+      "RespostaCalendarioMensal": {
+        "properties": {
+          "ano": {
+            "type": "integer",
+            "title": "Ano"
+          },
+          "mes": {
+            "type": "integer",
+            "title": "Mes"
+          },
+          "fuso_horario": {
+            "type": "string",
+            "title": "Fuso Horario"
+          },
+          "dias": {
+            "items": {
+              "$ref": "#/components/schemas/DiaCalendarioResposta"
+            },
+            "type": "array",
+            "title": "Dias"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ano",
+          "mes",
+          "fuso_horario",
+          "dias"
+        ],
+        "title": "RespostaCalendarioMensal",
+        "description": "Resposta de GET /api/calendario/mensal."
+      },
+      "RespostaChavePublicaPush": {
+        "properties": {
+          "chave_publica": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chave Publica"
+          },
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          }
+        },
+        "type": "object",
+        "required": [
+          "chave_publica",
+          "habilitado"
+        ],
+        "title": "RespostaChavePublicaPush",
+        "description": "Resposta de GET /api/push/chave-publica."
+      },
+      "RespostaClimaAtual": {
+        "properties": {
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          },
+          "cidade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cidade"
+          },
+          "uf": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uf"
+          },
+          "temperatura_c": {
+            "type": "number",
+            "title": "Temperatura C"
+          },
+          "codigo_wmo": {
+            "type": "integer",
+            "title": "Codigo Wmo"
+          },
+          "estado_climatico": {
+            "type": "string",
+            "enum": [
+              "limpo",
+              "parcialmente_nublado",
+              "nublado",
+              "chuvoso",
+              "tempestade"
+            ],
+            "title": "Estado Climatico"
+          },
+          "descricao": {
+            "type": "string",
+            "title": "Descricao"
+          },
+          "origem_cache": {
+            "type": "boolean",
+            "title": "Origem Cache"
+          },
+          "atualizado_em": {
+            "type": "string",
+            "title": "Atualizado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "habilitado",
+          "cidade",
+          "uf",
+          "temperatura_c",
+          "codigo_wmo",
+          "estado_climatico",
+          "descricao",
+          "origem_cache",
+          "atualizado_em"
+        ],
+        "title": "RespostaClimaAtual",
+        "description": "Resposta normalizada de GET /api/clima/atual."
+      },
+      "RespostaCompartilharGrupo": {
+        "properties": {
+          "tarefa_raiz_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Raiz Id"
+          },
+          "compartilhada": {
+            "type": "boolean",
+            "title": "Compartilhada"
+          },
+          "meu_papel": {
+            "type": "string",
+            "enum": [
+              "lider",
+              "colaborador"
+            ],
+            "title": "Meu Papel"
+          },
+          "codigo_token": {
+            "type": "string",
+            "title": "Codigo Token"
+          },
+          "link_convite": {
+            "type": "string",
+            "title": "Link Convite"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_raiz_id",
+          "compartilhada",
+          "meu_papel",
+          "codigo_token",
+          "link_convite"
+        ],
+        "title": "RespostaCompartilharGrupo",
+        "description": "Resposta de POST /api/grupos/{tarefa_raiz_id}/compartilhar."
+      },
+      "RespostaConcluirTarefa": {
+        "properties": {
+          "tarefa_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Id"
+          },
+          "nos_concluidos": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Nos Concluidos"
+          },
+          "ancestrais_atualizados": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Ancestrais Atualizados"
+          },
+          "token_desfazer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Desfazer"
+          },
+          "expira_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expira Em"
+          },
+          "proxima_ocorrencia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProximaOcorrenciaResumo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_id",
+          "nos_concluidos",
+          "ancestrais_atualizados",
+          "token_desfazer",
+          "expira_em"
+        ],
+        "title": "RespostaConcluirTarefa",
+        "description": "Resposta de POST /api/tarefas/{tarefa_id}/concluir."
+      },
+      "RespostaConsentimentoClima": {
+        "properties": {
+          "habilitado": {
+            "type": "boolean",
+            "title": "Habilitado"
+          },
+          "modo_localizacao": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "navegador",
+                  "manual"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Modo Localizacao"
+          },
+          "cidade": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cidade"
+          },
+          "uf": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uf"
+          },
+          "latitude_aprox": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latitude Aprox"
+          },
+          "longitude_aprox": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Longitude Aprox"
+          },
+          "estado_climatico": {
+            "type": "string",
+            "enum": [
+              "limpo",
+              "parcialmente_nublado",
+              "nublado",
+              "chuvoso",
+              "tempestade"
+            ],
+            "title": "Estado Climatico"
+          }
+        },
+        "type": "object",
+        "required": [
+          "habilitado",
+          "modo_localizacao",
+          "cidade",
+          "uf",
+          "latitude_aprox",
+          "longitude_aprox",
+          "estado_climatico"
+        ],
+        "title": "RespostaConsentimentoClima",
+        "description": "Resposta de PUT /api/clima/consentimento."
+      },
+      "RespostaCriarTarefa": {
+        "properties": {
+          "tarefa": {
+            "$ref": "#/components/schemas/TarefaResposta"
+          },
+          "ancestrais_atualizados": {
+            "items": {
+              "$ref": "#/components/schemas/AncestralResumoResposta"
+            },
+            "type": "array",
+            "title": "Ancestrais Atualizados"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa",
+          "ancestrais_atualizados"
+        ],
+        "title": "RespostaCriarTarefa",
+        "description": "Resposta 201 Created de POST /api/tarefas."
+      },
+      "RespostaDesfazerCascata": {
+        "properties": {
+          "restaurados": {
+            "type": "integer",
+            "title": "Restaurados"
+          },
+          "tarefa_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurados",
+          "tarefa_id"
+        ],
+        "title": "RespostaDesfazerCascata",
+        "description": "Resposta de POST /api/tarefas/desfazer-cascata."
+      },
+      "RespostaDetalheTarefaCompleta": {
+        "properties": {
+          "tarefa": {
+            "$ref": "#/components/schemas/TarefaResposta"
+          },
+          "detalhes": {
+            "$ref": "#/components/schemas/DetalhesTarefaResposta"
+          },
+          "lembretes": {
+            "items": {
+              "$ref": "#/components/schemas/LembreteResposta"
+            },
+            "type": "array",
+            "title": "Lembretes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa",
+          "detalhes",
+          "lembretes"
+        ],
+        "title": "RespostaDetalheTarefaCompleta",
+        "description": "Resposta consolidada de GET /api/tarefas/{tarefa_id}."
+      },
+      "RespostaDiarioEventos": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/EventoDiarioResposta"
+            },
+            "type": "array",
+            "title": "Itens"
+          },
+          "proximo_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proximo Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens",
+          "proximo_cursor"
+        ],
+        "title": "RespostaDiarioEventos",
+        "description": "Resposta paginada de GET /api/diario/eventos."
+      },
+      "RespostaDisparoLembretesCron": {
+        "properties": {
+          "lembretes_processados": {
+            "type": "integer",
+            "title": "Lembretes Processados"
+          },
+          "notificacoes_enviadas": {
+            "type": "integer",
+            "title": "Notificacoes Enviadas"
+          },
+          "inscricoes_removidas_expiradas": {
+            "type": "integer",
+            "title": "Inscricoes Removidas Expiradas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lembretes_processados",
+          "notificacoes_enviadas",
+          "inscricoes_removidas_expiradas"
+        ],
+        "title": "RespostaDisparoLembretesCron",
+        "description": "Contadores consolidados retornados pelo endpoint interno de cron."
+      },
+      "RespostaEntrarConvite": {
+        "properties": {
+          "tarefa_raiz_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Raiz Id"
+          },
+          "papel": {
+            "type": "string",
+            "enum": [
+              "lider",
+              "colaborador"
+            ],
+            "title": "Papel"
+          },
+          "vaga_vinculada_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vaga Vinculada Id"
+          },
+          "subtarefas_herdadas": {
+            "type": "integer",
+            "title": "Subtarefas Herdadas"
+          },
+          "ja_era_membro": {
+            "type": "boolean",
+            "title": "Ja Era Membro"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_raiz_id",
+          "papel",
+          "vaga_vinculada_id",
+          "subtarefas_herdadas",
+          "ja_era_membro"
+        ],
+        "title": "RespostaEntrarConvite",
+        "description": "Resposta de POST /api/grupos/convites/{token}/entrar."
+      },
+      "RespostaEstatisticasResumo": {
+        "properties": {
+          "periodo": {
+            "type": "string",
+            "title": "Periodo"
+          },
+          "escopo": {
+            "type": "string",
+            "title": "Escopo"
+          },
+          "kpis": {
+            "$ref": "#/components/schemas/KpisEstatisticasResposta"
+          },
+          "serie_temporal": {
+            "items": {
+              "$ref": "#/components/schemas/PontoSerieTemporalResposta"
+            },
+            "type": "array",
+            "title": "Serie Temporal"
+          },
+          "mapa_calor": {
+            "items": {
+              "$ref": "#/components/schemas/PontoMapaCalorResposta"
+            },
+            "type": "array",
+            "title": "Mapa Calor"
+          },
+          "por_turno": {
+            "$ref": "#/components/schemas/DistribuicaoTurnoResposta"
+          },
+          "por_prioridade": {
+            "$ref": "#/components/schemas/DistribuicaoPrioridadeResposta"
+          },
+          "por_etiqueta": {
+            "items": {
+              "$ref": "#/components/schemas/ItemPorEtiquetaResposta"
+            },
+            "type": "array",
+            "title": "Por Etiqueta"
+          },
+          "recorrencias": {
+            "$ref": "#/components/schemas/ResumoRecorrenciasResposta"
+          },
+          "repeticoes_e_retrabalho": {
+            "$ref": "#/components/schemas/ResumoRepeticoesRetrabalhoResposta"
+          },
+          "arvores": {
+            "$ref": "#/components/schemas/ResumoArvoresResposta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periodo",
+          "escopo",
+          "kpis",
+          "serie_temporal",
+          "mapa_calor",
+          "por_turno",
+          "por_prioridade",
+          "por_etiqueta",
+          "recorrencias",
+          "repeticoes_e_retrabalho",
+          "arvores"
+        ],
+        "title": "RespostaEstatisticasResumo",
+        "description": "Resposta completa de GET /api/estatisticas/resumo."
+      },
+      "RespostaExcluirConta": {
+        "properties": {
+          "conta_excluida": {
+            "type": "boolean",
+            "title": "Conta Excluida"
+          },
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          }
+        },
+        "type": "object",
+        "required": [
+          "conta_excluida",
+          "mensagem"
+        ],
+        "title": "RespostaExcluirConta",
+        "description": "Resposta de POST /api/conta/excluir."
+      },
+      "RespostaExcluirTarefa": {
+        "properties": {
+          "estrategia_aplicada": {
+            "type": "string",
+            "enum": [
+              "cascata",
+              "promover_filhas"
+            ],
+            "title": "Estrategia Aplicada"
+          },
+          "tarefas_removidas": {
+            "type": "integer",
+            "title": "Tarefas Removidas"
+          },
+          "filhas_promovidas": {
+            "type": "integer",
+            "title": "Filhas Promovidas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "estrategia_aplicada",
+          "tarefas_removidas",
+          "filhas_promovidas"
+        ],
+        "title": "RespostaExcluirTarefa",
+        "description": "Resposta de DELETE /api/tarefas/{tarefa_id}."
+      },
+      "RespostaHistoricoFoco": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/SessaoFocoResposta"
+            },
+            "type": "array",
+            "title": "Itens"
+          },
+          "total_segundos_concluidos": {
+            "type": "integer",
+            "title": "Total Segundos Concluidos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens",
+          "total_segundos_concluidos"
+        ],
+        "title": "RespostaHistoricoFoco",
+        "description": "Resposta de GET /api/foco/sessoes."
+      },
+      "RespostaLayoutConstelacao": {
+        "properties": {
+          "tarefa_raiz_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Raiz Id"
+          },
+          "nos": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PosicaoNoLayoutSchema"
+            },
+            "type": "object",
+            "title": "Nos"
+          },
+          "viewport": {
+            "$ref": "#/components/schemas/ViewportConstelacaoSchema"
+          },
+          "atualizado_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Atualizado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_raiz_id",
+          "nos",
+          "viewport",
+          "atualizado_em"
+        ],
+        "title": "RespostaLayoutConstelacao",
+        "description": "Resposta de GET e PUT /api/constelacoes/{tarefa_raiz_id}/layout."
+      },
+      "RespostaListaEtiquetas": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/EtiquetaResposta"
+            },
+            "type": "array",
+            "title": "Itens"
+          },
+          "limite_maximo": {
+            "type": "integer",
+            "title": "Limite Maximo",
+            "default": 30
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens"
+        ],
+        "title": "RespostaListaEtiquetas",
+        "description": "Lista de etiquetas do usuario e seu teto maximo."
+      },
+      "RespostaListarDispositivosPush": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/DispositivoPushResposta"
+            },
+            "type": "array",
+            "title": "Itens"
+          },
+          "limite_maximo": {
+            "type": "integer",
+            "title": "Limite Maximo",
+            "default": 10
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens"
+        ],
+        "title": "RespostaListarDispositivosPush",
+        "description": "Lista de dispositivos Web Push da conta e teto maximo."
+      },
+      "RespostaListarLembretesTarefa": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/LembreteDetalhadoResposta"
+            },
+            "type": "array",
+            "title": "Itens"
+          },
+          "limite_maximo": {
+            "type": "integer",
+            "title": "Limite Maximo",
+            "default": 3
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens"
+        ],
+        "title": "RespostaListarLembretesTarefa",
+        "description": "Lista de lembretes da tarefa e teto maximo por tarefa."
+      },
+      "RespostaListarTarefas": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/TarefaResposta"
+            },
+            "type": "array",
+            "title": "Itens"
+          },
+          "totais": {
+            "$ref": "#/components/schemas/TotaisTarefasResposta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens",
+          "totais"
+        ],
+        "title": "RespostaListarTarefas",
+        "description": "Resposta de GET /api/tarefas."
+      },
+      "RespostaMoverTarefa": {
+        "properties": {
+          "tarefa": {
+            "$ref": "#/components/schemas/TarefaResposta"
+          },
+          "ancestrais_concluidos": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Ancestrais Concluidos"
+          },
+          "ancestrais_reabertos": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Ancestrais Reabertos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa",
+          "ancestrais_concluidos",
+          "ancestrais_reabertos"
+        ],
+        "title": "RespostaMoverTarefa",
+        "description": "Resposta de POST /api/tarefas/{tarefa_id}/mover."
+      },
+      "RespostaPainelDesempenhoGrupo": {
+        "properties": {
+          "tarefa_raiz_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Raiz Id"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "meu_papel": {
+            "type": "string",
+            "enum": [
+              "lider",
+              "colaborador"
+            ],
+            "title": "Meu Papel"
+          },
+          "link_convite_ativo": {
+            "type": "boolean",
+            "title": "Link Convite Ativo"
+          },
+          "codigo_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigo Token"
+          },
+          "resumo_geral": {
+            "$ref": "#/components/schemas/ResumoGeralPainelResposta"
+          },
+          "integrantes": {
+            "items": {
+              "$ref": "#/components/schemas/IntegrantePainelResposta"
+            },
+            "type": "array",
+            "title": "Integrantes"
+          },
+          "vagas_abertas": {
+            "items": {
+              "$ref": "#/components/schemas/VagaAbertaPainelResposta"
+            },
+            "type": "array",
+            "title": "Vagas Abertas"
+          },
+          "atividade_recente": {
+            "items": {
+              "$ref": "#/components/schemas/AtividadeGrupoResposta"
+            },
+            "type": "array",
+            "title": "Atividade Recente"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_raiz_id",
+          "titulo",
+          "meu_papel",
+          "link_convite_ativo",
+          "codigo_token",
+          "resumo_geral",
+          "integrantes",
+          "vagas_abertas",
+          "atividade_recente"
+        ],
+        "title": "RespostaPainelDesempenhoGrupo",
+        "description": "Resposta de GET /api/grupos/{tarefa_raiz_id}/desempenho."
+      },
+      "RespostaPerfil": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "avatar_tipo": {
+            "type": "string",
+            "title": "Avatar Tipo"
+          },
+          "avatar_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Id"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "primeiro_acesso_concluido": {
+            "type": "boolean",
+            "title": "Primeiro Acesso Concluido"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "nome_exibicao",
+          "avatar_tipo",
+          "avatar_id",
+          "avatar_url",
+          "primeiro_acesso_concluido"
+        ],
+        "title": "RespostaPerfil",
+        "description": "Resposta de GET e PATCH /api/conta/perfil."
+      },
+      "RespostaPreferenciasCenario": {
+        "properties": {
+          "modo_temporal": {
+            "type": "string",
+            "title": "Modo Temporal"
+          },
+          "hora_simulada": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hora Simulada"
+          },
+          "qualidade_3d": {
+            "type": "string",
+            "title": "Qualidade 3D"
+          },
+          "reduzir_movimento": {
+            "type": "boolean",
+            "title": "Reduzir Movimento"
+          },
+          "audio": {
+            "$ref": "#/components/schemas/PreferenciasAudioResposta"
+          },
+          "tutorial": {
+            "$ref": "#/components/schemas/PreferenciasTutorialResposta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "modo_temporal",
+          "hora_simulada",
+          "qualidade_3d",
+          "reduzir_movimento",
+          "audio",
+          "tutorial"
+        ],
+        "title": "RespostaPreferenciasCenario",
+        "description": "Resposta de GET e PATCH /api/preferencias."
+      },
+      "RespostaPreviaConvite": {
+        "properties": {
+          "tarefa_raiz_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Raiz Id"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "lider_nome": {
+            "type": "string",
+            "title": "Lider Nome"
+          },
+          "membros_ativos": {
+            "items": {
+              "$ref": "#/components/schemas/MembroPreviaResposta"
+            },
+            "type": "array",
+            "title": "Membros Ativos"
+          },
+          "vagas_disponiveis": {
+            "items": {
+              "$ref": "#/components/schemas/VagaDisponivelPreviaResposta"
+            },
+            "type": "array",
+            "title": "Vagas Disponiveis"
+          },
+          "ja_e_membro": {
+            "type": "boolean",
+            "title": "Ja E Membro"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_raiz_id",
+          "titulo",
+          "lider_nome",
+          "membros_ativos",
+          "vagas_disponiveis",
+          "ja_e_membro"
+        ],
+        "title": "RespostaPreviaConvite",
+        "description": "Resposta de GET /api/grupos/convites/{token}."
+      },
+      "RespostaPrimeiroAcesso": {
+        "properties": {
+          "primeiro_acesso_concluido": {
+            "type": "boolean",
+            "title": "Primeiro Acesso Concluido"
+          },
+          "arvore_guia_criada": {
+            "type": "boolean",
+            "title": "Arvore Guia Criada"
+          },
+          "tarefa_guia_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarefa Guia Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "primeiro_acesso_concluido",
+          "arvore_guia_criada",
+          "tarefa_guia_id"
+        ],
+        "title": "RespostaPrimeiroAcesso",
+        "description": "Resposta de POST /api/conta/primeiro-acesso."
+      },
+      "RespostaReabrirTarefa": {
+        "properties": {
+          "tarefa_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "em_andamento",
+              "concluida"
+            ],
+            "title": "Status"
+          },
+          "nos_reabertos": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Nos Reabertos"
+          },
+          "ancestrais_reabertos": {
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "type": "array",
+            "title": "Ancestrais Reabertos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tarefa_id",
+          "status",
+          "nos_reabertos",
+          "ancestrais_reabertos"
+        ],
+        "title": "RespostaReabrirTarefa",
+        "description": "Resposta de POST /api/tarefas/{tarefa_id}/reabrir."
+      },
+      "RespostaRegenerarConvite": {
+        "properties": {
+          "codigo_token": {
+            "type": "string",
+            "title": "Codigo Token"
+          },
+          "link_convite": {
+            "type": "string",
+            "title": "Link Convite"
+          },
+          "ativo": {
+            "type": "boolean",
+            "title": "Ativo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "codigo_token",
+          "link_convite",
+          "ativo"
+        ],
+        "title": "RespostaRegenerarConvite",
+        "description": "Resposta de POST /api/grupos/{tarefa_raiz_id}/convites/regenerar."
+      },
+      "RespostaReordenarIrmas": {
+        "properties": {
+          "atualizadas": {
+            "type": "integer",
+            "title": "Atualizadas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "atualizadas"
+        ],
+        "title": "RespostaReordenarIrmas",
+        "description": "Resposta de PATCH /api/tarefas/reordenar."
+      },
+      "RespostaSairGrupo": {
+        "properties": {
+          "saiu_do_grupo": {
+            "type": "boolean",
+            "title": "Saiu Do Grupo"
+          },
+          "subtarefas_desvinculadas": {
+            "type": "integer",
+            "title": "Subtarefas Desvinculadas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "saiu_do_grupo",
+          "subtarefas_desvinculadas"
+        ],
+        "title": "RespostaSairGrupo",
+        "description": "Resposta de POST /api/grupos/{tarefa_raiz_id}/sair."
+      },
+      "RespostaSairTodos": {
+        "properties": {
+          "sessoes_revogadas": {
+            "type": "integer",
+            "title": "Sessoes Revogadas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessoes_revogadas"
+        ],
+        "title": "RespostaSairTodos",
+        "description": "Resposta de POST /api/autenticacao/sair-todos."
+      },
+      "RespostaSaude": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "degradado"
+            ],
+            "title": "Status"
+          },
+          "servico": {
+            "type": "string",
+            "title": "Servico"
+          },
+          "versao": {
+            "type": "string",
+            "title": "Versao"
+          },
+          "banco_relacional": {
+            "type": "string",
+            "enum": [
+              "conectado",
+              "nao_configurado",
+              "indisponivel"
+            ],
+            "title": "Banco Relacional"
+          },
+          "banco_documental": {
+            "type": "string",
+            "enum": [
+              "conectado",
+              "nao_configurado",
+              "indisponivel"
+            ],
+            "title": "Banco Documental"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "servico",
+          "versao",
+          "banco_relacional",
+          "banco_documental",
+          "timestamp"
+        ],
+        "title": "RespostaSaude",
+        "description": "Esquema HTTP de saida do endpoint /api/saude."
+      },
+      "RespostaSessao": {
+        "properties": {
+          "autenticado": {
+            "type": "boolean",
+            "title": "Autenticado"
+          },
+          "usuario": {
+            "$ref": "#/components/schemas/UsuarioResumo"
+          },
+          "sessao": {
+            "$ref": "#/components/schemas/SessaoResumo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "autenticado",
+          "usuario",
+          "sessao"
+        ],
+        "title": "RespostaSessao",
+        "description": "Resposta de GET /api/autenticacao/sessao."
+      },
+      "RespostaSessaoFocoAtiva": {
+        "properties": {
+          "sessao_ativa": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessaoFocoResposta"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessao_ativa"
+        ],
+        "title": "RespostaSessaoFocoAtiva",
+        "description": "Resposta de GET /api/foco/sessoes/ativa."
+      },
+      "RespostaSessaoFocoItem": {
+        "properties": {
+          "sessao": {
+            "$ref": "#/components/schemas/SessaoFocoResposta"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sessao"
+        ],
+        "title": "RespostaSessaoFocoItem",
+        "description": "Resposta de POST /api/foco/sessoes e transicoes de encerramento."
+      },
+      "RespostaTransferirLideranca": {
+        "properties": {
+          "lideranca_transferida": {
+            "type": "boolean",
+            "title": "Lideranca Transferida"
+          },
+          "novo_lider_usuario_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Novo Lider Usuario Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lideranca_transferida",
+          "novo_lider_usuario_id"
+        ],
+        "title": "RespostaTransferirLideranca",
+        "description": "Resposta de POST /api/grupos/{tarefa_raiz_id}/transferir-lideranca."
+      },
+      "ResumoArvoresResposta": {
+        "properties": {
+          "constelacoes_concluidas": {
+            "type": "integer",
+            "title": "Constelacoes Concluidas"
+          },
+          "profundidade_media": {
+            "type": "number",
+            "title": "Profundidade Media"
+          }
+        },
+        "type": "object",
+        "required": [
+          "constelacoes_concluidas",
+          "profundidade_media"
+        ],
+        "title": "ResumoArvoresResposta",
+        "description": "Metricas de constelacoes concluidas e profundidade media."
+      },
+      "ResumoGeralPainelResposta": {
+        "properties": {
+          "total_subtarefas_folha": {
+            "type": "integer",
+            "title": "Total Subtarefas Folha"
+          },
+          "folhas_concluidas": {
+            "type": "integer",
+            "title": "Folhas Concluidas"
+          },
+          "percentual_geral": {
+            "type": "integer",
+            "title": "Percentual Geral"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_subtarefas_folha",
+          "folhas_concluidas",
+          "percentual_geral"
+        ],
+        "title": "ResumoGeralPainelResposta",
+        "description": "Resumo quantitativo de folhas da equipe."
+      },
+      "ResumoRecorrenciasResposta": {
+        "properties": {
+          "rotinas_ativas": {
+            "type": "integer",
+            "title": "Rotinas Ativas"
+          },
+          "ocorrencias_cumpridas": {
+            "type": "integer",
+            "title": "Ocorrencias Cumpridas"
+          },
+          "taxa_consistencia_pct": {
+            "type": "integer",
+            "title": "Taxa Consistencia Pct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rotinas_ativas",
+          "ocorrencias_cumpridas",
+          "taxa_consistencia_pct"
+        ],
+        "title": "ResumoRecorrenciasResposta",
+        "description": "Metricas de consistencia das rotinas recorrentes."
+      },
+      "ResumoRepeticoesRetrabalhoResposta": {
+        "properties": {
+          "total_reaberturas": {
+            "type": "integer",
+            "title": "Total Reaberturas"
+          },
+          "tarefas_reabertas_distintas": {
+            "type": "integer",
+            "title": "Tarefas Reabertas Distintas"
+          },
+          "titulos_mais_repetidos": {
+            "items": {
+              "$ref": "#/components/schemas/TituloRepetidoResposta"
+            },
+            "type": "array",
+            "title": "Titulos Mais Repetidos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "total_reaberturas",
+          "tarefas_reabertas_distintas",
+          "titulos_mais_repetidos"
+        ],
+        "title": "ResumoRepeticoesRetrabalhoResposta",
+        "description": "Metricas de reaberturas e repeticoes."
+      },
+      "SessaoFocoResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "tarefa_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Id"
+          },
+          "tarefa_titulo": {
+            "type": "string",
+            "title": "Tarefa Titulo"
+          },
+          "duracao_planejada_seg": {
+            "type": "integer",
+            "title": "Duracao Planejada Seg"
+          },
+          "duracao_real_seg": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duracao Real Seg"
+          },
+          "iniciada_em": {
+            "type": "string",
+            "title": "Iniciada Em"
+          },
+          "encerrada_em": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Encerrada Em"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "em_andamento",
+              "concluida",
+              "interrompida"
+            ],
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tarefa_id",
+          "tarefa_titulo",
+          "duracao_planejada_seg",
+          "duracao_real_seg",
+          "iniciada_em",
+          "encerrada_em",
+          "status"
+        ],
+        "title": "SessaoFocoResposta",
+        "description": "Representacao serializada de uma sessao do Modo Foco."
+      },
+      "SessaoResumo": {
+        "properties": {
+          "expira_em": {
+            "type": "string",
+            "title": "Expira Em"
+          },
+          "expiracao_absoluta_em": {
+            "type": "string",
+            "title": "Expiracao Absoluta Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expira_em",
+          "expiracao_absoluta_em"
+        ],
+        "title": "SessaoResumo",
+        "description": "Metadados temporais da sessao ativa."
+      },
+      "SugestaoCidadeResposta": {
+        "properties": {
+          "cidade": {
+            "type": "string",
+            "title": "Cidade"
+          },
+          "uf": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Uf"
+          },
+          "pais": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pais"
+          },
+          "latitude_aprox": {
+            "type": "number",
+            "title": "Latitude Aprox"
+          },
+          "longitude_aprox": {
+            "type": "number",
+            "title": "Longitude Aprox"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cidade",
+          "uf",
+          "pais",
+          "latitude_aprox",
+          "longitude_aprox"
+        ],
+        "title": "SugestaoCidadeResposta",
+        "description": "Sugestao de cidade normalizada com coordenadas aproximadas."
+      },
+      "TarefaResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "tarefa_pai_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tarefa Pai Id"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "prioridade": {
+            "type": "string",
+            "enum": [
+              "baixa",
+              "media",
+              "alta",
+              "urgente"
+            ],
+            "title": "Prioridade"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pendente",
+              "em_andamento",
+              "concluida"
+            ],
+            "title": "Status"
+          },
+          "turno": {
+            "type": "string",
+            "enum": [
+              "manha",
+              "tarde",
+              "noite",
+              "livre"
+            ],
+            "title": "Turno"
+          },
+          "prazo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prazo"
+          },
+          "profundidade": {
+            "type": "integer",
+            "title": "Profundidade"
+          },
+          "ordem_manual": {
+            "type": "integer",
+            "title": "Ordem Manual"
+          },
+          "percentual_conclusao": {
+            "type": "integer",
+            "title": "Percentual Conclusao"
+          },
+          "total_folhas": {
+            "type": "integer",
+            "title": "Total Folhas"
+          },
+          "folhas_concluidas": {
+            "type": "integer",
+            "title": "Folhas Concluidas"
+          },
+          "tem_filha_urgente_aberta": {
+            "type": "boolean",
+            "title": "Tem Filha Urgente Aberta"
+          },
+          "etiquetas": {
+            "items": {
+              "$ref": "#/components/schemas/EtiquetaResumoResposta"
+            },
+            "type": "array",
+            "title": "Etiquetas"
+          },
+          "recorrencia": {
+            "$ref": "#/components/schemas/RecorrenciaEsquema"
+          },
+          "serie_recorrencia_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serie Recorrencia Id"
+          },
+          "vezes_reaberta": {
+            "type": "integer",
+            "title": "Vezes Reaberta"
+          },
+          "compartilhada": {
+            "type": "boolean",
+            "title": "Compartilhada"
+          },
+          "responsavel": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responsavel"
+          },
+          "lembretes_pendentes": {
+            "type": "integer",
+            "title": "Lembretes Pendentes"
+          },
+          "criado_em": {
+            "type": "string",
+            "title": "Criado Em"
+          },
+          "atualizado_em": {
+            "type": "string",
+            "title": "Atualizado Em"
+          },
+          "subtarefas": {
+            "items": {
+              "$ref": "#/components/schemas/TarefaResposta"
+            },
+            "type": "array",
+            "title": "Subtarefas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tarefa_pai_id",
+          "titulo",
+          "prioridade",
+          "status",
+          "turno",
+          "prazo",
+          "profundidade",
+          "ordem_manual",
+          "percentual_conclusao",
+          "total_folhas",
+          "folhas_concluidas",
+          "tem_filha_urgente_aberta",
+          "etiquetas",
+          "recorrencia",
+          "serie_recorrencia_id",
+          "vezes_reaberta",
+          "compartilhada",
+          "lembretes_pendentes",
+          "criado_em",
+          "atualizado_em"
+        ],
+        "title": "TarefaResposta",
+        "description": "Representacao canonica de tarefa em arvore ou plano."
+      },
+      "TituloRepetidoResposta": {
+        "properties": {
+          "titulo_normalizado": {
+            "type": "string",
+            "title": "Titulo Normalizado"
+          },
+          "ocorrencias": {
+            "type": "integer",
+            "title": "Ocorrencias"
+          },
+          "concluidas": {
+            "type": "integer",
+            "title": "Concluidas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "titulo_normalizado",
+          "ocorrencias",
+          "concluidas"
+        ],
+        "title": "TituloRepetidoResposta",
+        "description": "Titulo recorrente/repetido normalizado."
+      },
+      "TotaisTarefasResposta": {
+        "properties": {
+          "ativas": {
+            "type": "integer",
+            "title": "Ativas"
+          },
+          "concluidas": {
+            "type": "integer",
+            "title": "Concluidas"
+          },
+          "limite_ativas": {
+            "type": "integer",
+            "title": "Limite Ativas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ativas",
+          "concluidas",
+          "limite_ativas"
+        ],
+        "title": "TotaisTarefasResposta",
+        "description": "Contadores globais da conta no workspace."
+      },
+      "UsuarioResumo": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "avatar_tipo": {
+            "type": "string",
+            "title": "Avatar Tipo"
+          },
+          "avatar_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Id"
+          },
+          "avatar_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avatar Url"
+          },
+          "primeiro_acesso_concluido": {
+            "type": "boolean",
+            "title": "Primeiro Acesso Concluido"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "nome_exibicao",
+          "avatar_tipo",
+          "avatar_id",
+          "avatar_url",
+          "primeiro_acesso_concluido"
+        ],
+        "title": "UsuarioResumo",
+        "description": "Dados publicos do usuario na sessao e perfil."
+      },
+      "VagaAbertaPainelResposta": {
+        "properties": {
+          "vaga_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Vaga Id"
+          },
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "email_opcional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Opcional"
+          },
+          "atribuidas": {
+            "type": "integer",
+            "title": "Atribuidas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vaga_id",
+          "nome_exibicao",
+          "email_opcional",
+          "atribuidas"
+        ],
+        "title": "VagaAbertaPainelResposta",
+        "description": "Vaga ainda nao vinculada e suas subtarefas reservadas."
+      },
+      "VagaDisponivelPreviaResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "email_opcional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Opcional"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome_exibicao",
+          "email_opcional"
+        ],
+        "title": "VagaDisponivelPreviaResposta",
+        "description": "Vaga livre exibida na previa do convite."
+      },
+      "VagaGrupoResposta": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "tarefa_raiz_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Tarefa Raiz Id"
+          },
+          "nome_exibicao": {
+            "type": "string",
+            "title": "Nome Exibicao"
+          },
+          "email_opcional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email Opcional"
+          },
+          "ocupada_por_usuario_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ocupada Por Usuario Id"
+          },
+          "criada_em": {
+            "type": "string",
+            "title": "Criada Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "tarefa_raiz_id",
+          "nome_exibicao",
+          "email_opcional",
+          "ocupada_por_usuario_id",
+          "criada_em"
+        ],
+        "title": "VagaGrupoResposta",
+        "description": "Representacao de vaga nomeada."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "ViewportConstelacaoSchema": {
+        "properties": {
+          "zoom": {
+            "type": "number",
+            "title": "Zoom",
+            "default": 1.0
+          },
+          "centro_x": {
+            "type": "number",
+            "title": "Centro X",
+            "default": 0.0
+          },
+          "centro_y": {
+            "type": "number",
+            "title": "Centro Y",
+            "default": 0.0
+          }
+        },
+        "type": "object",
+        "title": "ViewportConstelacaoSchema",
+        "description": "Nivel de zoom e centro do canvas do mapa."
+      }
+    }
+  }
+}

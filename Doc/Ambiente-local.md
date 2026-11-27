@@ -28,8 +28,9 @@ Verificada diretamente no registro `npm` e validada com `npm install`, `vitest`,
 | `typescript` | `~5.9.3` | Evita incompatibilidade com `typescript-eslint@8.73.0`, cujo peerDependency exige `typescript >=4.8.4 <6.1.0`. |
 | `jsdom` | `~27.4.0` | Compativel com Vitest `5.1.1` e Node `v22.13.0` (`engines.node: ^20.19.0 \|\| ^22.12.0 \|\| >=24.0.0`), evitando erro de `undici@8` presente no `jsdom@31` em Node `<22.19`. |
 | `vite` / `@tailwindcss/vite` | `^8.3.8` / `^4.3.5` | Proxy local `/api` integrado e Tailwind CSS v4 sem configuracao extra. |
-
-> Nota: `three`, `@react-three/fiber`, `@react-three/drei` e `@xyflow/react` serao instalados apenas nas respectivas fases de implementacao (`Fases 13` e `16`), conforme regra de economia de dependencias em [Regras.md](../Agents/Regras.md).
+| `three` / `@react-three/fiber` / `@react-three/drei` | `^0.187.0` / `^9.8.2` / `^10.7.9` | Mundo 3D procedural Soft-3D Clay Matte, Lua 3D na fase real e clima reativo com `React.lazy`. |
+| `@xyflow/react` / `recharts` / `motion` / `@dnd-kit/*` | `^13.0.2` / `^3.11.0` / `^14.14.0` / `^6.3.1` | Mapa Constelacao/Ramos, graficos do Dashboard, transicoes respeitando `prefers-reduced-motion` e drag-and-drop acessivel. |
+| Backend: `pywebpush` / `certifi` | `>=2.0,<3.0` / `>=2024.0` | Envio gratuito Web Push (`VAPID`) e cadeia TLS para conexoes `mongodb+srv://` no MongoDB Atlas. |
 
 ---
 
@@ -106,9 +107,11 @@ cd Frontend
 npm run formatar:verificar
 npm run lint
 npm run tipo
-npm test
+npx vitest run --maxWorkers=2
 npm run build
 ```
+
+*(Dica no Windows: utilizar `--maxWorkers=2` evita contencao excessiva de CPU ao inicializar os `28` ambientes `jsdom`; [configuracao-testes.ts](../Frontend/testes/configuracao-testes.ts) define `asyncUtilTimeout: 4000` para acomodar o primeiro carregamento dinamico das rotas com `React.lazy`.)*
 
 ### Subir o servidor de desenvolvimento (porta `5173`)
 
@@ -129,3 +132,15 @@ O workflow [.github/workflows/ci.yml](../.github/workflows/ci.yml) executa autom
 
 1. **Backend:** sobe containers de servico `postgres:18` e `mongo:8`, executa `ruff check`, `ruff format --check`, `mypy src` e `pytest` (incluindo migracoes Alembic `upgrade`/`downgrade` e integracao real nos bancos isolados de teste).
 2. **Frontend:** `prettier --check`, `eslint .`, `tsc -b --noEmit`, `vitest run` e `vite build`.
+
+---
+
+## 6. Exportacao do contrato OpenAPI e publicacao online
+
+Para regenerar o arquivo [openapi.json](openapi.json) a partir da aplicacao FastAPI na raiz do repositorio:
+
+```powershell
+Backend\.venv\Scripts\python.exe -c "import json, pathlib, sys; sys.path.insert(0, 'Backend/src'); from principal import app; pathlib.Path('Doc/openapi.json').write_text(json.dumps(app.openapi(), indent=2, ensure_ascii=False) + '\n', encoding='utf-8')"
+```
+
+Para detalhes do ambiente publicado gratuitamente (`Vercel` + `Render` + `Neon` + `MongoDB Atlas M0` + `Google Cloud OAuth` + `cron-job.org`), consulte [Publicacao-producao.md](Publicacao-producao.md).
